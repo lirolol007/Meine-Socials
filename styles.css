@@ -707,9 +707,17 @@ body.modal-open {
 }
 
 .collab-card__name {
+  display: block;
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--text);
+}
+
+.collab-card__hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.1rem;
 }
 
 .collab-card__btn {
