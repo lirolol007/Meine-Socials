@@ -39,6 +39,11 @@
         var overlay = document.getElementById("about-overlay");
         if (!overlay) return;
         overlay.removeAttribute("hidden");
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            overlay.classList.add("is-open");
+          });
+        });
         document.body.classList.add("modal-open");
         return;
       }
@@ -54,7 +59,11 @@
   if (aboutClose) {
     aboutClose.addEventListener("click", function () {
       var overlay = document.getElementById("about-overlay");
-      if (overlay) overlay.setAttribute("hidden", "");
+      if (!overlay) return;
+      overlay.classList.remove("is-open");
+      setTimeout(function () {
+        overlay.setAttribute("hidden", "");
+      }, 450);
       document.body.classList.remove("modal-open");
     });
   }
@@ -94,7 +103,13 @@
     if (e.key === "Escape") {
       closeAllModals();
       var overlay = document.getElementById("about-overlay");
-      if (overlay) overlay.setAttribute("hidden", "");
+      if (overlay && overlay.classList.contains("is-open")) {
+        overlay.classList.remove("is-open");
+        setTimeout(function () {
+          overlay.setAttribute("hidden", "");
+        }, 450);
+        document.body.classList.remove("modal-open");
+      }
     }
   });
 })();
