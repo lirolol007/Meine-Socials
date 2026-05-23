@@ -34,14 +34,30 @@
 
   openButtons.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      closeAllModals();
       var id = btn.getAttribute("data-modal-open");
+      if (id === "about") {
+        var overlay = document.getElementById("about-overlay");
+        if (!overlay) return;
+        overlay.removeAttribute("hidden");
+        document.body.classList.add("modal-open");
+        return;
+      }
+      closeAllModals();
       var modal = document.getElementById("modal-" + id);
       if (!modal) return;
       modal.removeAttribute("hidden");
       document.body.classList.add("modal-open");
     });
   });
+
+  var aboutClose = document.getElementById("about-overlay-close");
+  if (aboutClose) {
+    aboutClose.addEventListener("click", function () {
+      var overlay = document.getElementById("about-overlay");
+      if (overlay) overlay.setAttribute("hidden", "");
+      document.body.classList.remove("modal-open");
+    });
+  }
 
   modals.forEach(function (modal) {
     modal.querySelectorAll("[data-modal-close]").forEach(function (el) {
@@ -50,6 +66,10 @@
   });
 
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeAllModals();
+    if (e.key === "Escape") {
+      closeAllModals();
+      var overlay = document.getElementById("about-overlay");
+      if (overlay) overlay.setAttribute("hidden", "");
+    }
   });
 })();

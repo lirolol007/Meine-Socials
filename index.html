@@ -137,20 +137,77 @@
     </footer>
   </main>
 
-  <div class="modal" id="modal-about" hidden>
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel" role="dialog" aria-labelledby="modal-about-title">
-      <button type="button" class="modal__close" data-modal-close aria-label="Schließen">×</button>
-      <h2 class="modal__title" id="modal-about-title">Über mich</h2>
-      <div class="modal__body">
-        <ul class="modal__facts">
-          <li><span>Name</span> Liro / Leon</li>
-          <li><span>Alter</span> 19</li>
-          <li><span>Größe</span> 1,78 m</li>
-        </ul>
-        <p>Moin — ich bin <strong>Liro</strong> und mache vor allem <strong>VRChat-Content</strong>: streame, schneide Videos und viel Chaos mit der Community :3</p>
-        <p>Ich bin eine <strong>direkte Person</strong> und freue mich immer über neue Bekanntschaften. Wenn du quatschen oder mitmachen willst, meld dich gern!</p>
+  <div class="about-overlay" id="about-overlay" hidden aria-modal="true" role="dialog" aria-labelledby="about-overlay-title">
+    <button type="button" class="about-overlay__close" id="about-overlay-close" aria-label="Schließen">×</button>
+
+    <div class="about-overlay__scroll">
+
+      <!-- Hero -->
+      <section class="ao-hero">
+        <div class="ao-hero__img-wrap">
+          <img src="profile.jpg" alt="Liro Avatar" class="ao-hero__img">
+        </div>
+        <div class="ao-hero__text">
+          <p class="ao-hero__eyebrow">🦊 Über mich</p>
+          <h1 class="ao-hero__name" id="about-overlay-title">Liro</h1>
+          <p class="ao-hero__sub">VRChat Creator · Streamer · Content</p>
+          <p class="ao-hero__quote">„Direkt, ehrlich &amp; viel Quatsch :3"</p>
+        </div>
+      </section>
+
+      <!-- Fakten -->
+      <section class="ao-section">
+        <h2 class="ao-section__title">Steckbrief</h2>
+        <div class="ao-facts">
+          <div class="ao-fact">
+            <span class="ao-fact__label">Name</span>
+            <span class="ao-fact__val">Liro / Leon</span>
+          </div>
+          <div class="ao-fact">
+            <span class="ao-fact__label">Alter</span>
+            <span class="ao-fact__val">19</span>
+          </div>
+          <div class="ao-fact">
+            <span class="ao-fact__label">Größe</span>
+            <span class="ao-fact__val">1,78 m</span>
+          </div>
+          <div class="ao-fact">
+            <span class="ao-fact__label">Herkunft</span>
+            <span class="ao-fact__val">🇩🇪 Deutschland</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Über mich Text -->
+      <section class="ao-section">
+        <h2 class="ao-section__title">Wer bin ich?</h2>
+        <div class="ao-text-block">
+          <p>Moin — ich bin <strong>Liro</strong> und mache vor allem <strong>VRChat-Content</strong>: streame, schneide Videos und viel Chaos mit der Community :3</p>
+          <p>Ich bin eine <strong>direkte Person</strong> und freue mich immer über neue Bekanntschaften. Wenn du quatschen oder mitmachen willst, meld dich gern!</p>
+        </div>
+      </section>
+
+      <!-- Bilder Galerie Platzhalter -->
+      <section class="ao-section">
+        <h2 class="ao-section__title">VRChat &amp; Content</h2>
+        <div class="ao-gallery">
+          <div class="ao-gallery__item ao-gallery__item--placeholder">
+            <span>📸 Bild folgt</span>
+          </div>
+          <div class="ao-gallery__item ao-gallery__item--placeholder">
+            <span>📸 Bild folgt</span>
+          </div>
+          <div class="ao-gallery__item ao-gallery__item--placeholder">
+            <span>📸 Bild folgt</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer der Overlay-Seite -->
+      <div class="ao-footer">
+        <p>© 2026 Liro · <a href="https://www.tiktok.com/@liro7160" target="_blank" rel="noopener noreferrer">@liro7160</a></p>
       </div>
+
     </div>
   </div>
 
