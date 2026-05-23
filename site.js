@@ -59,6 +59,31 @@
     });
   }
 
+  /* —— Cursor-Glow im About-Overlay —— */
+  (function () {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var overlay = document.getElementById("about-overlay");
+    if (!overlay) return;
+    var glow = overlay.querySelector(".ao-cursor-glow");
+    if (!glow) return;
+    var tx = 0, ty = 0, cx = 0, cy = 0;
+    overlay.addEventListener("mousemove", function (e) {
+      tx = e.clientX; ty = e.clientY;
+      overlay.classList.add("is-cursor-active");
+    }, { passive: true });
+    overlay.addEventListener("mouseleave", function () {
+      overlay.classList.remove("is-cursor-active");
+    });
+    function aoTick() {
+      cx += (tx - cx) * 0.14;
+      cy += (ty - cy) * 0.14;
+      glow.style.transform = "translate(" + cx + "px, " + cy + "px)";
+      requestAnimationFrame(aoTick);
+    }
+    aoTick();
+  })();
+
   modals.forEach(function (modal) {
     modal.querySelectorAll("[data-modal-close]").forEach(function (el) {
       el.addEventListener("click", closeAllModals);
