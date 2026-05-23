@@ -113,3 +113,48 @@
     }
   });
 })();
+
+  /* —— Lightbox —— */
+  (function () {
+    var lightbox = document.getElementById("lightbox");
+    var lbImg = document.getElementById("lightbox-img");
+    var lbClose = document.getElementById("lightbox-close");
+    var lbBackdrop = document.getElementById("lightbox-backdrop");
+    if (!lightbox || !lbImg) return;
+
+    function openLightbox(src, alt) {
+      lbImg.src = src;
+      lbImg.alt = alt || "";
+      lightbox.removeAttribute("hidden");
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          lightbox.classList.add("is-open");
+        });
+      });
+      document.body.classList.add("modal-open");
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove("is-open");
+      setTimeout(function () {
+        lightbox.setAttribute("hidden", "");
+        lbImg.src = "";
+      }, 320);
+      document.body.classList.remove("modal-open");
+    }
+
+    document.querySelectorAll(".ao-gallery__item img").forEach(function (img) {
+      img.parentElement.addEventListener("click", function () {
+        openLightbox(img.src, img.alt);
+      });
+    });
+
+    lbClose.addEventListener("click", closeLightbox);
+    lbBackdrop.addEventListener("click", closeLightbox);
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !lightbox.hasAttribute("hidden")) {
+        closeLightbox();
+      }
+    });
+  })();
