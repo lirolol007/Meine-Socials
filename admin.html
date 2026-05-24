@@ -295,6 +295,8 @@
     document.getElementById("admin-panel").style.display = "block";
     loadCurrentImages();
     loadCaptionsEditor();
+    loadProfilFromRepo();
+    loadLinksFromRepo();
   }
 
   document.getElementById("logout-btn").addEventListener("click", function() { localStorage.removeItem("liro_admin_v2"); location.reload(); });
@@ -306,6 +308,8 @@
       document.querySelectorAll(".tab-panel").forEach(function(p) { p.classList.remove("is-active"); });
       btn.classList.add("is-active");
       document.getElementById("tab-" + btn.dataset.tab).classList.add("is-active");
+      if (btn.dataset.tab === "profil") loadProfilFromRepo();
+      if (btn.dataset.tab === "links") loadLinksFromRepo();
     });
   });
 
@@ -500,7 +504,77 @@
     this.disabled = false;
   });
 
-  /* Helpers */
+  /* Profil aus Repo laden */
+  async function loadProfilFromRepo() {
+    try {
+      var file = await getFileContent("index.html");
+      var html = file.content;
+
+      var get = function(rx) { var m = html.match(rx); return m ? m[1].replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").trim() : ""; };
+
+      sv("ed-name",        get(/<h1 class="name">([\s\S]*?)<\/h1>/));
+      sv("ed-badge",       get(/<p class="badge">([\s\S]*?)<\/p>/));
+      sv("ed-catchphrase", get(/<p class="catchphrase">([\s\S]*?)<\/p>/));
+      var bioRaw = get(/<p class="bio">([\s\S]*?)<\/p>/);
+      sv("ed-bio", bioRaw.replace(/<br\s*\/?>\s*Willkommen :3/i,"").trim());
+
+      var tagsRaw = html.match(/<div class="tags"[^>]*>([\s\S]*?)<\/div>/);
+      if (tagsRaw) {
+        var tagTexts = [];
+        tagsRaw[1].replace(/<span class="tag">([\s\S]*?)<\/span>/g, function(m,t){ tagTexts.push(t.trim()); });
+        sv("ed-tags", tagTexts.join(", "));
+      }
+
+      var facts = []; html.replace(/<span class="ao-fact__val">([\s\S]*?)<\/span>/g, function(m,v){ facts.push(v.trim()); });
+      if (facts[0]) sv("ed-fact-name",   facts[0]);
+      if (facts[1]) sv("ed-fact-age",    facts[1]);
+      if (facts[2]) sv("ed-fact-height", facts[2]);
+      if (facts[3]) sv("ed-fact-origin", facts[3]);
+
+      var quoteRaw = get(/<p class="ao-hero__quote">([\s\S]*?)<\/p>/);
+      sv("ed-quote", quoteRaw.replace(/^[„"]/, "").replace(/["""]$/, "").trim());
+
+      var bioBlock = html.match(/<div class="ao-text-block">\s*<p>([\s\S]*?)<\/p>\s*<p>([\s\S]*?)<\/p>/);
+      if (bioBlock) { sv("ed-bio1", bioBlock[1].trim()); sv("ed-bio2", bioBlock[2].trim()); }
+
+      // Kollegen laden
+      var collabEditor = document.getElementById("collab-editor");
+      collabEditor.innerHTML = "";
+      var collabMatches = html.matchAll ? html.matchAll(/<span class="collab-card__name">([\s\S]*?)<\/span>[\s\S]*?href="([^"]*)"[^>]*>Zum Kanal<\/a>/g) : [];
+      var collabList = [];
+      html.replace(/<span class="collab-card__name">([\s\S]*?)<\/span>[\s\S]*?href="([^"]*)"[^>]*>Zum Kanal<\/a>/g, function(m, name, url) {
+        collabList.push({ name: name.trim(), url: url.trim() });
+      });
+      collabList.forEach(function(c) {
+        var row = document.createElement("div");
+        row.className = "collab-row";
+        row.innerHTML = '<div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value="' + c.name + '"></div><div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="' + c.url + '"></div><button class="collab-row__del">Entfernen</button>';
+        collabEditor.appendChild(row);
+      });
+      bindDelButtons();
+
+    } catch(e) { console.warn("Profil laden fehlgeschlagen:", e.message); }
+  }
+
+  /* Links aus Repo laden */
+  async function loadLinksFromRepo() {
+    try {
+      var file = await getFileContent("index.html");
+      var html = file.content;
+      document.querySelectorAll("[data-link]").forEach(function(el) {
+        var brand = el.dataset.link, type = el.dataset.type;
+        if (type === "label") {
+          var m = html.match(new RegExp('data-brand="' + brand + '"[\\s\\S]*?<span class="link__label">([\\s\\S]*?)<\\/span>'));
+          if (m) el.value = m[1].trim();
+        } else if (type === "hint") {
+          var m2 = html.match(new RegExp('data-brand="' + brand + '"[\\s\\S]*?<span class="link__hint">([\\s\\S]*?)<\\/span>'));
+          if (m2) el.value = m2[1].trim();
+        }
+      });
+    } catch(e) { console.warn("Links laden fehlgeschlagen:", e.message); }
+  }
+
+  function sv(id, val) { var el = document.getElementById(id); if (el && val !== undefined) el.value = val; }
   function v(id) { return document.getElementById(id).value; }
 
   function replaceTag(html, openAttr, tag, content) {
