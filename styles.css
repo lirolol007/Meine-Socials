@@ -566,7 +566,7 @@ body.modal-open {
   position: relative;
   width: 100%;
   max-width: 380px;
-  max-height: min(80dvh, 520px);
+  max-height: min(90dvh, 680px);
   overflow-y: auto;
   background: #121212;
   border: 1px solid var(--border);
