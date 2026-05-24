@@ -406,29 +406,20 @@
     showStatus("profil-status", "loading", "Wird gespeichert...");
     this.disabled = true;
     try {
-      var file = await getFileContent("index.html");
-      var html = file.content;
-      var name = v("ed-name"), badge = v("ed-badge"), catchphrase = v("ed-catchphrase"), bio = v("ed-bio");
-      var tags = v("ed-tags").split(",").map(function(t){ return t.trim(); });
-      var factName = v("ed-fact-name"), factAge = v("ed-fact-age"), factHeight = v("ed-fact-height"), factOrigin = v("ed-fact-origin");
-      var quote = v("ed-quote"), bio1 = v("ed-bio1"), bio2 = v("ed-bio2");
-
-      html = replaceTag(html, 'h1 class="name"', "h1", name);
-      html = replaceTag(html, 'p class="badge"', "p", badge);
-      html = replaceTag(html, 'p class="catchphrase"', "p", catchphrase.replace(/&/g,"&amp;"));
-      html = replaceTag(html, 'p class="bio"', "p", bio + "<br>Willkommen :3");
-
-      var tagsHtml = tags.map(function(t){ return '<span class="tag">' + t + '</span>'; }).join("\n        ");
-      html = html.replace(/(<div class="tags"[^>]*>)([\s\S]*?)(<\/div>)/, function(m, open, content, close) { return open + "\n        " + tagsHtml + "\n      " + close; });
-
-      var factVals = [factName, factAge, factHeight, factOrigin];
-      var fi = 0;
-      html = html.replace(/<span class="ao-fact__val">[\s\S]*?<\/span>/g, function(m) { return fi < factVals.length ? '<span class="ao-fact__val">' + factVals[fi++] + '</span>' : m; });
-
-      html = replaceTag(html, 'p class="ao-hero__quote"', "p", "„" + quote.replace(/&/g,"&amp;") + "\u201c");
-      html = html.replace(/(<div class="ao-text-block">[\s\S]*?<p>)([\s\S]*?)(<\/p>[\s\S]*?<p>)([\s\S]*?)(<\/p>[\s\S]*?<\/div>)/, "$1" + bio1 + "$3" + bio2 + "$5");
-
-      await pushHtml(html);
+      var data = await loadSiteData();
+      data.name        = v("ed-name");
+      data.badge       = v("ed-badge");
+      data.tags        = v("ed-tags").split(",").map(function(t){ return t.trim(); }).filter(Boolean);
+      data.catchphrase = v("ed-catchphrase");
+      data.bio         = v("ed-bio");
+      data.quote       = v("ed-quote");
+      data.factName    = v("ed-fact-name");
+      data.factAge     = v("ed-fact-age");
+      data.factHeight  = v("ed-fact-height");
+      data.factOrigin  = v("ed-fact-origin");
+      data.bio1        = v("ed-bio1");
+      data.bio2        = v("ed-bio2");
+      await saveSiteData(data);
       showStatus("profil-status", "success", "Gespeichert! Live in ~30 Sek.");
     } catch(e) { showStatus("profil-status", "error", "Fehler: " + e.message); }
     this.disabled = false;
@@ -439,24 +430,106 @@
     showStatus("links-status", "loading", "Wird gespeichert...");
     this.disabled = true;
     try {
-      var file = await getFileContent("index.html");
-      var html = file.content;
+      var data = await loadSiteData();
+      if (!data.links) data.links = {};
       document.querySelectorAll("[data-link]").forEach(function(el) {
-        var brand = el.dataset.link, type = el.dataset.type, val = el.value;
-        if (type === "label") {
-          html = html.replace(new RegExp('(data-brand="' + brand + '"[\\s\\S]*?<span class="link__label">)[\\s\\S]*?(<\\/span>)'), "$1" + val + "$2");
-        } else if (type === "hint") {
-          var hintRx = new RegExp('(data-brand="' + brand + '"[\\s\\S]*?<span class="link__hint">)[\\s\\S]*?(<\\/span>)');
-          if (val) html = html.replace(hintRx, "$1" + val + "$2");
-        }
+        var brand = el.dataset.link, type = el.dataset.type;
+        if (!data.links[brand]) data.links[brand] = {};
+        data.links[brand][type] = el.value;
       });
-      await pushHtml(html);
+      await saveSiteData(data);
       showStatus("links-status", "success", "Gespeichert! Live in ~30 Sek.");
     } catch(e) { showStatus("links-status", "error", "Fehler: " + e.message); }
     this.disabled = false;
   });
 
-  /* Kollegen */
+  /* Kollegen speichern */
+  document.getElementById("save-collabs-btn").addEventListener("click", async function() {
+    showStatus("collabs-status", "loading", "Wird gespeichert...");
+    this.disabled = true;
+    try {
+      var data = await loadSiteData();
+      data.collabs = [];
+      document.querySelectorAll(".collab-row").forEach(function(row) {
+        var name = row.querySelector(".collab-name").value.trim();
+        var url  = row.querySelector(".collab-url").value.trim();
+        if (name && url) data.collabs.push({ name: name, url: url });
+      });
+      await saveSiteData(data);
+      showStatus("collabs-status", "success", "Gespeichert! Live in ~30 Sek.");
+    } catch(e) { showStatus("collabs-status", "error", "Fehler: " + e.message); }
+    this.disabled = false;
+  });
+
+  /* Profil aus site-data.json laden */
+  async function loadProfilFromRepo() {
+    try {
+      var data = await loadSiteData();
+      sv("ed-name",        data.name || "");
+      sv("ed-badge",       data.badge || "");
+      sv("ed-tags",        (data.tags || []).join(", "));
+      sv("ed-catchphrase", data.catchphrase || "");
+      sv("ed-bio",         data.bio || "");
+      sv("ed-quote",       data.quote || "");
+      sv("ed-fact-name",   data.factName || "");
+      sv("ed-fact-age",    data.factAge || "");
+      sv("ed-fact-height", data.factHeight || "");
+      sv("ed-fact-origin", data.factOrigin || "");
+      sv("ed-bio1",        data.bio1 || "");
+      sv("ed-bio2",        data.bio2 || "");
+
+      // Kollegen laden
+      var collabEditor = document.getElementById("collab-editor");
+      collabEditor.innerHTML = "";
+      (data.collabs || []).forEach(function(c) {
+        var row = document.createElement("div");
+        row.className = "collab-row";
+        row.innerHTML = '<div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value="' + c.name + '"></div>' +
+          '<div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="' + c.url + '"></div>' +
+          '<button class="collab-row__del">Entfernen</button>';
+        collabEditor.appendChild(row);
+      });
+      bindDelButtons();
+    } catch(e) { console.warn("Profil laden fehlgeschlagen:", e.message); }
+  }
+
+  /* Links aus site-data.json laden */
+  async function loadLinksFromRepo() {
+    try {
+      var data = await loadSiteData();
+      if (!data.links) return;
+      document.querySelectorAll("[data-link]").forEach(function(el) {
+        var brand = el.dataset.link, type = el.dataset.type;
+        if (data.links[brand] && data.links[brand][type] !== undefined) {
+          el.value = data.links[brand][type];
+        }
+      });
+    } catch(e) { console.warn("Links laden fehlgeschlagen:", e.message); }
+  }
+
+  /* site-data.json laden */
+  async function loadSiteData() {
+    var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/site-data.json?t=" + Date.now(), {
+      headers: { "Authorization": "token " + githubToken }
+    });
+    if (!res.ok) throw new Error("site-data.json nicht gefunden");
+    var file = await res.json();
+    return JSON.parse(fromBase64(file.content.replace(/\n/g,"")));
+  }
+
+  /* site-data.json speichern */
+  async function saveSiteData(data) {
+    var sha = await getFileSha("site-data.json");
+    var body = { message: "Admin: Daten aktualisiert", content: toBase64(JSON.stringify(data, null, 2)) };
+    if (sha) body.sha = sha;
+    var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/site-data.json", {
+      method: "PUT",
+      headers: { "Authorization": "token " + githubToken, "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) { var err = await res.json(); throw new Error(err.message || res.status); }
+  }
+
   function bindDelButtons() {
     document.querySelectorAll(".collab-row__del").forEach(function(btn) {
       btn.onclick = function() { btn.closest(".collab-row").remove(); };
@@ -467,138 +540,15 @@
   document.getElementById("add-collab-btn").addEventListener("click", function() {
     var row = document.createElement("div");
     row.className = "collab-row";
-    row.innerHTML = '<div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value=""></div><div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="https://www.tiktok.com/@"></div><button class="collab-row__del">Entfernen</button>';
+    row.innerHTML = '<div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value=""></div>' +
+      '<div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="https://www.tiktok.com/@"></div>' +
+      '<button class="collab-row__del">Entfernen</button>';
     document.getElementById("collab-editor").appendChild(row);
     bindDelButtons();
   });
 
-  document.getElementById("save-collabs-btn").addEventListener("click", async function() {
-    showStatus("collabs-status", "loading", "Wird gespeichert...");
-    this.disabled = true;
-    try {
-      var file = await getFileContent("index.html");
-      var html = file.content;
-      var collabs = [];
-      document.querySelectorAll(".collab-row").forEach(function(row) {
-        var name = row.querySelector(".collab-name").value.trim();
-        var url = row.querySelector(".collab-url").value.trim();
-        if (name && url) collabs.push({ name: name, url: url, initial: name.charAt(0).toUpperCase() });
-      });
-      var collabHtml = collabs.map(function(c) {
-        var tiktokHandle = c.url.includes("@") ? c.url.split("@")[1].split("?")[0] : "";
-        return '<li class="collab-card">\n' +
-          '            <div class="collab-card__avatar-wrap">\n' +
-          '              <img class="collab-card__avatar" src="collabs/' + c.name.toLowerCase() + '.jpg" data-fallback="https://unavatar.io/tiktok/' + tiktokHandle + '" alt="' + c.name + '" width="44" height="44">\n' +
-          '              <span class="collab-card__initials" aria-hidden="true">' + c.initial + '</span>\n' +
-          '            </div>\n' +
-          '            <div class="collab-card__info">\n' +
-          '              <span class="collab-card__name">' + c.name + '</span>\n' +
-          '              <a class="collab-card__btn" href="' + c.url + '" target="_blank" rel="noopener noreferrer">Zum Kanal</a>\n' +
-          '            </div>\n' +
-          '          </li>';
-      }).join("\n          ");
-      html = html.replace(/(<ul class="collab-list">)([\s\S]*?)(<\/ul>)/, "$1\n          " + collabHtml + "\n        $3");
-      await pushHtml(html);
-      showStatus("collabs-status", "success", "Gespeichert! Live in ~30 Sek.");
-    } catch(e) { showStatus("collabs-status", "error", "Fehler: " + e.message); }
-    this.disabled = false;
-  });
-
-  /* Profil aus Repo laden */
-  async function loadProfilFromRepo() {
-    try {
-      var file = await getFileContent("index.html");
-      var html = file.content;
-
-      var get = function(rx) { var m = html.match(rx); return m ? m[1].replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").trim() : ""; };
-
-      sv("ed-name",        get(/<h1 class="name">([\s\S]*?)<\/h1>/));
-      sv("ed-badge",       get(/<p class="badge">([\s\S]*?)<\/p>/));
-      sv("ed-catchphrase", get(/<p class="catchphrase">([\s\S]*?)<\/p>/));
-      var bioRaw = get(/<p class="bio">([\s\S]*?)<\/p>/);
-      sv("ed-bio", bioRaw.replace(/<br\s*\/?>\s*Willkommen :3/i,"").trim());
-
-      var tagsRaw = html.match(/<div class="tags"[^>]*>([\s\S]*?)<\/div>/);
-      if (tagsRaw) {
-        var tagTexts = [];
-        tagsRaw[1].replace(/<span class="tag">([\s\S]*?)<\/span>/g, function(m,t){ tagTexts.push(t.trim()); });
-        sv("ed-tags", tagTexts.join(", "));
-      }
-
-      var facts = []; html.replace(/<span class="ao-fact__val">([\s\S]*?)<\/span>/g, function(m,v){ facts.push(v.trim()); });
-      if (facts[0]) sv("ed-fact-name",   facts[0]);
-      if (facts[1]) sv("ed-fact-age",    facts[1]);
-      if (facts[2]) sv("ed-fact-height", facts[2]);
-      if (facts[3]) sv("ed-fact-origin", facts[3]);
-
-      var quoteRaw = get(/<p class="ao-hero__quote">([\s\S]*?)<\/p>/);
-      sv("ed-quote", quoteRaw.replace(/^[„"]/, "").replace(/["""]$/, "").trim());
-
-      var bioBlock = html.match(/<div class="ao-text-block">\s*<p>([\s\S]*?)<\/p>\s*<p>([\s\S]*?)<\/p>/);
-      if (bioBlock) { sv("ed-bio1", bioBlock[1].trim()); sv("ed-bio2", bioBlock[2].trim()); }
-
-      // Kollegen laden
-      var collabEditor = document.getElementById("collab-editor");
-      collabEditor.innerHTML = "";
-      var collabMatches = html.matchAll ? html.matchAll(/<span class="collab-card__name">([\s\S]*?)<\/span>[\s\S]*?href="([^"]*)"[^>]*>Zum Kanal<\/a>/g) : [];
-      var collabList = [];
-      html.replace(/<span class="collab-card__name">([\s\S]*?)<\/span>[\s\S]*?href="([^"]*)"[^>]*>Zum Kanal<\/a>/g, function(m, name, url) {
-        collabList.push({ name: name.trim(), url: url.trim() });
-      });
-      collabList.forEach(function(c) {
-        var row = document.createElement("div");
-        row.className = "collab-row";
-        row.innerHTML = '<div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value="' + c.name + '"></div><div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="' + c.url + '"></div><button class="collab-row__del">Entfernen</button>';
-        collabEditor.appendChild(row);
-      });
-      bindDelButtons();
-
-    } catch(e) { console.warn("Profil laden fehlgeschlagen:", e.message); }
-  }
-
-  /* Links aus Repo laden */
-  async function loadLinksFromRepo() {
-    try {
-      var file = await getFileContent("index.html");
-      var html = file.content;
-      document.querySelectorAll("[data-link]").forEach(function(el) {
-        var brand = el.dataset.link, type = el.dataset.type;
-        if (type === "label") {
-          var m = html.match(new RegExp('data-brand="' + brand + '"[\\s\\S]*?<span class="link__label">([\\s\\S]*?)<\\/span>'));
-          if (m) el.value = m[1].trim();
-        } else if (type === "hint") {
-          var m2 = html.match(new RegExp('data-brand="' + brand + '"[\\s\\S]*?<span class="link__hint">([\\s\\S]*?)<\\/span>'));
-          if (m2) el.value = m2[1].trim();
-        }
-      });
-    } catch(e) { console.warn("Links laden fehlgeschlagen:", e.message); }
-  }
-
   function sv(id, val) { var el = document.getElementById(id); if (el && val !== undefined) el.value = val; }
   function v(id) { return document.getElementById(id).value; }
-
-  function replaceTag(html, openAttr, tag, content) {
-    var rx = new RegExp('<' + tag + ' ' + openAttr.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + '>([\\s\\S]*?)<\\/' + tag + '>');
-    return html.replace(rx, "<" + tag + " " + openAttr + ">" + content + "</" + tag + ">");
-  }
-
-  async function getFileContent(filename) {
-    var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/" + filename + "?t=" + Date.now(), { headers: { "Authorization": "token " + githubToken } });
-    if (!res.ok) throw new Error("Datei konnte nicht geladen werden: " + res.status);
-    var data = await res.json();
-    return { content: fromBase64(data.content.replace(/\n/g,"")), sha: data.sha };
-  }
-
-  async function pushHtml(html) {
-    var sha = await getFileSha("index.html");
-    if (!sha) throw new Error("SHA konnte nicht geladen werden");
-    var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/index.html", {
-      method: "PUT",
-      headers: { "Authorization": "token " + githubToken, "Content-Type": "application/json" },
-      body: JSON.stringify({ message: "Admin: Seite aktualisiert", content: toBase64(html), sha: sha })
-    });
-    if (!res.ok) { var err = await res.json(); throw new Error(err.message || res.status); }
-  }
 
   async function getFileSha(filename) {
     try {
