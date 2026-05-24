@@ -27,7 +27,12 @@
 
   function closeAllModals() {
     modals.forEach(function (modal) {
-      modal.setAttribute("hidden", "");
+      modal.classList.remove("is-open");
+      setTimeout(function () {
+        if (!modal.classList.contains("is-open")) {
+          modal.setAttribute("hidden", "");
+        }
+      }, 350);
     });
     document.body.classList.remove("modal-open");
   }
@@ -51,6 +56,11 @@
       var modal = document.getElementById("modal-" + id);
       if (!modal) return;
       modal.removeAttribute("hidden");
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          modal.classList.add("is-open");
+        });
+      });
       document.body.classList.add("modal-open");
     });
   });
