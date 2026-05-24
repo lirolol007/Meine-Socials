@@ -244,14 +244,23 @@
 <script>
   var GITHUB_USER = "Lirolol007";
   var GITHUB_REPO = "Meine-Socials";
-  var ADMIN_PASSWORD = "Liro-Admin";
+  var ADMIN_PASSWORD = "DEIN_PASSWORT_HIER";
   var githubToken = "";
   var pendingFiles = [];
   var galleryFiles = [];
   var captionsData = {};
 
-  function toBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
-  function fromBase64(str) { return decodeURIComponent(escape(atob(str))); }
+  function toBase64(str) {
+    var bytes = new TextEncoder().encode(str);
+    var binary = String.fromCharCode.apply(null, bytes);
+    return btoa(binary);
+  }
+  function fromBase64(str) {
+    var binary = atob(str);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
 
   /* Auto-Login */
   window.addEventListener("load", function() {
@@ -270,14 +279,15 @@
     var pw = document.getElementById("pw-input").value;
     var token = document.getElementById("token-input").value.trim();
     var err = document.getElementById("pw-error");
-    if (pw === ADMIN_PASSWORD && token.startsWith("ghp_")) {
-      githubToken = token;
-      if (document.getElementById("remember-me").checked) localStorage.setItem("liro_admin_v2", JSON.stringify({ token: token }));
-      showAdmin();
-    } else {
-      err.style.display = "block";
-      err.textContent = !token.startsWith("ghp_") ? "Token ungültig!" : "Falsches Passwort!";
+    if (!token.startsWith("ghp_")) {
+      err.style.display = "block"; err.textContent = "Token ungültig — muss mit ghp_ anfangen!"; return;
     }
+    if (pw !== ADMIN_PASSWORD) {
+      err.style.display = "block"; err.textContent = "Falsches Passwort!"; return;
+    }
+    githubToken = token;
+    if (document.getElementById("remember-me").checked) localStorage.setItem("liro_admin_v2", JSON.stringify({ token: token }));
+    showAdmin();
   }
 
   function showAdmin() {
@@ -392,7 +402,8 @@
     showStatus("profil-status", "loading", "Wird gespeichert...");
     this.disabled = true;
     try {
-      var html = await getFileContent("index.html");
+      var file = await getFileContent("index.html");
+      var html = file.content;
       var name = v("ed-name"), badge = v("ed-badge"), catchphrase = v("ed-catchphrase"), bio = v("ed-bio");
       var tags = v("ed-tags").split(",").map(function(t){ return t.trim(); });
       var factName = v("ed-fact-name"), factAge = v("ed-fact-age"), factHeight = v("ed-fact-height"), factOrigin = v("ed-fact-origin");
@@ -410,8 +421,8 @@
       var fi = 0;
       html = html.replace(/<span class="ao-fact__val">[\s\S]*?<\/span>/g, function(m) { return fi < factVals.length ? '<span class="ao-fact__val">' + factVals[fi++] + '</span>' : m; });
 
-      html = replaceTag(html, 'p class="ao-hero__quote"', "p", '"' + quote.replace(/&/g, "&amp;") + '"');
-      html = html.replace(/(<div class="ao-text-block">[\s\S]*?<p>)([\s\S]*?)(<\/p>[\s\S]*?<p>)([\s\S]*?)(<\/p>[\s\S]*?<\/div>)/, (match, p1, p2, p3, p4, p5) => p1 + bio1 + p3 + bio2 + p5);
+      html = replaceTag(html, 'p class="ao-hero__quote"', "p", "„" + quote.replace(/&/g,"&amp;") + "\u201c");
+      html = html.replace(/(<div class="ao-text-block">[\s\S]*?<p>)([\s\S]*?)(<\/p>[\s\S]*?<p>)([\s\S]*?)(<\/p>[\s\S]*?<\/div>)/, "$1" + bio1 + "$3" + bio2 + "$5");
 
       await pushHtml(html);
       showStatus("profil-status", "success", "Gespeichert! Live in ~30 Sek.");
@@ -424,7 +435,8 @@
     showStatus("links-status", "loading", "Wird gespeichert...");
     this.disabled = true;
     try {
-      var html = await getFileContent("index.html");
+      var file = await getFileContent("index.html");
+      var html = file.content;
       document.querySelectorAll("[data-link]").forEach(function(el) {
         var brand = el.dataset.link, type = el.dataset.type, val = el.value;
         if (type === "label") {
@@ -460,7 +472,8 @@
     showStatus("collabs-status", "loading", "Wird gespeichert...");
     this.disabled = true;
     try {
-      var html = await getFileContent("index.html");
+      var file = await getFileContent("index.html");
+      var html = file.content;
       var collabs = [];
       document.querySelectorAll(".collab-row").forEach(function(row) {
         var name = row.querySelector(".collab-name").value.trim();
@@ -468,9 +481,10 @@
         if (name && url) collabs.push({ name: name, url: url, initial: name.charAt(0).toUpperCase() });
       });
       var collabHtml = collabs.map(function(c) {
+        var tiktokHandle = c.url.includes("@") ? c.url.split("@")[1].split("?")[0] : "";
         return '<li class="collab-card">\n' +
           '            <div class="collab-card__avatar-wrap">\n' +
-          '              <img class="collab-card__avatar" src="collabs/' + c.name.toLowerCase() + '.jpg" data-fallback="https://unavatar.io/tiktok/' + c.url.split("@")[1] + '" alt="' + c.name + '" width="44" height="44">\n' +
+          '              <img class="collab-card__avatar" src="collabs/' + c.name.toLowerCase() + '.jpg" data-fallback="https://unavatar.io/tiktok/' + tiktokHandle + '" alt="' + c.name + '" width="44" height="44">\n' +
           '              <span class="collab-card__initials" aria-hidden="true">' + c.initial + '</span>\n' +
           '            </div>\n' +
           '            <div class="collab-card__info">\n' +
@@ -494,29 +508,27 @@
     return html.replace(rx, "<" + tag + " " + openAttr + ">" + content + "</" + tag + ">");
   }
 
-  var _htmlCache = null;
-  var _htmlSha = null;
-
   async function getFileContent(filename) {
-    var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/" + filename, { headers: { "Authorization": "token " + githubToken } });
+    var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/" + filename + "?t=" + Date.now(), { headers: { "Authorization": "token " + githubToken } });
+    if (!res.ok) throw new Error("Datei konnte nicht geladen werden: " + res.status);
     var data = await res.json();
-    _htmlSha = data.sha;
-    return fromBase64(data.content.replace(/\n/g,""));
+    return { content: fromBase64(data.content.replace(/\n/g,"")), sha: data.sha };
   }
 
   async function pushHtml(html) {
+    var sha = await getFileSha("index.html");
+    if (!sha) throw new Error("SHA konnte nicht geladen werden");
     var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/index.html", {
       method: "PUT",
       headers: { "Authorization": "token " + githubToken, "Content-Type": "application/json" },
-      body: JSON.stringify({ message: "Admin: Seite aktualisiert", content: toBase64(html), sha: _htmlSha })
+      body: JSON.stringify({ message: "Admin: Seite aktualisiert", content: toBase64(html), sha: sha })
     });
     if (!res.ok) { var err = await res.json(); throw new Error(err.message || res.status); }
-    _htmlSha = null;
   }
 
   async function getFileSha(filename) {
     try {
-      var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/" + filename, { headers: { "Authorization": "token " + githubToken } });
+      var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/" + filename + "?t=" + Date.now(), { headers: { "Authorization": "token " + githubToken } });
       if (res.ok) { var d = await res.json(); return d.sha; }
     } catch(e) {} return null;
   }
