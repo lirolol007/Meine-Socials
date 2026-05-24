@@ -10,8 +10,12 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #080808; --surface: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.08);
-      --text: #f4f4f5; --text-muted: #9ca3af; --radius: 16px;
+      --bg: #080808;
+      --surface: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.08);
+      --text: #f4f4f5;
+      --text-muted: #9ca3af;
+      --radius: 16px;
     }
     body {
       font-family: "Outfit", system-ui, sans-serif;
@@ -20,88 +24,94 @@
       background-size: 28px 28px;
       color: var(--text);
       min-height: 100dvh;
-      display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
     }
     .login { width: 100%; max-width: 380px; text-align: center; }
     .login__title { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.35rem; }
     .login__sub { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 2rem; }
     .input {
-      width: 100%; padding: 0.85rem 1rem;
-      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-      color: var(--text); font-family: inherit; font-size: 0.95rem; outline: none;
-      margin-bottom: 0.65rem; transition: border-color 0.2s;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      margin-bottom: 0.65rem;
+      transition: border-color 0.2s;
     }
     .input:focus { border-color: rgba(255,255,255,0.3); }
-    .input__hint { font-size: 0.72rem; color: var(--text-muted); text-align: left; margin-top: -0.4rem; margin-bottom: 0.65rem; padding-left: 0.25rem; }
-    .remember-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.82rem; color: var(--text-muted); cursor: pointer; }
-    .remember-row input { width: auto; margin: 0; cursor: pointer; }
+    .input__hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: left;
+      margin-top: -0.4rem;
+      margin-bottom: 0.65rem;
+      padding-left: 0.25rem;
+    }
     .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-      width: 100%; padding: 0.85rem 1rem; font-family: inherit; font-size: 0.95rem; font-weight: 600;
-      color: #000; background: #fff; border: none; border-radius: var(--radius); cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #000;
+      background: #ffffff;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
       transition: opacity 0.2s, transform 0.2s;
     }
     .btn:hover { opacity: 0.9; transform: translateY(-2px); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-    .btn--ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); width: auto; padding: 0.55rem 1rem; font-size: 0.82rem; }
-    .btn--sm { width: auto; padding: 0.55rem 1.1rem; font-size: 0.82rem; }
+    .btn--ghost {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: auto;
+      padding: 0.55rem 1rem;
+      font-size: 0.82rem;
+    }
     .login__error { color: #ff6b6b; font-size: 0.82rem; margin-top: 0.65rem; display: none; }
 
     /* Admin */
-    .admin { display: none; width: 100%; max-width: 680px; }
+    .admin { display: none; width: 100%; max-width: 640px; }
     .admin__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
     .admin__title { font-size: 1.4rem; font-weight: 700; }
-
-    /* Tabs */
-    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0; }
-    .tab-btn {
-      padding: 0.55rem 1.1rem; font-family: inherit; font-size: 0.85rem; font-weight: 600;
-      color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent;
-      cursor: pointer; transition: color 0.2s, border-color 0.2s; margin-bottom: -1px;
-    }
-    .tab-btn.is-active { color: var(--text); border-bottom-color: white; }
-    .tab-panel { display: none; }
-    .tab-panel.is-active { display: block; }
-
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
     .card__title { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
 
-    .field { margin-bottom: 1rem; }
-    .field__label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; display: block; text-transform: uppercase; letter-spacing: 0.07em; }
-    .field__input, .field__textarea {
-      width: 100%; padding: 0.75rem 0.9rem;
-      background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px;
-      color: var(--text); font-family: inherit; font-size: 0.9rem; outline: none; transition: border-color 0.2s;
-    }
-    .field__input:focus, .field__textarea:focus { border-color: rgba(255,255,255,0.3); }
-    .field__textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
-    .field__hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem; }
-
-    .fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-
-    /* Upload Zone */
-    .upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 2rem 1.5rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; margin-bottom: 1rem; }
+    .upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; margin-bottom: 1rem; }
     .upload-zone:hover, .upload-zone.drag-over { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.03); }
-    .upload-zone__icon { font-size: 1.75rem; margin-bottom: 0.4rem; }
-    .upload-zone__text { font-size: 0.88rem; color: var(--text-muted); }
+    .upload-zone__icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .upload-zone__text { font-size: 0.9rem; color: var(--text-muted); }
     .upload-zone__text strong { color: var(--text); }
     #file-input { display: none; }
 
-    .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.65rem; margin-bottom: 1rem; }
+    .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.65rem; margin-bottom: 1rem; }
     .preview-item { position: relative; aspect-ratio: 4/3; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
     .preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .preview-item__remove { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; color: white; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .preview-item__name { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); font-size: 0.6rem; padding: 3px 5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .current-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.65rem; }
-    .current-item { position: relative; aspect-ratio: 4/3; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
-    .current-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .current-item__label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); font-size: 0.62rem; padding: 3px 5px; color: var(--text-muted); text-align: center; }
-
     .status { font-size: 0.82rem; padding: 0.65rem 0.85rem; border-radius: 10px; margin-top: 0.75rem; display: none; }
     .status--success { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; }
     .status--error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); color: #ff6b6b; }
     .status--loading { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); }
+
+    .current-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.65rem; }
+    .current-item { position: relative; aspect-ratio: 4/3; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    .current-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .current-item__label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); font-size: 0.62rem; padding: 3px 5px; color: var(--text-muted); text-align: center; }
 
     .progress-bar-wrap { height: 4px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; margin-top: 0.75rem; display: none; }
     .progress-bar { height: 100%; background: white; border-radius: 99px; width: 0%; transition: width 0.3s ease; }
@@ -116,187 +126,88 @@
     <input type="password" class="input" id="pw-input" placeholder="Passwort">
     <input type="password" class="input" id="token-input" placeholder="GitHub Token (ghp_...)">
     <p class="input__hint">Token wird nur lokal gespeichert — nie hochgeladen</p>
-    <label class="remember-row">
-      <input type="checkbox" id="remember-me" checked>
-      Eingeloggt bleiben
-    </label>
     <button class="btn" id="pw-btn">Einloggen</button>
-    <p class="login__error" id="pw-error">Falsches Passwort oder Token ungültig!</p>
+    <p class="login__error" id="pw-error">Falsches Passwort!</p>
   </div>
 
   <!-- Admin Panel -->
   <div class="admin" id="admin-panel">
     <div class="admin__header">
-      <p class="admin__title">🦊 Admin</p>
+      <p class="admin__title">🦊 Galerie verwalten</p>
       <button class="btn btn--ghost" id="logout-btn">Ausloggen</button>
     </div>
 
-    <div class="tabs">
-      <button class="tab-btn is-active" data-tab="gallery">📸 Galerie</button>
-      <button class="tab-btn" data-tab="text">✏️ Texte</button>
+    <div class="card">
+      <p class="card__title">Bilder hochladen</p>
+      <div class="upload-zone" id="upload-zone">
+        <div class="upload-zone__icon">📸</div>
+        <p class="upload-zone__text"><strong>Klicken</strong> oder Bilder reinziehen</p>
+        <p class="upload-zone__text" style="font-size:0.78rem;margin-top:0.3rem">PNG, JPG — mehrere gleichzeitig möglich</p>
+      </div>
+      <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp" multiple>
+      <div class="preview-grid" id="preview-grid"></div>
+      <button class="btn" id="upload-btn" disabled>Hochladen</button>
+      <div class="progress-bar-wrap" id="progress-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="status" id="upload-status"></div>
     </div>
 
-    <!-- Tab: Galerie -->
-    <div class="tab-panel is-active" id="tab-gallery">
-      <div class="card">
-        <p class="card__title">Bilder hochladen</p>
-        <div class="upload-zone" id="upload-zone">
-          <div class="upload-zone__icon">📸</div>
-          <p class="upload-zone__text"><strong>Klicken</strong> oder Bilder reinziehen</p>
-          <p class="upload-zone__text" style="font-size:0.78rem;margin-top:0.3rem">PNG, JPG — mehrere gleichzeitig möglich</p>
-        </div>
-        <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp" multiple>
-        <div class="preview-grid" id="preview-grid"></div>
-        <button class="btn" id="upload-btn" disabled>Hochladen</button>
-        <div class="progress-bar-wrap" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
-        <div class="status" id="upload-status"></div>
+    <div class="card">
+      <p class="card__title">Aktuelle Galerie-Bilder</p>
+      <div class="current-grid" id="current-grid">
+        <p style="font-size:0.82rem;color:var(--text-muted)">Lädt...</p>
       </div>
-      <div class="card">
-        <p class="card__title">Aktuelle Galerie-Bilder</p>
-        <div class="current-grid" id="current-grid">
-          <p style="font-size:0.82rem;color:var(--text-muted)">Lädt...</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab: Texte -->
-    <div class="tab-panel" id="tab-text">
-      <div class="card">
-        <p class="card__title">Hauptseite</p>
-        <div class="field">
-          <label class="field__label">Name (Überschrift)</label>
-          <input class="field__input" id="ed-name" value="Liro">
-        </div>
-        <div class="field">
-          <label class="field__label">Badge (z.B. VRChat Creator)</label>
-          <input class="field__input" id="ed-badge" value="VRChat Creator">
-        </div>
-        <div class="field">
-          <label class="field__label">Tags (kommagetrennt)</label>
-          <input class="field__input" id="ed-tags" value="🦊 Fox, VR, DE">
-          <p class="field__hint">Beispiel: 🦊 Fox, VR, DE</p>
-        </div>
-        <div class="field">
-          <label class="field__label">Catchphrase (kursiv unter Tags)</label>
-          <input class="field__input" id="ed-catchphrase" value="Direkt, ehrlich &amp; viel Quatsch :3">
-        </div>
-        <div class="field">
-          <label class="field__label">Bio (kurzer Text unter Catchphrase)</label>
-          <input class="field__input" id="ed-bio" value="VRChat · Streams · Content">
-        </div>
-      </div>
-
-      <div class="card">
-        <p class="card__title">Über mich</p>
-        <div class="fields-row">
-          <div class="field">
-            <label class="field__label">Name (Steckbrief)</label>
-            <input class="field__input" id="ed-fact-name" value="Liro / Leon">
-          </div>
-          <div class="field">
-            <label class="field__label">Alter</label>
-            <input class="field__input" id="ed-fact-age" value="19">
-          </div>
-          <div class="field">
-            <label class="field__label">Größe</label>
-            <input class="field__input" id="ed-fact-height" value="1,78 m">
-          </div>
-          <div class="field">
-            <label class="field__label">Herkunft</label>
-            <input class="field__input" id="ed-fact-origin" value="🇩🇪 Deutschland">
-          </div>
-        </div>
-        <div class="field">
-          <label class="field__label">Zitat (kursiv im Hero)</label>
-          <input class="field__input" id="ed-quote" value="Direkt, ehrlich &amp; viel Quatsch :3">
-        </div>
-        <div class="field">
-          <label class="field__label">Über mich Text (Absatz 1)</label>
-          <textarea class="field__textarea" id="ed-bio1">Moin — ich bin Liro und mache vor allem VRChat-Content: streame, schneide Videos und viel Chaos mit der Community :3</textarea>
-        </div>
-        <div class="field">
-          <label class="field__label">Über mich Text (Absatz 2)</label>
-          <textarea class="field__textarea" id="ed-bio2">Ich bin eine direkte Person und freue mich immer über neue Bekanntschaften. Wenn du quatschen oder mitmachen willst, meld dich gern!</textarea>
-        </div>
-      </div>
-
-      <button class="btn" id="save-text-btn">💾 Änderungen speichern & pushen</button>
-      <div class="status" id="text-status"></div>
     </div>
   </div>
 
 <script>
   var GITHUB_USER = "Lirolol007";
   var GITHUB_REPO = "Meine-Socials";
-  var ADMIN_PASSWORD = "Liro-Admin"; // <-- hier dein Passwort eintragen
+  var ADMIN_PASSWORD = "DEIN_PASSWORT_HIER"; // <-- hier dein Passwort eintragen
   var githubToken = "";
   var pendingFiles = [];
 
-  /* —— Auto-Login aus localStorage —— */
-  window.addEventListener("load", function() {
-    var saved = localStorage.getItem("liro_admin");
-    if (saved) {
-      try {
-        var data = JSON.parse(saved);
-        if (data.token && data.token.startsWith("ghp_")) {
-          githubToken = data.token;
-          showAdmin();
-        }
-      } catch(e) {}
-    }
-  });
-
   /* —— Login —— */
   document.getElementById("pw-btn").addEventListener("click", tryLogin);
-  ["pw-input","token-input"].forEach(function(id) {
-    document.getElementById(id).addEventListener("keydown", function(e) { if (e.key === "Enter") tryLogin(); });
-  });
+  document.getElementById("pw-input").addEventListener("keydown", function(e) { if (e.key === "Enter") tryLogin(); });
+  document.getElementById("token-input").addEventListener("keydown", function(e) { if (e.key === "Enter") tryLogin(); });
 
   function tryLogin() {
     var pw = document.getElementById("pw-input").value;
     var token = document.getElementById("token-input").value.trim();
-    var remember = document.getElementById("remember-me").checked;
     if (pw === ADMIN_PASSWORD && token.startsWith("ghp_")) {
       githubToken = token;
-      if (remember) localStorage.setItem("liro_admin", JSON.stringify({ token: token }));
-      showAdmin();
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("admin-panel").style.display = "block";
+      loadCurrentImages();
     } else {
-      var err = document.getElementById("pw-error");
-      err.style.display = "block";
-      err.textContent = !token.startsWith("ghp_") ? "Token ungültig — fängt mit ghp_ an?" : "Falsches Passwort!";
+      document.getElementById("pw-error").style.display = "block";
+      document.getElementById("pw-error").textContent = !token.startsWith("ghp_") ? "Token ungültig — fängt mit ghp_ an?" : "Falsches Passwort!";
     }
   }
 
-  function showAdmin() {
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("admin-panel").style.display = "block";
-    loadCurrentImages();
-  }
-
   document.getElementById("logout-btn").addEventListener("click", function() {
-    localStorage.removeItem("liro_admin");
     githubToken = "";
     location.reload();
-  });
-
-  /* —— Tabs —— */
-  document.querySelectorAll(".tab-btn").forEach(function(btn) {
-    btn.addEventListener("click", function() {
-      document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("is-active"); });
-      document.querySelectorAll(".tab-panel").forEach(function(p) { p.classList.remove("is-active"); });
-      btn.classList.add("is-active");
-      document.getElementById("tab-" + btn.dataset.tab).classList.add("is-active");
-    });
   });
 
   /* —— Upload Zone —— */
   var zone = document.getElementById("upload-zone");
   var fileInput = document.getElementById("file-input");
+
   zone.addEventListener("click", function() { fileInput.click(); });
   zone.addEventListener("dragover", function(e) { e.preventDefault(); zone.classList.add("drag-over"); });
   zone.addEventListener("dragleave", function() { zone.classList.remove("drag-over"); });
-  zone.addEventListener("drop", function(e) { e.preventDefault(); zone.classList.remove("drag-over"); addFiles(Array.from(e.dataTransfer.files)); });
-  fileInput.addEventListener("change", function() { addFiles(Array.from(fileInput.files)); fileInput.value = ""; });
+  zone.addEventListener("drop", function(e) {
+    e.preventDefault();
+    zone.classList.remove("drag-over");
+    addFiles(Array.from(e.dataTransfer.files));
+  });
+  fileInput.addEventListener("change", function() {
+    addFiles(Array.from(fileInput.files));
+    fileInput.value = "";
+  });
 
   function addFiles(files) {
     files.forEach(function(f) { if (f.type.startsWith("image/")) pendingFiles.push(f); });
@@ -307,13 +218,17 @@
     var grid = document.getElementById("preview-grid");
     grid.innerHTML = "";
     pendingFiles.forEach(function(f, i) {
+      var url = URL.createObjectURL(f);
       var item = document.createElement("div");
       item.className = "preview-item";
-      item.innerHTML = '<img src="' + URL.createObjectURL(f) + '"><span class="preview-item__name">' + f.name + '</span><button class="preview-item__remove" data-i="' + i + '">×</button>';
+      item.innerHTML = '<img src="' + url + '"><span class="preview-item__name">' + f.name + '</span><button class="preview-item__remove" data-i="' + i + '">×</button>';
       grid.appendChild(item);
     });
     grid.querySelectorAll(".preview-item__remove").forEach(function(btn) {
-      btn.addEventListener("click", function() { pendingFiles.splice(parseInt(btn.dataset.i), 1); renderPreviews(); });
+      btn.addEventListener("click", function() {
+        pendingFiles.splice(parseInt(btn.dataset.i), 1);
+        renderPreviews();
+      });
     });
     document.getElementById("upload-btn").disabled = pendingFiles.length === 0;
   }
@@ -328,10 +243,13 @@
     var progressBar = document.getElementById("progress-bar");
     btn.disabled = true;
     progressWrap.style.display = "block";
-    showStatus("upload-status", "loading", "Bilder werden hochgeladen...");
+    showStatus("loading", "Bilder werden hochgeladen...");
+
     var existing = await getExistingGalleryFiles();
     var nextNum = existing.length + 1;
+    var total = pendingFiles.length;
     var done = 0;
+
     for (var i = 0; i < pendingFiles.length; i++) {
       var file = pendingFiles[i];
       var ext = file.name.split(".").pop().toLowerCase();
@@ -341,103 +259,22 @@
         var base64 = await fileToBase64(file);
         await pushToGitHub(filename, base64);
         done++;
-        progressBar.style.width = Math.round((done / pendingFiles.length) * 100) + "%";
+        progressBar.style.width = Math.round((done / total) * 100) + "%";
       } catch(e) {
-        showStatus("upload-status", "error", "Fehler bei " + file.name + ": " + e.message);
+        showStatus("error", "Fehler bei " + file.name + ": " + e.message);
         btn.disabled = false;
         return;
       }
     }
+
     pendingFiles = [];
     renderPreviews();
-    showStatus("upload-status", "success", done + " Bild(er) hochgeladen! Seite aktualisiert sich in ~30 Sek.");
+    showStatus("success", done + " Bild(er) hochgeladen! Seite aktualisiert sich in ~30 Sek.");
     progressWrap.style.display = "none";
     progressBar.style.width = "0%";
     setTimeout(loadCurrentImages, 3000);
   }
 
-  /* —— Text speichern —— */
-  document.getElementById("save-text-btn").addEventListener("click", saveTexts);
-
-  async function saveTexts() {
-    showStatus("text-status", "loading", "Wird gespeichert...");
-    document.getElementById("save-text-btn").disabled = true;
-
-    try {
-      // index.html laden
-      var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/index.html", {
-        headers: { "Authorization": "token " + githubToken }
-      });
-      var data = await res.json();
-      var html = atob(data.content.replace(/\n/g, ""));
-
-      // Werte aus Feldern
-      var name        = document.getElementById("ed-name").value;
-      var badge       = document.getElementById("ed-badge").value;
-      var tags        = document.getElementById("ed-tags").value.split(",").map(function(t){ return t.trim(); });
-      var catchphrase = document.getElementById("ed-catchphrase").value;
-      var bio         = document.getElementById("ed-bio").value;
-      var factName    = document.getElementById("ed-fact-name").value;
-      var factAge     = document.getElementById("ed-fact-age").value;
-      var factHeight  = document.getElementById("ed-fact-height").value;
-      var factOrigin  = document.getElementById("ed-fact-origin").value;
-      var quote       = document.getElementById("ed-quote").value;
-      var bio1        = document.getElementById("ed-bio1").value;
-      var bio2        = document.getElementById("ed-bio2").value;
-
-      // Ersetzungen
-      html = replaceBetween(html, '<h1 class="name">', '</h1>', name);
-      html = replaceBetween(html, '<p class="badge">', '</p>', badge);
-      html = replaceBetween(html, '<p class="catchphrase">', '</p>', catchphrase);
-      html = replaceBetween(html, '<p class="bio">', '</p>', bio + '<br>Willkommen :3');
-
-      // Tags
-      var tagsHtml = tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join("\n        ");
-      html = html.replace(/(<div class="tags"[^>]*>\s*)[\s\S]*?(<\/div>)/, '$1\n        ' + tagsHtml + '\n      $2');
-
-      // Fakten
-      html = replaceFactVal(html, 0, factName);
-      html = replaceFactVal(html, 1, factAge);
-      html = replaceFactVal(html, 2, factHeight);
-      html = replaceFactVal(html, 3, factOrigin);
-
-      // Quote
-      html = replaceBetween(html, '<p class="ao-hero__quote">', '</p>', '„' + quote + '"');
-
-      // Bio Absätze
-      html = html.replace(/(<div class="ao-text-block">[\s\S]*?<p>)([\s\S]*?)(<\/p>[\s\S]*?<p>)([\s\S]*?)(<\/p>[\s\S]*?<\/div>)/, '$1' + bio1 + '$3' + bio2 + '$5');
-
-      // Pushen
-      var encoded = btoa(unescape(encodeURIComponent(html)));
-      await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/index.html", {
-        method: "PUT",
-        headers: { "Authorization": "token " + githubToken, "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "Admin: Texte aktualisiert", content: encoded, sha: data.sha })
-      });
-
-      showStatus("text-status", "success", "Gespeichert! Änderungen sind in ~30 Sek. live.");
-    } catch(e) {
-      showStatus("text-status", "error", "Fehler: " + e.message);
-    }
-    document.getElementById("save-text-btn").disabled = false;
-  }
-
-  function replaceBetween(html, open, close, value) {
-    var escaped = open.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    var escapedClose = close.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return html.replace(new RegExp(escaped + '[\\s\\S]*?' + escapedClose), open + value + close);
-  }
-
-  function replaceFactVal(html, index, value) {
-    var count = 0;
-    return html.replace(/<span class="ao-fact__val">[\s\S]*?<\/span>/g, function(match) {
-      if (count === index) { count++; return '<span class="ao-fact__val">' + value + '</span>'; }
-      count++;
-      return match;
-    });
-  }
-
-  /* —— GitHub Helpers —— */
   async function getExistingGalleryFiles() {
     try {
       var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/", {
@@ -455,7 +292,10 @@
       headers: { "Authorization": "token " + githubToken, "Content-Type": "application/json" },
       body: JSON.stringify({ message: "Galerie: " + filename + " hinzugefügt", content: base64 })
     });
-    if (!res.ok) { var err = await res.json(); throw new Error(err.message || res.status); }
+    if (!res.ok) {
+      var err = await res.json();
+      throw new Error(err.message || res.status);
+    }
   }
 
   function fileToBase64(file) {
@@ -480,11 +320,13 @@
         item.innerHTML = '<img src="' + f.download_url + '" loading="lazy"><span class="current-item__label">' + f.name + '</span>';
         grid.appendChild(item);
       });
-    } catch(e) { grid.innerHTML = "<p style='font-size:0.82rem;color:#ff6b6b'>Fehler beim Laden</p>"; }
+    } catch(e) {
+      grid.innerHTML = "<p style='font-size:0.82rem;color:#ff6b6b'>Fehler beim Laden</p>";
+    }
   }
 
-  function showStatus(id, type, msg) {
-    var el = document.getElementById(id);
+  function showStatus(type, msg) {
+    var el = document.getElementById("upload-status");
     el.className = "status status--" + type;
     el.textContent = msg;
     el.style.display = "block";
