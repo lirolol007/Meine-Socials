@@ -911,6 +911,12 @@ body.modal-open {
   height: 100%;
   padding: 0 0 4rem;
   scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.about-overlay__scroll::-webkit-scrollbar {
+  display: none;
 }
 
 /* ── Hero ── */
