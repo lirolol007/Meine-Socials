@@ -1,8 +1,12 @@
 {
   "name": "Liro",
   "badge": "VRChat Creator",
-  "tags": ["🦊 Fox", "VR", "DE"],
-  "catchphrase": "Direkt, ehrlich & viel Quatsch :3",
+  "tags": [
+    "🦊 Fox",
+    "VR",
+    "DE"
+  ],
+  "catchphrase": "Furry",
   "bio": "VRChat · Streams · Content",
   "quote": "Direkt, ehrlich & viel Quatsch :3",
   "factName": "Liro / Leon",
@@ -12,20 +16,59 @@
   "bio1": "Moin — ich bin Liro und mache vor allem VRChat-Content: streame, schneide Videos und viel Chaos mit der Community :3",
   "bio2": "Ich bin eine direkte Person und freue mich immer über neue Bekanntschaften. Wenn du quatschen oder mitmachen willst, meld dich gern!",
   "links": {
-    "tiktok":   { "label": "TikTok",   "hint": "Hauptplattform — @liro7160" },
-    "discord":  { "label": "Discord",  "hint": "Liro/Ryio Community Server" },
-    "twitch":   { "label": "Twitch",   "hint": "Streams & Just Chatting" },
-    "youtube":  { "label": "YouTube",  "hint": "" },
-    "telegram": { "label": "Telegram", "hint": "@Liro025" },
-    "vrchat":   { "label": "VRChat",   "hint": "Add mich — Liro0" },
-    "kofi":     { "label": "Ko-fi",    "hint": "Ko-fi Seite" }
+    "tiktok": {
+      "label": "TikTok",
+      "hint": "Hauptplattform — @liro7160"
+    },
+    "discord": {
+      "label": "Discord",
+      "hint": "Liro/Ryio Community Server"
+    },
+    "twitch": {
+      "label": "Twitch",
+      "hint": "Streams & Just Chatting"
+    },
+    "youtube": {
+      "label": "YouTube",
+      "hint": ""
+    },
+    "telegram": {
+      "label": "Telegram",
+      "hint": "@Liro025"
+    },
+    "vrchat": {
+      "label": "VRChat",
+      "hint": "Add mich — Liro0"
+    },
+    "kofi": {
+      "label": "Ko-fi",
+      "hint": "Ko-fi Seite"
+    }
   },
   "collabs": [
-    { "name": "Ryio",     "url": "https://www.tiktok.com/@fluffy_ryio" },
-    { "name": "DragonPro","url": "https://www.tiktok.com/@dragonpro08" },
-    { "name": "Linxy",    "url": "https://www.tiktok.com/@lynxi.vrc" },
-    { "name": "Kieran",   "url": "https://www.tiktok.com/@kieran.catto" },
-    { "name": "Rakurim",  "url": "https://www.tiktok.com/@rakurimde" },
-    { "name": "Xarrax",   "url": "https://www.tiktok.com/@xarrax.official" }
+    {
+      "name": "Ryio",
+      "url": "https://www.tiktok.com/@fluffy_ryio"
+    },
+    {
+      "name": "DragonPro",
+      "url": "https://www.tiktok.com/@dragonpro08"
+    },
+    {
+      "name": "Linxy",
+      "url": "https://www.tiktok.com/@lynxi.vrc"
+    },
+    {
+      "name": "Kieran",
+      "url": "https://www.tiktok.com/@kieran.catto"
+    },
+    {
+      "name": "Rakurim",
+      "url": "https://www.tiktok.com/@rakurimde"
+    },
+    {
+      "name": "Xarrax",
+      "url": "https://www.tiktok.com/@xarrax.official"
+    }
   ]
 }
