@@ -3,562 +3,335 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liro — Admin</title>
-  <meta name="robots" content="noindex, nofollow">
+  <title>Liro — Links</title>
+  <meta name="description" content="VRChat, Streams & Community — alle Links von Liro.">
+  <meta property="og:title" content="Liro — Links">
+  <meta property="og:description" content="TikTok, Discord, Twitch, YouTube & mehr.">
+  <meta property="og:image" content="profile.jpg">
+  <meta property="og:type" content="website">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="robots" content="index, follow, noarchive">
+  <link rel="icon" href="profile.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --bg: #080808; --surface: rgba(255,255,255,0.05); --border: rgba(255,255,255,0.08); --text: #f4f4f5; --text-muted: #9ca3af; --radius: 16px; }
-    body { font-family: "Outfit", system-ui, sans-serif; background: var(--bg); background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 28px 28px; color: var(--text); min-height: 100dvh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1.25rem 4rem; }
-    .login { width: 100%; max-width: 380px; text-align: center; margin-top: 20vh; }
-    .login__title { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.35rem; }
-    .login__sub { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 2rem; }
-    .input { width: 100%; padding: 0.85rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: inherit; font-size: 0.95rem; outline: none; margin-bottom: 0.65rem; transition: border-color 0.2s; }
-    .input:focus { border-color: rgba(255,255,255,0.3); }
-    .input__hint { font-size: 0.72rem; color: var(--text-muted); text-align: left; margin-top: -0.35rem; margin-bottom: 0.65rem; padding-left: 0.25rem; }
-    .remember-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.82rem; color: var(--text-muted); cursor: pointer; text-align: left; }
-    .remember-row input { width: auto; margin: 0; accent-color: white; cursor: pointer; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 0.85rem 1rem; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: #fff; border: none; border-radius: var(--radius); cursor: pointer; transition: opacity 0.2s, transform 0.2s; }
-    .btn:hover { opacity: 0.9; transform: translateY(-2px); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-    .btn--ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); width: auto; padding: 0.55rem 1rem; font-size: 0.82rem; }
-    .login__error { color: #ff6b6b; font-size: 0.82rem; margin-top: 0.65rem; display: none; }
-
-    .admin { display: none; width: 100%; max-width: 740px; }
-    .admin__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-    .admin__title { font-size: 1.4rem; font-weight: 700; }
-
-    .tabs { display: flex; gap: 0; margin-bottom: 1.75rem; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
-    .tabs::-webkit-scrollbar { display: none; }
-    .tab-btn { flex-shrink: 0; padding: 0.6rem 1rem; font-family: inherit; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: color 0.2s, border-color 0.2s; margin-bottom: -1px; white-space: nowrap; }
-    .tab-btn.is-active { color: var(--text); border-bottom-color: white; }
-    .tab-panel { display: none; }
-    .tab-panel.is-active { display: block; }
-
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
-    .card__title { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
-
-    .field { margin-bottom: 1rem; }
-    .field:last-child { margin-bottom: 0; }
-    .field__label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; display: block; text-transform: uppercase; letter-spacing: 0.07em; }
-    .field__input, .field__textarea { width: 100%; padding: 0.75rem 0.9rem; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: inherit; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
-    .field__input:focus, .field__textarea:focus { border-color: rgba(255,255,255,0.3); }
-    .field__textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
-    .field__hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.3rem; }
-    .fields-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-    .fields-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
-
-    /* Kollegen Editor */
-    .collab-editor { display: flex; flex-direction: column; gap: 0.75rem; }
-    .collab-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.65rem; align-items: end; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
-    .collab-row__del { width: 100%; padding: 0.6rem; font-family: inherit; font-size: 0.78rem; font-weight: 600; color: #ff6b6b; background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2); border-radius: 8px; cursor: pointer; transition: background 0.2s; }
-    .collab-row__del:hover { background: rgba(255,107,107,0.15); }
-    .add-collab-btn { display: flex; align-items: center; justify-content: center; gap: 0.4rem; width: 100%; padding: 0.75rem; font-family: inherit; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); background: rgba(255,255,255,0.03); border: 1px dashed var(--border); border-radius: 12px; cursor: pointer; transition: border-color 0.2s, color 0.2s; margin-top: 0.5rem; }
-    .add-collab-btn:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
-
-    /* Links Editor */
-    .link-row { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 0.65rem; align-items: end; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; }
-    .link-platform { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); padding-top: 0.5rem; }
-
-    /* Upload */
-    .upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 2rem 1.5rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; margin-bottom: 1rem; }
-    .upload-zone:hover, .upload-zone.drag-over { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.03); }
-    .upload-zone__icon { font-size: 1.75rem; margin-bottom: 0.4rem; }
-    .upload-zone__text { font-size: 0.88rem; color: var(--text-muted); }
-    .upload-zone__text strong { color: var(--text); }
-    #file-input { display: none; }
-    .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.65rem; margin-bottom: 1rem; }
-    .preview-item { position: relative; aspect-ratio: 4/3; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
-    .preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .preview-item__remove { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; color: white; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .preview-item__name { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); font-size: 0.6rem; padding: 3px 5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .current-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.65rem; }
-    .current-item { position: relative; aspect-ratio: 4/3; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
-    .current-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .current-item__label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); font-size: 0.62rem; padding: 3px 5px; color: var(--text-muted); text-align: center; }
-    .gallery-editor { display: flex; flex-direction: column; gap: 1rem; }
-    .gallery-editor-item { display: grid; grid-template-columns: 110px 1fr; gap: 1rem; align-items: start; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
-    .gallery-editor-item__img { aspect-ratio: 4/3; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-    .gallery-editor-item__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .gallery-editor-item__fields { display: flex; flex-direction: column; gap: 0.6rem; }
-    .gallery-editor-item__name { font-size: 0.68rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
-
-    .status { font-size: 0.82rem; padding: 0.65rem 0.85rem; border-radius: 10px; margin-top: 0.75rem; display: none; }
-    .status--success { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; }
-    .status--error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); color: #ff6b6b; }
-    .status--loading { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); }
-    .progress-bar-wrap { height: 4px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; margin-top: 0.75rem; display: none; }
-    .progress-bar { height: 100%; background: white; border-radius: 99px; width: 0%; transition: width 0.3s ease; }
-
-    @media (max-width: 520px) {
-      .fields-2, .fields-3, .collab-row, .link-row { grid-template-columns: 1fr; }
-      .gallery-editor-item { grid-template-columns: 80px 1fr; }
-    }
-  </style>
 </head>
 <body>
+  <div class="bg-glow bg-glow--1"></div>
+  <div class="bg-glow bg-glow--2"></div>
+  <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
+  <canvas class="particles" id="particles" aria-hidden="true"></canvas>
 
-  <div class="login" id="login-screen">
-    <p class="login__title">🦊 Admin</p>
-    <p class="login__sub">Nur für Liro</p>
-    <input type="password" class="input" id="pw-input" placeholder="Passwort">
-    <input type="password" class="input" id="token-input" placeholder="GitHub Token (ghp_...)">
-    <p class="input__hint">Token bleibt lokal — wird nie hochgeladen</p>
-    <label class="remember-row"><input type="checkbox" id="remember-me" checked> Eingeloggt bleiben</label>
-    <button class="btn" id="pw-btn">Einloggen</button>
-    <p class="login__error" id="pw-error"></p>
+  <main class="page">
+    <header class="profile">
+      <div class="avatar-wrap">
+        <img
+          class="avatar"
+          src="profile.jpg"
+          alt="Profilbild Liro"
+          width="112"
+          height="112"
+        >
+      </div>
+      <h1 class="name">Liro</h1>
+      <p class="badge">VRChat Creator</p>
+      <div class="tags" aria-label="Tags">
+        <span class="tag">🦊 Fox</span>
+        <span class="tag">VR</span>
+        <span class="tag">DE</span>
+      </div>
+      <p class="catchphrase">Direkt, ehrlich &amp; viel Quatsch :3</p>
+      <p class="bio">VRChat · Streams · Content<br>Willkommen :3</p>
+    </header>
+
+    <nav class="links" aria-label="Social Links">
+      <a class="link link--featured" data-brand="tiktok" href="https://www.tiktok.com/@liro7160" target="_blank" rel="noopener noreferrer">
+        <span class="link__icon link__icon--tiktok" aria-hidden="true">
+          <img src="icons/tiktok.svg" alt="">
+        </span>
+        <span class="link__text">
+          <span class="link__label">TikTok</span>
+          <span class="link__hint">Hauptplattform — @liro7160</span>
+        </span>
+        <span class="link__arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="link" data-brand="discord" href="https://discord.gg/zrtu6d7Em" target="_blank" rel="noopener noreferrer">
+        <span class="link__icon link__icon--discord" aria-hidden="true">
+          <img src="icons/discord.svg" alt="">
+        </span>
+        <span class="link__text">
+          <span class="link__label">Discord</span>
+          <span class="link__hint">Liro/Ryio Community Server</span>
+        </span>
+        <span class="link__arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="link" data-brand="twitch" href="https://www.twitch.tv/lirooo0" target="_blank" rel="noopener noreferrer">
+        <span class="link__icon link__icon--twitch" aria-hidden="true">
+          <img src="icons/twitch.svg" alt="">
+        </span>
+        <span class="link__text">
+          <span class="link__label">Twitch</span>
+          <span class="link__hint">Streams & Just Chatting</span>
+        </span>
+        <span class="link__arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="link" data-brand="youtube" href="https://www.youtube.com/@Liro_LOL" target="_blank" rel="noopener noreferrer">
+        <span class="link__icon link__icon--youtube" aria-hidden="true">
+          <img src="icons/youtube.svg" alt="">
+        </span>
+        <span class="link__text">
+          <span class="link__label">YouTube</span>
+        </span>
+        <span class="link__arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="link" data-brand="telegram" href="https://t.me/Liro025" target="_blank" rel="noopener noreferrer">
+        <span class="link__icon link__icon--telegram" aria-hidden="true">
+          <img src="icons/telegram.svg" alt="">
+        </span>
+        <span class="link__text">
+          <span class="link__label">Telegram</span>
+          <span class="link__hint">@Liro025</span>
+        </span>
+        <span class="link__arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="link" data-brand="vrchat" href="https://vrchat.com/home/user/usr_2e3bf4e4-2e02-4c79-a7c4-166299327f4d" target="_blank" rel="noopener noreferrer">
+        <span class="link__icon link__icon--vrchat" aria-hidden="true">
+          <img src="icons/vrchat.svg" alt="">
+        </span>
+        <span class="link__text">
+          <span class="link__label">VRChat</span>
+          <span class="link__hint">Add mich — Liro0</span>
+        </span>
+        <span class="link__arrow" aria-hidden="true">→</span>
+      </a>
+
+      <a class="link" data-brand="kofi" href="https://ko-fi.com/liro0" target="_blank" rel="noopener noreferrer">
+        <span class="link__icon link__icon--kofi" aria-hidden="true">
+          <img src="icons/kofi.svg" alt="">
+        </span>
+        <span class="link__text">
+          <span class="link__label">Ko-fi</span>
+          <span class="link__hint">Ko-fi Seite</span>
+        </span>
+        <span class="link__arrow" aria-hidden="true">→</span>
+      </a>
+    </nav>
+
+    <footer class="footer">
+      <nav class="footer-nav" aria-label="Weitere Infos">
+        <button type="button" class="footer-nav__link" data-modal-open="about">Über mich</button>
+        <span class="footer-nav__sep" aria-hidden="true">·</span>
+        <button type="button" class="footer-nav__link" data-modal-open="collabs">Kollegen</button>
+        <span class="footer-nav__sep" aria-hidden="true">·</span>
+        <button type="button" class="footer-nav__link" data-modal-open="contact">Kontakt</button>
+      </nav>
+      <p class="footer__credit">Avatar Art by Liro</p>
+      <p>© 2026 Liro</p>
+    </footer>
+  </main>
+
+  <div class="about-overlay" id="about-overlay" hidden aria-modal="true" role="dialog" aria-labelledby="about-overlay-title">
+    <button type="button" class="about-overlay__close" id="about-overlay-close" aria-label="Schließen">×</button>
+
+    <div class="ao-cursor-glow" aria-hidden="true"></div>
+    <div class="about-overlay__scroll">
+
+      <!-- Hero -->
+      <section class="ao-hero">
+        <div class="ao-hero__img-wrap">
+          <img src="profile.jpg" alt="Liro Avatar" class="ao-hero__img">
+        </div>
+        <div class="ao-hero__text">
+          <p class="ao-hero__eyebrow">🦊 Über mich</p>
+          <h1 class="ao-hero__name" id="about-overlay-title">Liro</h1>
+          <p class="ao-hero__sub">VRChat Creator · Streamer · Content</p>
+          <p class="ao-hero__quote">„Direkt, ehrlich &amp; viel Quatsch :3"</p>
+        </div>
+      </section>
+
+      <!-- Fakten -->
+      <section class="ao-section">
+        <h2 class="ao-section__title">Steckbrief</h2>
+        <div class="ao-facts">
+          <div class="ao-fact">
+            <span class="ao-fact__label">Name</span>
+            <span class="ao-fact__val">Liro / Leon</span>
+          </div>
+          <div class="ao-fact">
+            <span class="ao-fact__label">Alter</span>
+            <span class="ao-fact__val">19</span>
+          </div>
+          <div class="ao-fact">
+            <span class="ao-fact__label">Größe</span>
+            <span class="ao-fact__val">1,78 m</span>
+          </div>
+          <div class="ao-fact">
+            <span class="ao-fact__label">Herkunft</span>
+            <span class="ao-fact__val">🇩🇪 Deutschland</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Über mich Text -->
+      <section class="ao-section">
+        <h2 class="ao-section__title">Wer bin ich?</h2>
+        <div class="ao-text-block">
+          <p>Moin — ich bin <strong>Liro</strong> und mache vor allem <strong>VRChat-Content</strong>: streame, schneide Videos und viel Chaos mit der Community :3</p>
+          <p>Ich bin eine <strong>direkte Person</strong> und freue mich immer über neue Bekanntschaften. Wenn du quatschen oder mitmachen willst, meld dich gern!</p>
+        </div>
+      </section>
+
+      <!-- Bilder Galerie -->
+      <section class="ao-section">
+        <h2 class="ao-section__title">VRChat &amp; Content</h2>
+        <div class="ao-gallery">
+          <div class="ao-gallery__item">
+            <img src="gallery1.png" alt="VRChat Screenshot 1" loading="lazy">
+          </div>
+          <div class="ao-gallery__item">
+            <img src="gallery2.png" alt="VRChat Screenshot 2" loading="lazy">
+          </div>
+          <div class="ao-gallery__item">
+            <img src="gallery3.png" alt="VRChat Screenshot 3" loading="lazy">
+          </div>
+        </div>
+        <div class="ao-gallery__more-wrap">
+          <button type="button" class="ao-gallery__more-btn" id="gallery-more-btn">
+            <span>Mehr anzeigen</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- Footer der Overlay-Seite -->
+      <div class="ao-footer">
+        <p>© 2026 Liro · <a href="https://www.tiktok.com/@liro7160" target="_blank" rel="noopener noreferrer">@liro7160</a></p>
+      </div>
+
+    </div>
   </div>
 
-  <div class="admin" id="admin-panel">
-    <div class="admin__header">
-      <p class="admin__title">🦊 Admin</p>
-      <button class="btn btn--ghost" id="logout-btn">Ausloggen</button>
-    </div>
-    <div class="tabs">
-      <button class="tab-btn is-active" data-tab="gallery">📸 Galerie</button>
-      <button class="tab-btn" data-tab="captions">✍️ Bild-Texte</button>
-      <button class="tab-btn" data-tab="profil">👤 Profil</button>
-      <button class="tab-btn" data-tab="links">🔗 Links & Kollegen</button>
-    </div>
-
-    <!-- Tab: Galerie -->
-    <div class="tab-panel is-active" id="tab-gallery">
-      <div class="card">
-        <p class="card__title">Bilder hochladen</p>
-        <div class="upload-zone" id="upload-zone">
-          <div class="upload-zone__icon">📸</div>
-          <p class="upload-zone__text"><strong>Klicken</strong> oder Bilder reinziehen</p>
-          <p class="upload-zone__text" style="font-size:0.78rem;margin-top:0.3rem">PNG, JPG — mehrere gleichzeitig</p>
-        </div>
-        <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp" multiple>
-        <div class="preview-grid" id="preview-grid"></div>
-        <button class="btn" id="upload-btn" disabled>Hochladen</button>
-        <div class="progress-bar-wrap" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
-        <div class="status" id="upload-status"></div>
-      </div>
-      <div class="card">
-        <p class="card__title">Aktuelle Galerie</p>
-        <div class="current-grid" id="current-grid"><p style="font-size:0.82rem;color:var(--text-muted)">Lädt...</p></div>
-      </div>
-    </div>
-
-    <!-- Tab: Bild-Texte -->
-    <div class="tab-panel" id="tab-captions">
-      <div class="card">
-        <p class="card__title">Titel & Text pro Bild</p>
-        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1.25rem">Wird unter dem Bild angezeigt wenn man es in der Lightbox öffnet.</p>
-        <div class="gallery-editor" id="gallery-editor"><p style="font-size:0.82rem;color:var(--text-muted)">Lädt...</p></div>
-        <button class="btn" id="save-captions-btn" style="margin-top:1.25rem">💾 Bild-Texte speichern</button>
-        <div class="status" id="captions-status"></div>
-      </div>
-    </div>
-
-    <!-- Tab: Profil -->
-    <div class="tab-panel" id="tab-profil">
-      <div class="card">
-        <p class="card__title">Hauptseite — Profil</p>
-        <div class="field"><label class="field__label">Name</label><input class="field__input" id="ed-name" value="Liro"></div>
-        <div class="field"><label class="field__label">Badge</label><input class="field__input" id="ed-badge" value="VRChat Creator"></div>
-        <div class="field"><label class="field__label">Tags (kommagetrennt)</label><input class="field__input" id="ed-tags" value="🦊 Fox, VR, DE"><p class="field__hint">Beispiel: 🦊 Fox, VR, DE</p></div>
-        <div class="field"><label class="field__label">Catchphrase</label><input class="field__input" id="ed-catchphrase" value="Direkt, ehrlich & viel Quatsch :3"></div>
-        <div class="field"><label class="field__label">Bio (Kurztext)</label><input class="field__input" id="ed-bio" value="VRChat · Streams · Content"></div>
-      </div>
-      <div class="card">
-        <p class="card__title">Über mich — Steckbrief</p>
-        <div class="fields-2">
-          <div class="field"><label class="field__label">Name</label><input class="field__input" id="ed-fact-name" value="Liro / Leon"></div>
-          <div class="field"><label class="field__label">Alter</label><input class="field__input" id="ed-fact-age" value="19"></div>
-          <div class="field"><label class="field__label">Größe</label><input class="field__input" id="ed-fact-height" value="1,78 m"></div>
-          <div class="field"><label class="field__label">Herkunft</label><input class="field__input" id="ed-fact-origin" value="🇩🇪 Deutschland"></div>
-        </div>
-      </div>
-      <div class="card">
-        <p class="card__title">Über mich — Texte</p>
-        <div class="field"><label class="field__label">Zitat (kursiv im Hero)</label><input class="field__input" id="ed-quote" value="Direkt, ehrlich & viel Quatsch :3"></div>
-        <div class="field"><label class="field__label">Absatz 1</label><textarea class="field__textarea" id="ed-bio1">Moin — ich bin Liro und mache vor allem VRChat-Content: streame, schneide Videos und viel Chaos mit der Community :3</textarea></div>
-        <div class="field"><label class="field__label">Absatz 2</label><textarea class="field__textarea" id="ed-bio2">Ich bin eine direkte Person und freue mich immer über neue Bekanntschaften. Wenn du quatschen oder mitmachen willst, meld dich gern!</textarea></div>
-      </div>
-      <button class="btn" id="save-profil-btn">💾 Profil speichern</button>
-      <div class="status" id="profil-status"></div>
-    </div>
-
-    <!-- Tab: Links & Kollegen -->
-    <div class="tab-panel" id="tab-links">
-      <div class="card">
-        <p class="card__title">Social Links</p>
-        <div id="links-editor">
-          <div class="link-row"><div class="link-platform">TikTok</div><div class="field"><label class="field__label">Label</label><input class="field__input" data-link="tiktok" data-type="label" value="TikTok"></div><div class="field"><label class="field__label">Hint</label><input class="field__input" data-link="tiktok" data-type="hint" value="Hauptplattform — @liro7160"></div></div>
-          <div class="link-row"><div class="link-platform">Discord</div><div class="field"><label class="field__label">Label</label><input class="field__input" data-link="discord" data-type="label" value="Discord"></div><div class="field"><label class="field__label">Hint</label><input class="field__input" data-link="discord" data-type="hint" value="Liro/Ryio Community Server"></div></div>
-          <div class="link-row"><div class="link-platform">Twitch</div><div class="field"><label class="field__label">Label</label><input class="field__input" data-link="twitch" data-type="label" value="Twitch"></div><div class="field"><label class="field__label">Hint</label><input class="field__input" data-link="twitch" data-type="hint" value="Streams & Just Chatting"></div></div>
-          <div class="link-row"><div class="link-platform">YouTube</div><div class="field"><label class="field__label">Label</label><input class="field__input" data-link="youtube" data-type="label" value="YouTube"></div><div class="field"><label class="field__label">Hint</label><input class="field__input" data-link="youtube" data-type="hint" value=""></div></div>
-          <div class="link-row"><div class="link-platform">Telegram</div><div class="field"><label class="field__label">Label</label><input class="field__input" data-link="telegram" data-type="label" value="Telegram"></div><div class="field"><label class="field__label">Hint</label><input class="field__input" data-link="telegram" data-type="hint" value="@Liro025"></div></div>
-          <div class="link-row"><div class="link-platform">VRChat</div><div class="field"><label class="field__label">Label</label><input class="field__input" data-link="vrchat" data-type="label" value="VRChat"></div><div class="field"><label class="field__label">Hint</label><input class="field__input" data-link="vrchat" data-type="hint" value="Add mich — Liro0"></div></div>
-          <div class="link-row"><div class="link-platform">Ko-fi</div><div class="field"><label class="field__label">Label</label><input class="field__input" data-link="kofi" data-type="label" value="Ko-fi"></div><div class="field"><label class="field__label">Hint</label><input class="field__input" data-link="kofi" data-type="hint" value="Ko-fi Seite"></div></div>
-        </div>
-        <button class="btn" id="save-links-btn" style="margin-top:1.25rem">💾 Links speichern</button>
-        <div class="status" id="links-status"></div>
-      </div>
-
-      <div class="card">
-        <p class="card__title">Kollegen & Freunde</p>
-        <div class="collab-editor" id="collab-editor">
-          <div class="collab-row">
-            <div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value="Ryio"></div>
-            <div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="https://www.tiktok.com/@fluffy_ryio"></div>
-            <button class="collab-row__del">Entfernen</button>
-          </div>
-          <div class="collab-row">
-            <div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value="DragonPro"></div>
-            <div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="https://www.tiktok.com/@dragonpro08"></div>
-            <button class="collab-row__del">Entfernen</button>
-          </div>
-          <div class="collab-row">
-            <div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value="Linxy"></div>
-            <div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="https://www.tiktok.com/@lynxi.vrc"></div>
-            <button class="collab-row__del">Entfernen</button>
-          </div>
-          <div class="collab-row">
-            <div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value="Kieran"></div>
-            <div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="https://www.tiktok.com/@kieran.catto"></div>
-            <button class="collab-row__del">Entfernen</button>
-          </div>
-          <div class="collab-row">
-            <div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value="Rakurim"></div>
-            <div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="https://www.tiktok.com/@rakurimde"></div>
-            <button class="collab-row__del">Entfernen</button>
-          </div>
-          <div class="collab-row">
-            <div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value="Xarrax"></div>
-            <div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="https://www.tiktok.com/@xarrax.official"></div>
-            <button class="collab-row__del">Entfernen</button>
-          </div>
-        </div>
-        <button class="add-collab-btn" id="add-collab-btn">+ Person hinzufügen</button>
-        <button class="btn" id="save-collabs-btn" style="margin-top:1rem">💾 Kollegen speichern</button>
-        <div class="status" id="collabs-status"></div>
+  <div class="modal" id="modal-collabs" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel" role="dialog" aria-labelledby="modal-collabs-title">
+      <button type="button" class="modal__close" data-modal-close aria-label="Schließen">×</button>
+      <h2 class="modal__title" id="modal-collabs-title">Kollegen &amp; Freunde</h2>
+      <div class="modal__body">
+        <p>Leute zum Folgen:</p>
+        <ul class="collab-list">
+          <li class="collab-card">
+            <div class="collab-card__avatar-wrap">
+              <img class="collab-card__avatar" src="collabs/ryio.jpg" data-fallback="https://unavatar.io/tiktok/fluffy_ryio" alt="Ryio" width="44" height="44">
+              <span class="collab-card__initials" aria-hidden="true">R</span>
+            </div>
+            <div class="collab-card__info">
+              <span class="collab-card__name">Ryio</span>
+              <a class="collab-card__btn" href="https://www.tiktok.com/@fluffy_ryio" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
+            </div>
+          </li>
+          <li class="collab-card">
+            <div class="collab-card__avatar-wrap">
+              <img class="collab-card__avatar" src="collabs/dragonpro.jpg" data-fallback="https://unavatar.io/tiktok/dragonpro08" alt="DragonPro" width="44" height="44">
+              <span class="collab-card__initials" aria-hidden="true">D</span>
+            </div>
+            <div class="collab-card__info">
+              <span class="collab-card__name">DragonPro</span>
+              <a class="collab-card__btn" href="https://www.tiktok.com/@dragonpro08" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
+            </div>
+          </li>
+          <li class="collab-card">
+            <div class="collab-card__avatar-wrap">
+              <img class="collab-card__avatar" src="collabs/linxy.jpg" data-fallback="https://unavatar.io/tiktok/lynxi.vrc" alt="Linxy" width="44" height="44">
+              <span class="collab-card__initials" aria-hidden="true">L</span>
+            </div>
+            <div class="collab-card__info">
+              <span class="collab-card__name">Linxy</span>
+              <a class="collab-card__btn" href="https://www.tiktok.com/@lynxi.vrc" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
+            </div>
+          </li>
+          <li class="collab-card">
+            <div class="collab-card__avatar-wrap">
+              <img class="collab-card__avatar" src="collabs/kieran.jpg" data-fallback="https://unavatar.io/tiktok/kieran.catto" alt="Kieran" width="44" height="44">
+              <span class="collab-card__initials" aria-hidden="true">K</span>
+            </div>
+            <div class="collab-card__info">
+              <span class="collab-card__name">Kieran</span>
+              <a class="collab-card__btn" href="https://www.tiktok.com/@kieran.catto" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
+            </div>
+          </li>
+          <li class="collab-card">
+            <div class="collab-card__avatar-wrap">
+              <img class="collab-card__avatar" src="collabs/rakurim.jpg" data-fallback="https://unavatar.io/tiktok/rakurimde" alt="Rakurim" width="44" height="44">
+              <span class="collab-card__initials" aria-hidden="true">R</span>
+            </div>
+            <div class="collab-card__info">
+              <span class="collab-card__name">Rakurim</span>
+              <a class="collab-card__btn" href="https://www.tiktok.com/@rakurimde" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
+            </div>
+          </li>
+          <li class="collab-card">
+            <div class="collab-card__avatar-wrap">
+              <img class="collab-card__avatar" src="collabs/xarrax.jpg" data-fallback="https://unavatar.io/tiktok/xarrax.official" alt="Xarrax" width="44" height="44">
+              <span class="collab-card__initials" aria-hidden="true">X</span>
+            </div>
+            <div class="collab-card__info">
+              <span class="collab-card__name">Xarrax</span>
+              <a class="collab-card__btn" href="https://www.tiktok.com/@xarrax.official" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
 
-<script>
-  var GITHUB_USER = "Lirolol007";
-  var GITHUB_REPO = "Meine-Socials";
-  var ADMIN_PASSWORD = "DEIN_PASSWORT_HIER";
-  var githubToken = "";
-  var pendingFiles = [];
-  var galleryFiles = [];
-  var captionsData = {};
+  <div class="modal" id="modal-contact" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel" role="dialog" aria-labelledby="modal-contact-title">
+      <button type="button" class="modal__close" data-modal-close aria-label="Schließen">×</button>
+      <h2 class="modal__title" id="modal-contact-title">Kontakt</h2>
+      <div class="modal__body">
+        <p>Schreib mir gern eine Mail — ich melde mich, sobald ich kann :3</p>
+        <a class="modal__email" id="contact-email" href="#">E-Mail wird geladen…</a>
+      </div>
+    </div>
+  </div>
 
-  function toBase64(str) { return btoa(unescape(encodeURIComponent(str))); }
-  function fromBase64(str) { return decodeURIComponent(escape(atob(str))); }
+  <!-- Galerie Overlay -->
+  <div class="gallery-overlay" id="gallery-overlay" hidden aria-modal="true" role="dialog" aria-label="Alle Bilder">
+    <div class="gallery-overlay__backdrop" id="gallery-overlay-backdrop"></div>
+    <div class="gallery-overlay__panel">
+      <div class="gallery-overlay__header">
+        <h2 class="gallery-overlay__title">VRChat &amp; Content</h2>
+        <button type="button" class="gallery-overlay__close" id="gallery-overlay-close" aria-label="Schließen">×</button>
+      </div>
+      <div class="gallery-overlay__grid" id="gallery-overlay-grid">
+        <p style="font-size:0.85rem;color:#9ca3af;padding:1rem">Bilder werden geladen...</p>
+      </div>
+    </div>
+  </div>
 
-  /* Auto-Login */
-  window.addEventListener("load", function() {
-    var saved = localStorage.getItem("liro_admin_v2");
-    if (saved) {
-      try { var d = JSON.parse(saved); if (d.token && d.token.startsWith("ghp_")) { githubToken = d.token; showAdmin(); } } catch(e) {}
-    }
-  });
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" hidden aria-modal="true" role="dialog" aria-label="Bild Vollansicht">
+    <div class="lightbox__backdrop" id="lightbox-backdrop"></div>
+    <button class="lightbox__close" id="lightbox-close" aria-label="Schließen">×</button>
+    <div class="lightbox__inner">
+      <img class="lightbox__img" id="lightbox-img" src="" alt="">
+      <div class="lightbox__caption" id="lightbox-caption" style="display:none">
+        <p class="lightbox__caption-title" id="lightbox-caption-title"></p>
+        <p class="lightbox__caption-text" id="lightbox-caption-text"></p>
+      </div>
+    </div>
+  </div>
 
-  document.getElementById("pw-btn").addEventListener("click", tryLogin);
-  ["pw-input","token-input"].forEach(function(id) {
-    document.getElementById(id).addEventListener("keydown", function(e) { if (e.key === "Enter") tryLogin(); });
-  });
-
-  function tryLogin() {
-    var pw = document.getElementById("pw-input").value;
-    var token = document.getElementById("token-input").value.trim();
-    var err = document.getElementById("pw-error");
-    if (pw === ADMIN_PASSWORD && token.startsWith("ghp_")) {
-      githubToken = token;
-      if (document.getElementById("remember-me").checked) localStorage.setItem("liro_admin_v2", JSON.stringify({ token: token }));
-      showAdmin();
-    } else {
-      err.style.display = "block";
-      err.textContent = !token.startsWith("ghp_") ? "Token ungültig!" : "Falsches Passwort!";
-    }
-  }
-
-  function showAdmin() {
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("admin-panel").style.display = "block";
-    loadCurrentImages();
-    loadCaptionsEditor();
-  }
-
-  document.getElementById("logout-btn").addEventListener("click", function() { localStorage.removeItem("liro_admin_v2"); location.reload(); });
-
-  /* Tabs */
-  document.querySelectorAll(".tab-btn").forEach(function(btn) {
-    btn.addEventListener("click", function() {
-      document.querySelectorAll(".tab-btn").forEach(function(b) { b.classList.remove("is-active"); });
-      document.querySelectorAll(".tab-panel").forEach(function(p) { p.classList.remove("is-active"); });
-      btn.classList.add("is-active");
-      document.getElementById("tab-" + btn.dataset.tab).classList.add("is-active");
-    });
-  });
-
-  /* Upload */
-  var zone = document.getElementById("upload-zone");
-  var fileInput = document.getElementById("file-input");
-  zone.addEventListener("click", function() { fileInput.click(); });
-  zone.addEventListener("dragover", function(e) { e.preventDefault(); zone.classList.add("drag-over"); });
-  zone.addEventListener("dragleave", function() { zone.classList.remove("drag-over"); });
-  zone.addEventListener("drop", function(e) { e.preventDefault(); zone.classList.remove("drag-over"); addFiles(Array.from(e.dataTransfer.files)); });
-  fileInput.addEventListener("change", function() { addFiles(Array.from(fileInput.files)); fileInput.value = ""; });
-
-  function addFiles(files) { files.forEach(function(f) { if (f.type.startsWith("image/")) pendingFiles.push(f); }); renderPreviews(); }
-  function renderPreviews() {
-    var grid = document.getElementById("preview-grid");
-    grid.innerHTML = "";
-    pendingFiles.forEach(function(f, i) {
-      var item = document.createElement("div");
-      item.className = "preview-item";
-      item.innerHTML = '<img src="' + URL.createObjectURL(f) + '"><span class="preview-item__name">' + f.name + '</span><button class="preview-item__remove" data-i="' + i + '">×</button>';
-      grid.appendChild(item);
-    });
-    grid.querySelectorAll(".preview-item__remove").forEach(function(btn) {
-      btn.addEventListener("click", function() { pendingFiles.splice(parseInt(btn.dataset.i), 1); renderPreviews(); });
-    });
-    document.getElementById("upload-btn").disabled = pendingFiles.length === 0;
-  }
-
-  document.getElementById("upload-btn").addEventListener("click", uploadFiles);
-  async function uploadFiles() {
-    var btn = document.getElementById("upload-btn");
-    var progressWrap = document.getElementById("progress-wrap");
-    var progressBar = document.getElementById("progress-bar");
-    btn.disabled = true; progressWrap.style.display = "block";
-    showStatus("upload-status", "loading", "Wird hochgeladen...");
-    var existing = await getGalleryFiles();
-    var nextNum = existing.length + 1; var done = 0;
-    for (var i = 0; i < pendingFiles.length; i++) {
-      var file = pendingFiles[i];
-      var ext = file.name.split(".").pop().toLowerCase();
-      var filename = "gallery" + nextNum + "." + ext; nextNum++;
-      try {
-        var b64 = await fileToBase64(file);
-        await githubPut(filename, b64, "Galerie: " + filename); done++;
-        progressBar.style.width = Math.round((done / pendingFiles.length) * 100) + "%";
-      } catch(e) { showStatus("upload-status", "error", "Fehler: " + e.message); btn.disabled = false; return; }
-    }
-    pendingFiles = []; renderPreviews();
-    showStatus("upload-status", "success", done + " Bild(er) hochgeladen! Live in ~30 Sek.");
-    progressWrap.style.display = "none"; progressBar.style.width = "0%";
-    setTimeout(function() { loadCurrentImages(); loadCaptionsEditor(); }, 3000);
-  }
-
-  /* Bild-Texte */
-  async function loadCaptionsEditor() {
-    var editor = document.getElementById("gallery-editor");
-    editor.innerHTML = "<p style='font-size:0.82rem;color:var(--text-muted)'>Lädt...</p>";
-    try {
-      var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/gallery-captions.json", { headers: { "Authorization": "token " + githubToken } });
-      if (res.ok) { var data = await res.json(); captionsData = JSON.parse(fromBase64(data.content.replace(/\n/g,""))); }
-    } catch(e) { captionsData = {}; }
-    galleryFiles = await getGalleryFiles();
-    if (!galleryFiles.length) { editor.innerHTML = "<p style='font-size:0.82rem;color:var(--text-muted)'>Noch keine Bilder</p>"; return; }
-    editor.innerHTML = "";
-    galleryFiles.forEach(function(f) {
-      var cap = captionsData[f.name] || { title: "", text: "" };
-      var item = document.createElement("div");
-      item.className = "gallery-editor-item";
-      item.innerHTML = '<div class="gallery-editor-item__img"><img src="' + f.download_url + '" loading="lazy"></div>' +
-        '<div class="gallery-editor-item__fields"><p class="gallery-editor-item__name">' + f.name + '</p>' +
-        '<div class="field"><label class="field__label">Titel</label><input class="field__input" data-file="' + f.name + '" data-type="title" value="' + (cap.title||"") + '" placeholder="Titel..."></div>' +
-        '<div class="field"><label class="field__label">Text</label><textarea class="field__textarea" data-file="' + f.name + '" data-type="text" rows="3" placeholder="Beschreibung...">' + (cap.text||"") + '</textarea></div></div>';
-      editor.appendChild(item);
-    });
-  }
-
-  document.getElementById("save-captions-btn").addEventListener("click", async function() {
-    showStatus("captions-status", "loading", "Wird gespeichert...");
-    this.disabled = true;
-    document.querySelectorAll("[data-file][data-type='title']").forEach(function(el) { if (!captionsData[el.dataset.file]) captionsData[el.dataset.file] = {}; captionsData[el.dataset.file].title = el.value; });
-    document.querySelectorAll("[data-file][data-type='text']").forEach(function(el) { if (!captionsData[el.dataset.file]) captionsData[el.dataset.file] = {}; captionsData[el.dataset.file].text = el.value; });
-    try {
-      var sha = await getFileSha("gallery-captions.json");
-      var body = { message: "Admin: Bild-Texte", content: toBase64(JSON.stringify(captionsData, null, 2)) };
-      if (sha) body.sha = sha;
-      await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/gallery-captions.json", { method: "PUT", headers: { "Authorization": "token " + githubToken, "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      showStatus("captions-status", "success", "Gespeichert! Live in ~30 Sek.");
-    } catch(e) { showStatus("captions-status", "error", "Fehler: " + e.message); }
-    this.disabled = false;
-  });
-
-  /* Profil speichern */
-  document.getElementById("save-profil-btn").addEventListener("click", async function() {
-    showStatus("profil-status", "loading", "Wird gespeichert...");
-    this.disabled = true;
-    try {
-      var html = await getFileContent("index.html");
-      var name = v("ed-name"), badge = v("ed-badge"), catchphrase = v("ed-catchphrase"), bio = v("ed-bio");
-      var tags = v("ed-tags").split(",").map(function(t){ return t.trim(); });
-      var factName = v("ed-fact-name"), factAge = v("ed-fact-age"), factHeight = v("ed-fact-height"), factOrigin = v("ed-fact-origin");
-      var quote = v("ed-quote"), bio1 = v("ed-bio1"), bio2 = v("ed-bio2");
-
-      html = replaceTag(html, 'h1 class="name"', "h1", name);
-      html = replaceTag(html, 'p class="badge"', "p", badge);
-      html = replaceTag(html, 'p class="catchphrase"', "p", catchphrase.replace(/&/g,"&amp;"));
-      html = replaceTag(html, 'p class="bio"', "p", bio + "<br>Willkommen :3");
-
-      var tagsHtml = tags.map(function(t){ return '<span class="tag">' + t + '</span>'; }).join("\n        ");
-      html = html.replace(/(<div class="tags"[^>]*>)([\s\S]*?)(<\/div>)/, function(m, open, content, close) { return open + "\n        " + tagsHtml + "\n      " + close; });
-
-      var factVals = [factName, factAge, factHeight, factOrigin];
-      var fi = 0;
-      html = html.replace(/<span class="ao-fact__val">[\s\S]*?<\/span>/g, function(m) { return fi < factVals.length ? '<span class="ao-fact__val">' + factVals[fi++] + '</span>' : m; });
-
-      html = replaceTag(html, 'p class="ao-hero__quote"', "p", '"' + quote.replace(/&/g, "&amp;") + '"');
-      html = html.replace(/(<div class="ao-text-block">[\s\S]*?<p>)([\s\S]*?)(<\/p>[\s\S]*?<p>)([\s\S]*?)(<\/p>[\s\S]*?<\/div>)/, (match, p1, p2, p3, p4, p5) => p1 + bio1 + p3 + bio2 + p5);
-
-      await pushHtml(html);
-      showStatus("profil-status", "success", "Gespeichert! Live in ~30 Sek.");
-    } catch(e) { showStatus("profil-status", "error", "Fehler: " + e.message); }
-    this.disabled = false;
-  });
-
-  /* Links speichern */
-  document.getElementById("save-links-btn").addEventListener("click", async function() {
-    showStatus("links-status", "loading", "Wird gespeichert...");
-    this.disabled = true;
-    try {
-      var html = await getFileContent("index.html");
-      document.querySelectorAll("[data-link]").forEach(function(el) {
-        var brand = el.dataset.link, type = el.dataset.type, val = el.value;
-        if (type === "label") {
-          html = html.replace(new RegExp('(data-brand="' + brand + '"[\\s\\S]*?<span class="link__label">)[\\s\\S]*?(<\\/span>)'), "$1" + val + "$2");
-        } else if (type === "hint") {
-          var hintRx = new RegExp('(data-brand="' + brand + '"[\\s\\S]*?<span class="link__hint">)[\\s\\S]*?(<\\/span>)');
-          if (val) html = html.replace(hintRx, "$1" + val + "$2");
-        }
-      });
-      await pushHtml(html);
-      showStatus("links-status", "success", "Gespeichert! Live in ~30 Sek.");
-    } catch(e) { showStatus("links-status", "error", "Fehler: " + e.message); }
-    this.disabled = false;
-  });
-
-  /* Kollegen */
-  function bindDelButtons() {
-    document.querySelectorAll(".collab-row__del").forEach(function(btn) {
-      btn.onclick = function() { btn.closest(".collab-row").remove(); };
-    });
-  }
-  bindDelButtons();
-
-  document.getElementById("add-collab-btn").addEventListener("click", function() {
-    var row = document.createElement("div");
-    row.className = "collab-row";
-    row.innerHTML = '<div class="field"><label class="field__label">Name</label><input class="field__input collab-name" value=""></div><div class="field"><label class="field__label">TikTok URL</label><input class="field__input collab-url" value="https://www.tiktok.com/@"></div><button class="collab-row__del">Entfernen</button>';
-    document.getElementById("collab-editor").appendChild(row);
-    bindDelButtons();
-  });
-
-  document.getElementById("save-collabs-btn").addEventListener("click", async function() {
-    showStatus("collabs-status", "loading", "Wird gespeichert...");
-    this.disabled = true;
-    try {
-      var html = await getFileContent("index.html");
-      var collabs = [];
-      document.querySelectorAll(".collab-row").forEach(function(row) {
-        var name = row.querySelector(".collab-name").value.trim();
-        var url = row.querySelector(".collab-url").value.trim();
-        if (name && url) collabs.push({ name: name, url: url, initial: name.charAt(0).toUpperCase() });
-      });
-      var collabHtml = collabs.map(function(c) {
-        return '<li class="collab-card">\n' +
-          '            <div class="collab-card__avatar-wrap">\n' +
-          '              <img class="collab-card__avatar" src="collabs/' + c.name.toLowerCase() + '.jpg" data-fallback="https://unavatar.io/tiktok/' + c.url.split("@")[1] + '" alt="' + c.name + '" width="44" height="44">\n' +
-          '              <span class="collab-card__initials" aria-hidden="true">' + c.initial + '</span>\n' +
-          '            </div>\n' +
-          '            <div class="collab-card__info">\n' +
-          '              <span class="collab-card__name">' + c.name + '</span>\n' +
-          '              <a class="collab-card__btn" href="' + c.url + '" target="_blank" rel="noopener noreferrer">Zum Kanal</a>\n' +
-          '            </div>\n' +
-          '          </li>';
-      }).join("\n          ");
-      html = html.replace(/(<ul class="collab-list">)([\s\S]*?)(<\/ul>)/, "$1\n          " + collabHtml + "\n        $3");
-      await pushHtml(html);
-      showStatus("collabs-status", "success", "Gespeichert! Live in ~30 Sek.");
-    } catch(e) { showStatus("collabs-status", "error", "Fehler: " + e.message); }
-    this.disabled = false;
-  });
-
-  /* Helpers */
-  function v(id) { return document.getElementById(id).value; }
-
-  function replaceTag(html, openAttr, tag, content) {
-    var rx = new RegExp('<' + tag + ' ' + openAttr.replace(/[.*+?^${}()|[\]\\]/g,"\\$&") + '>([\\s\\S]*?)<\\/' + tag + '>');
-    return html.replace(rx, "<" + tag + " " + openAttr + ">" + content + "</" + tag + ">");
-  }
-
-  var _htmlCache = null;
-  var _htmlSha = null;
-
-  async function getFileContent(filename) {
-    var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/" + filename, { headers: { "Authorization": "token " + githubToken } });
-    var data = await res.json();
-    _htmlSha = data.sha;
-    return fromBase64(data.content.replace(/\n/g,""));
-  }
-
-  async function pushHtml(html) {
-    var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/index.html", {
-      method: "PUT",
-      headers: { "Authorization": "token " + githubToken, "Content-Type": "application/json" },
-      body: JSON.stringify({ message: "Admin: Seite aktualisiert", content: toBase64(html), sha: _htmlSha })
-    });
-    if (!res.ok) { var err = await res.json(); throw new Error(err.message || res.status); }
-    _htmlSha = null;
-  }
-
-  async function getFileSha(filename) {
-    try {
-      var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/" + filename, { headers: { "Authorization": "token " + githubToken } });
-      if (res.ok) { var d = await res.json(); return d.sha; }
-    } catch(e) {} return null;
-  }
-
-  async function getGalleryFiles() {
-    try {
-      var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/", { headers: { "Authorization": "token " + githubToken } });
-      var files = await res.json();
-      var imgs = files.filter(function(f) { return /^gallery\d+\./i.test(f.name); });
-      imgs.sort(function(a,b) { return parseInt(a.name.match(/\d+/)[0]) - parseInt(b.name.match(/\d+/)[0]); });
-      return imgs;
-    } catch(e) { return []; }
-  }
-
-  async function githubPut(filename, base64Content, message) {
-    var url = "https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/" + filename;
-    var res = await fetch(url, { method: "PUT", headers: { "Authorization": "token " + githubToken, "Content-Type": "application/json" }, body: JSON.stringify({ message: message, content: base64Content }) });
-    if (!res.ok) { var err = await res.json(); throw new Error(err.message || res.status); }
-  }
-
-  function fileToBase64(file) {
-    return new Promise(function(resolve, reject) {
-      var r = new FileReader(); r.onload = function() { resolve(r.result.split(",")[1]); }; r.onerror = reject; r.readAsDataURL(file);
-    });
-  }
-
-  async function loadCurrentImages() {
-    var grid = document.getElementById("current-grid");
-    grid.innerHTML = "<p style='font-size:0.82rem;color:var(--text-muted)'>Lädt...</p>";
-    var files = await getGalleryFiles();
-    if (!files.length) { grid.innerHTML = "<p style='font-size:0.82rem;color:var(--text-muted)'>Noch keine Bilder</p>"; return; }
-    grid.innerHTML = "";
-    files.forEach(function(f) {
-      var item = document.createElement("div"); item.className = "current-item";
-      item.innerHTML = '<img src="' + f.download_url + '" loading="lazy"><span class="current-item__label">' + f.name + '</span>';
-      grid.appendChild(item);
-    });
-  }
-
-  function showStatus(id, type, msg) {
-    var el = document.getElementById(id); el.className = "status status--" + type; el.textContent = msg; el.style.display = "block";
-  }
-</script>
+  <script src="particles.js"></script>
+  <script src="cursor.js"></script>
+  <script src="site.js"></script>
 </body>
 </html>
