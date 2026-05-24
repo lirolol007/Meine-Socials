@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liro — Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080808;
+      --surface: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.08);
+      --text: #f4f4f5;
+      --text-muted: #9ca3af;
+      --radius: 16px;
+      --accent: rgba(255,255,255,0.9);
+    }
+
+    body {
+      font-family: "Outfit", system-ui, sans-serif;
+      background: var(--bg);
+      background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    /* ── Login ── */
+    .login {
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .login__title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .login__sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .login__input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s;
+    }
+
+    .login__input:focus {
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #000;
+      background: #ffffff;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn--ghost {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: auto;
+      padding: 0.55rem 1rem;
+      font-size: 0.82rem;
+    }
+
+    .login__error {
+      color: #ff6b6b;
+      font-size: 0.82rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    /* ── Admin Panel ── */
+    .admin { display: none; width: 100%; max-width: 640px; }
+
+    .admin__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .admin__title { font-size: 1.4rem; font-weight: 700; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card__title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Upload Zone */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 1rem;
+    }
+
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .upload-zone__icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .upload-zone__text { font-size: 0.9rem; color: var(--text-muted); }
+    .upload-zone__text strong { color: var(--text); }
+
+    #file-input { display: none; }
+
+    /* Preview */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 1rem;
+    }
+
+    .preview-item {
+      position: relative;
+      aspect-ratio: 4/3;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .preview-item__remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 22px;
+      height: 22px;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      color: white;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .preview-item__name {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.65);
+      font-size: 0.6rem;
+      padding: 3px 5px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Status */
+    .status {
+      font-size: 0.82rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 10px;
+      margin-top: 0.75rem;
+      display: none;
+    }
+
+    .status--success { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; }
+    .status--error   { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); color: #ff6b6b; }
+    .status--loading { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); }
+
+    /* Current images */
+    .current-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .current-item {
+      position: relative;
+      aspect-ratio: 4/3;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .current-item img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .current-item__label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.7);
+      font-size: 0.62rem;
+      padding: 3px 5px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .progress-bar-wrap {
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 0.75rem;
+      display: none;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: white;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Login ── -->
+  <div class="login" id="login-screen">
+    <p class="login__title">🦊 Admin</p>
+    <p class="login__sub">Nur für Liro</p>
+    <input type="password" class="login__input" id="pw-input" placeholder="Passwort" autocomplete="current-password">
+    <button class="btn" id="pw-btn">Einloggen</button>
+    <p class="login__error" id="pw-error">Falsches Passwort!</p>
+  </div>
+
+  <!-- ── Admin Panel ── -->
+  <div class="admin" id="admin-panel">
+    <div class="admin__header">
+      <p class="admin__title">🦊 Galerie verwalten</p>
+      <button class="btn btn--ghost" id="logout-btn">Ausloggen</button>
+    </div>
+
+    <!-- Upload -->
+    <div class="card">
+      <p class="card__title">Bilder hochladen</p>
+      <div class="upload-zone" id="upload-zone">
+        <div class="upload-zone__icon">📸</div>
+        <p class="upload-zone__text"><strong>Klicken</strong> oder Bilder reinziehen</p>
+        <p class="upload-zone__text" style="font-size:0.78rem;margin-top:0.3rem">PNG, JPG — mehrere gleichzeitig möglich</p>
+      </div>
+      <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp" multiple>
+      <div class="preview-grid" id="preview-grid"></div>
+      <button class="btn" id="upload-btn" disabled>Hochladen</button>
+      <div class="progress-bar-wrap" id="progress-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="status" id="upload-status"></div>
+    </div>
+
+    <!-- Aktuelle Bilder -->
+    <div class="card">
+      <p class="card__title">Aktuelle Galerie-Bilder</p>
+      <div class="current-grid" id="current-grid">
+        <p style="font-size:0.82rem;color:var(--text-muted)">Lädt...</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ── CONFIG — NUR DU SIEHST DAS ──
+  var GITHUB_TOKEN  = "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";   // <-- Token hier eintragen
+  var GITHUB_USER   = "Lirolol007";
+  var GITHUB_REPO   = "Meine-Socials";
+  var ADMIN_PASSWORD = "LiondroMagCreeper007"; // <-- eigenes Passwort wählen
+  // ────────────────────────────────
+
+  var loggedIn = false;
+  var pendingFiles = [];
+
+  /* —— Login —— */
+  document.getElementById("pw-btn").addEventListener("click", tryLogin);
+  document.getElementById("pw-input").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") tryLogin();
+  });
+
+  function tryLogin() {
+    var pw = document.getElementById("pw-input").value;
+    if (pw === ADMIN_PASSWORD) {
+      loggedIn = true;
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("admin-panel").style.display = "block";
+      loadCurrentImages();
+    } else {
+      document.getElementById("pw-error").style.display = "block";
+    }
+  }
+
+  document.getElementById("logout-btn").addEventListener("click", function() {
+    loggedIn = false;
+    location.reload();
+  });
+
+  /* —— Upload Zone —— */
+  var zone = document.getElementById("upload-zone");
+  var fileInput = document.getElementById("file-input");
+
+  zone.addEventListener("click", function() { fileInput.click(); });
+  zone.addEventListener("dragover", function(e) { e.preventDefault(); zone.classList.add("drag-over"); });
+  zone.addEventListener("dragleave", function() { zone.classList.remove("drag-over"); });
+  zone.addEventListener("drop", function(e) {
+    e.preventDefault();
+    zone.classList.remove("drag-over");
+    addFiles(Array.from(e.dataTransfer.files));
+  });
+  fileInput.addEventListener("change", function() {
+    addFiles(Array.from(fileInput.files));
+    fileInput.value = "";
+  });
+
+  function addFiles(files) {
+    files.forEach(function(f) {
+      if (!f.type.startsWith("image/")) return;
+      pendingFiles.push(f);
+    });
+    renderPreviews();
+  }
+
+  function renderPreviews() {
+    var grid = document.getElementById("preview-grid");
+    grid.innerHTML = "";
+    pendingFiles.forEach(function(f, i) {
+      var url = URL.createObjectURL(f);
+      var item = document.createElement("div");
+      item.className = "preview-item";
+      item.innerHTML = '<img src="' + url + '"><span class="preview-item__name">' + f.name + '</span><button class="preview-item__remove" data-i="' + i + '">×</button>';
+      grid.appendChild(item);
+    });
+    grid.querySelectorAll(".preview-item__remove").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        pendingFiles.splice(parseInt(btn.dataset.i), 1);
+        renderPreviews();
+      });
+    });
+    document.getElementById("upload-btn").disabled = pendingFiles.length === 0;
+  }
+
+  /* —— Upload to GitHub —— */
+  document.getElementById("upload-btn").addEventListener("click", uploadFiles);
+
+  async function uploadFiles() {
+    if (!pendingFiles.length) return;
+    var btn = document.getElementById("upload-btn");
+    var status = document.getElementById("upload-status");
+    var progressWrap = document.getElementById("progress-wrap");
+    var progressBar = document.getElementById("progress-bar");
+
+    btn.disabled = true;
+    progressWrap.style.display = "block";
+    showStatus("loading", "Bilder werden hochgeladen...");
+
+    // Bestehende gallery*.* Dateien zählen
+    var existing = await getExistingGalleryFiles();
+    var nextNum = existing.length + 1;
+    var total = pendingFiles.length;
+    var done = 0;
+
+    for (var i = 0; i < pendingFiles.length; i++) {
+      var file = pendingFiles[i];
+      var ext = file.name.split(".").pop().toLowerCase();
+      var filename = "gallery" + nextNum + "." + ext;
+      nextNum++;
+
+      try {
+        var base64 = await fileToBase64(file);
+        await pushToGitHub(filename, base64);
+        done++;
+        progressBar.style.width = Math.round((done / total) * 100) + "%";
+      } catch(e) {
+        showStatus("error", "Fehler bei " + file.name + ": " + e.message);
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    pendingFiles = [];
+    renderPreviews();
+    showStatus("success", done + " Bild(er) erfolgreich hochgeladen! Seite wird in ~30 Sek. aktualisiert.");
+    progressWrap.style.display = "none";
+    progressBar.style.width = "0%";
+    setTimeout(loadCurrentImages, 2000);
+  }
+
+  async function getExistingGalleryFiles() {
+    try {
+      var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/", {
+        headers: { "Authorization": "token " + GITHUB_TOKEN }
+      });
+      var files = await res.json();
+      return files.filter(function(f) { return /^gallery\d+\./i.test(f.name); });
+    } catch(e) { return []; }
+  }
+
+  async function pushToGitHub(filename, base64) {
+    var url = "https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/" + filename;
+    var res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Authorization": "token " + GITHUB_TOKEN,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: "Galerie: " + filename + " hinzugefügt",
+        content: base64
+      })
+    });
+    if (!res.ok) {
+      var err = await res.json();
+      throw new Error(err.message || res.status);
+    }
+  }
+
+  function fileToBase64(file) {
+    return new Promise(function(resolve, reject) {
+      var r = new FileReader();
+      r.onload = function() { resolve(r.result.split(",")[1]); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+
+  /* —— Aktuelle Bilder laden —— */
+  async function loadCurrentImages() {
+    var grid = document.getElementById("current-grid");
+    grid.innerHTML = "<p style='font-size:0.82rem;color:var(--text-muted)'>Lädt...</p>";
+    try {
+      var files = await getExistingGalleryFiles();
+      if (!files.length) {
+        grid.innerHTML = "<p style='font-size:0.82rem;color:var(--text-muted)'>Noch keine Bilder</p>";
+        return;
+      }
+      grid.innerHTML = "";
+      files.forEach(function(f) {
+        var item = document.createElement("div");
+        item.className = "current-item";
+        item.innerHTML = '<img src="' + f.download_url + '" loading="lazy"><span class="current-item__label">' + f.name + '</span>';
+        grid.appendChild(item);
+      });
+    } catch(e) {
+      grid.innerHTML = "<p style='font-size:0.82rem;color:#ff6b6b'>Fehler beim Laden</p>";
+    }
+  }
+
+  function showStatus(type, msg) {
+    var el = document.getElementById("upload-status");
+    el.className = "status status--" + type;
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+</script>
+</body>
+</html>
