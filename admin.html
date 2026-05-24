@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --bg: #080808;
       --surface: rgba(255,255,255,0.05);
@@ -17,9 +16,7 @@
       --text: #f4f4f5;
       --text-muted: #9ca3af;
       --radius: 16px;
-      --accent: rgba(255,255,255,0.9);
     }
-
     body {
       font-family: "Outfit", system-ui, sans-serif;
       background: var(--bg);
@@ -32,27 +29,10 @@
       justify-content: center;
       padding: 1.5rem;
     }
-
-    /* ── Login ── */
-    .login {
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-    }
-
-    .login__title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 0.35rem;
-    }
-
-    .login__sub {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      margin-bottom: 2rem;
-    }
-
-    .login__input {
+    .login { width: 100%; max-width: 380px; text-align: center; }
+    .login__title { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.35rem; }
+    .login__sub { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 2rem; }
+    .input {
       width: 100%;
       padding: 0.85rem 1rem;
       background: var(--surface);
@@ -60,16 +40,20 @@
       border-radius: var(--radius);
       color: var(--text);
       font-family: inherit;
-      font-size: 1rem;
+      font-size: 0.95rem;
       outline: none;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.65rem;
       transition: border-color 0.2s;
     }
-
-    .login__input:focus {
-      border-color: rgba(255,255,255,0.3);
+    .input:focus { border-color: rgba(255,255,255,0.3); }
+    .input__hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: left;
+      margin-top: -0.4rem;
+      margin-bottom: 0.65rem;
+      padding-left: 0.25rem;
     }
-
     .btn {
       display: inline-flex;
       align-items: center;
@@ -87,10 +71,8 @@
       cursor: pointer;
       transition: opacity 0.2s, transform 0.2s;
     }
-
     .btn:hover { opacity: 0.9; transform: translateY(-2px); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
     .btn--ghost {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -99,202 +81,62 @@
       padding: 0.55rem 1rem;
       font-size: 0.82rem;
     }
+    .login__error { color: #ff6b6b; font-size: 0.82rem; margin-top: 0.65rem; display: none; }
 
-    .login__error {
-      color: #ff6b6b;
-      font-size: 0.82rem;
-      margin-top: 0.5rem;
-      display: none;
-    }
-
-    /* ── Admin Panel ── */
+    /* Admin */
     .admin { display: none; width: 100%; max-width: 640px; }
-
-    .admin__header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 2rem;
-    }
-
+    .admin__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
     .admin__title { font-size: 1.4rem; font-weight: 700; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .card__title { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .card__title {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-      padding-bottom: 0.6rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    /* Upload Zone */
-    .upload-zone {
-      border: 2px dashed var(--border);
-      border-radius: 12px;
-      padding: 2.5rem 1.5rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      margin-bottom: 1rem;
-    }
-
-    .upload-zone:hover, .upload-zone.drag-over {
-      border-color: rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.03);
-    }
-
+    .upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; margin-bottom: 1rem; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.03); }
     .upload-zone__icon { font-size: 2rem; margin-bottom: 0.5rem; }
     .upload-zone__text { font-size: 0.9rem; color: var(--text-muted); }
     .upload-zone__text strong { color: var(--text); }
-
     #file-input { display: none; }
 
-    /* Preview */
-    .preview-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 0.65rem;
-      margin-bottom: 1rem;
-    }
+    .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.65rem; margin-bottom: 1rem; }
+    .preview-item { position: relative; aspect-ratio: 4/3; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .preview-item__remove { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; color: white; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .preview-item__name { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.65); font-size: 0.6rem; padding: 3px 5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .preview-item {
-      position: relative;
-      aspect-ratio: 4/3;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-
-    .preview-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .preview-item__remove {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 22px;
-      height: 22px;
-      background: rgba(0,0,0,0.7);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 50%;
-      color: white;
-      font-size: 0.8rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-    }
-
-    .preview-item__name {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(0,0,0,0.65);
-      font-size: 0.6rem;
-      padding: 3px 5px;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Status */
-    .status {
-      font-size: 0.82rem;
-      padding: 0.65rem 0.85rem;
-      border-radius: 10px;
-      margin-top: 0.75rem;
-      display: none;
-    }
-
+    .status { font-size: 0.82rem; padding: 0.65rem 0.85rem; border-radius: 10px; margin-top: 0.75rem; display: none; }
     .status--success { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); color: #4ade80; }
-    .status--error   { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); color: #ff6b6b; }
+    .status--error { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.2); color: #ff6b6b; }
     .status--loading { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); }
 
-    /* Current images */
-    .current-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 0.65rem;
-    }
+    .current-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.65rem; }
+    .current-item { position: relative; aspect-ratio: 4/3; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    .current-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .current-item__label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); font-size: 0.62rem; padding: 3px 5px; color: var(--text-muted); text-align: center; }
 
-    .current-item {
-      position: relative;
-      aspect-ratio: 4/3;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-
-    .current-item img {
-      width: 100%; height: 100%;
-      object-fit: cover; display: block;
-    }
-
-    .current-item__label {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(0,0,0,0.7);
-      font-size: 0.62rem;
-      padding: 3px 5px;
-      color: var(--text-muted);
-      text-align: center;
-    }
-
-    .progress-bar-wrap {
-      height: 4px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 99px;
-      overflow: hidden;
-      margin-top: 0.75rem;
-      display: none;
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: white;
-      border-radius: 99px;
-      width: 0%;
-      transition: width 0.3s ease;
-    }
+    .progress-bar-wrap { height: 4px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; margin-top: 0.75rem; display: none; }
+    .progress-bar { height: 100%; background: white; border-radius: 99px; width: 0%; transition: width 0.3s ease; }
   </style>
 </head>
 <body>
 
-  <!-- ── Login ── -->
+  <!-- Login -->
   <div class="login" id="login-screen">
     <p class="login__title">🦊 Admin</p>
     <p class="login__sub">Nur für Liro</p>
-    <input type="password" class="login__input" id="pw-input" placeholder="Passwort" autocomplete="current-password">
+    <input type="password" class="input" id="pw-input" placeholder="Passwort">
+    <input type="password" class="input" id="token-input" placeholder="GitHub Token (ghp_...)">
+    <p class="input__hint">Token wird nur lokal gespeichert — nie hochgeladen</p>
     <button class="btn" id="pw-btn">Einloggen</button>
     <p class="login__error" id="pw-error">Falsches Passwort!</p>
   </div>
 
-  <!-- ── Admin Panel ── -->
+  <!-- Admin Panel -->
   <div class="admin" id="admin-panel">
     <div class="admin__header">
       <p class="admin__title">🦊 Galerie verwalten</p>
       <button class="btn btn--ghost" id="logout-btn">Ausloggen</button>
     </div>
 
-    <!-- Upload -->
     <div class="card">
       <p class="card__title">Bilder hochladen</p>
       <div class="upload-zone" id="upload-zone">
@@ -311,7 +153,6 @@
       <div class="status" id="upload-status"></div>
     </div>
 
-    <!-- Aktuelle Bilder -->
     <div class="card">
       <p class="card__title">Aktuelle Galerie-Bilder</p>
       <div class="current-grid" id="current-grid">
@@ -321,36 +162,33 @@
   </div>
 
 <script>
-  // ── CONFIG — NUR DU SIEHST DAS ──
-  var GITHUB_TOKEN  = "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";   // <-- Token hier eintragen
-  var GITHUB_USER   = "Lirolol007";
-  var GITHUB_REPO   = "Meine-Socials";
-  var ADMIN_PASSWORD = "LiondroMagCreeper007"; // <-- eigenes Passwort wählen
-  // ────────────────────────────────
-
-  var loggedIn = false;
+  var GITHUB_USER = "Lirolol007";
+  var GITHUB_REPO = "Meine-Socials";
+  var ADMIN_PASSWORD = "DEIN_PASSWORT_HIER"; // <-- hier dein Passwort eintragen
+  var githubToken = "";
   var pendingFiles = [];
 
   /* —— Login —— */
   document.getElementById("pw-btn").addEventListener("click", tryLogin);
-  document.getElementById("pw-input").addEventListener("keydown", function(e) {
-    if (e.key === "Enter") tryLogin();
-  });
+  document.getElementById("pw-input").addEventListener("keydown", function(e) { if (e.key === "Enter") tryLogin(); });
+  document.getElementById("token-input").addEventListener("keydown", function(e) { if (e.key === "Enter") tryLogin(); });
 
   function tryLogin() {
     var pw = document.getElementById("pw-input").value;
-    if (pw === ADMIN_PASSWORD) {
-      loggedIn = true;
+    var token = document.getElementById("token-input").value.trim();
+    if (pw === ADMIN_PASSWORD && token.startsWith("ghp_")) {
+      githubToken = token;
       document.getElementById("login-screen").style.display = "none";
       document.getElementById("admin-panel").style.display = "block";
       loadCurrentImages();
     } else {
       document.getElementById("pw-error").style.display = "block";
+      document.getElementById("pw-error").textContent = !token.startsWith("ghp_") ? "Token ungültig — fängt mit ghp_ an?" : "Falsches Passwort!";
     }
   }
 
   document.getElementById("logout-btn").addEventListener("click", function() {
-    loggedIn = false;
+    githubToken = "";
     location.reload();
   });
 
@@ -372,10 +210,7 @@
   });
 
   function addFiles(files) {
-    files.forEach(function(f) {
-      if (!f.type.startsWith("image/")) return;
-      pendingFiles.push(f);
-    });
+    files.forEach(function(f) { if (f.type.startsWith("image/")) pendingFiles.push(f); });
     renderPreviews();
   }
 
@@ -398,21 +233,18 @@
     document.getElementById("upload-btn").disabled = pendingFiles.length === 0;
   }
 
-  /* —— Upload to GitHub —— */
+  /* —— Upload —— */
   document.getElementById("upload-btn").addEventListener("click", uploadFiles);
 
   async function uploadFiles() {
     if (!pendingFiles.length) return;
     var btn = document.getElementById("upload-btn");
-    var status = document.getElementById("upload-status");
     var progressWrap = document.getElementById("progress-wrap");
     var progressBar = document.getElementById("progress-bar");
-
     btn.disabled = true;
     progressWrap.style.display = "block";
     showStatus("loading", "Bilder werden hochgeladen...");
 
-    // Bestehende gallery*.* Dateien zählen
     var existing = await getExistingGalleryFiles();
     var nextNum = existing.length + 1;
     var total = pendingFiles.length;
@@ -423,7 +255,6 @@
       var ext = file.name.split(".").pop().toLowerCase();
       var filename = "gallery" + nextNum + "." + ext;
       nextNum++;
-
       try {
         var base64 = await fileToBase64(file);
         await pushToGitHub(filename, base64);
@@ -438,16 +269,16 @@
 
     pendingFiles = [];
     renderPreviews();
-    showStatus("success", done + " Bild(er) erfolgreich hochgeladen! Seite wird in ~30 Sek. aktualisiert.");
+    showStatus("success", done + " Bild(er) hochgeladen! Seite aktualisiert sich in ~30 Sek.");
     progressWrap.style.display = "none";
     progressBar.style.width = "0%";
-    setTimeout(loadCurrentImages, 2000);
+    setTimeout(loadCurrentImages, 3000);
   }
 
   async function getExistingGalleryFiles() {
     try {
       var res = await fetch("https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/", {
-        headers: { "Authorization": "token " + GITHUB_TOKEN }
+        headers: { "Authorization": "token " + githubToken }
       });
       var files = await res.json();
       return files.filter(function(f) { return /^gallery\d+\./i.test(f.name); });
@@ -458,14 +289,8 @@
     var url = "https://api.github.com/repos/" + GITHUB_USER + "/" + GITHUB_REPO + "/contents/" + filename;
     var res = await fetch(url, {
       method: "PUT",
-      headers: {
-        "Authorization": "token " + GITHUB_TOKEN,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: "Galerie: " + filename + " hinzugefügt",
-        content: base64
-      })
+      headers: { "Authorization": "token " + githubToken, "Content-Type": "application/json" },
+      body: JSON.stringify({ message: "Galerie: " + filename + " hinzugefügt", content: base64 })
     });
     if (!res.ok) {
       var err = await res.json();
@@ -482,16 +307,12 @@
     });
   }
 
-  /* —— Aktuelle Bilder laden —— */
   async function loadCurrentImages() {
     var grid = document.getElementById("current-grid");
     grid.innerHTML = "<p style='font-size:0.82rem;color:var(--text-muted)'>Lädt...</p>";
     try {
       var files = await getExistingGalleryFiles();
-      if (!files.length) {
-        grid.innerHTML = "<p style='font-size:0.82rem;color:var(--text-muted)'>Noch keine Bilder</p>";
-        return;
-      }
+      if (!files.length) { grid.innerHTML = "<p style='font-size:0.82rem;color:var(--text-muted)'>Noch keine Bilder</p>"; return; }
       grid.innerHTML = "";
       files.forEach(function(f) {
         var item = document.createElement("div");
