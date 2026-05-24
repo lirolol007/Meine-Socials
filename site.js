@@ -130,11 +130,27 @@
     var lbImg = document.getElementById("lightbox-img");
     var lbClose = document.getElementById("lightbox-close");
     var lbBackdrop = document.getElementById("lightbox-backdrop");
+    var lbCaption = document.getElementById("lightbox-caption");
+    var lbTitle = document.getElementById("lightbox-caption-title");
+    var lbText = document.getElementById("lightbox-caption-text");
     if (!lightbox || !lbImg) return;
 
-    function openLightbox(src, alt) {
+    var captions = {};
+    fetch("https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/gallery-captions.json")
+      .then(function(r) { return r.ok ? r.json() : {}; })
+      .then(function(d) { captions = d; })
+      .catch(function() {});
+
+    function openLightbox(src, filename) {
       lbImg.src = src;
-      lbImg.alt = alt || "";
+      var cap = captions[filename] || {};
+      if (cap.title || cap.text) {
+        lbTitle.textContent = cap.title || "";
+        lbText.textContent = cap.text || "";
+        lbCaption.style.display = "block";
+      } else {
+        lbCaption.style.display = "none";
+      }
       lightbox.removeAttribute("hidden");
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
@@ -167,6 +183,8 @@
         closeLightbox();
       }
     });
+
+    window._openLightbox = openLightbox;
   })();
 
   /* —— Galerie Overlay —— */
@@ -203,15 +221,8 @@
           img.alt = f.name;
           img.loading = "lazy";
           item.appendChild(img);
-          item.addEventListener("click", function() {
-            var lb = document.getElementById("lightbox");
-            var lbImg = document.getElementById("lightbox-img");
-            if (!lb || !lbImg) return;
-            lbImg.src = f.download_url;
-            lb.removeAttribute("hidden");
-            requestAnimationFrame(function() {
-              requestAnimationFrame(function() { lb.classList.add("is-open"); });
-            });
+          item.addEventListener("click", function () {
+            if (window._openLightbox) window._openLightbox(f.download_url, f.name);
           });
           grid.appendChild(item);
         });

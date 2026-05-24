@@ -41,9 +41,8 @@
         <span class="tag">🦊 Fox</span>
         <span class="tag">VR</span>
         <span class="tag">DE</span>
-        <span class="tag">Meow:3</span>
       </div>
-      <p class="catchphrase">So ein Furry oderso... :3</p>
+      <p class="catchphrase">Direkt, ehrlich &amp; viel Quatsch :3</p>
       <p class="bio">VRChat · Streams · Content<br>Willkommen :3</p>
     </header>
 
@@ -322,7 +321,13 @@
   <div class="lightbox" id="lightbox" hidden aria-modal="true" role="dialog" aria-label="Bild Vollansicht">
     <div class="lightbox__backdrop" id="lightbox-backdrop"></div>
     <button class="lightbox__close" id="lightbox-close" aria-label="Schließen">×</button>
-    <img class="lightbox__img" id="lightbox-img" src="" alt="">
+    <div class="lightbox__inner">
+      <img class="lightbox__img" id="lightbox-img" src="" alt="">
+      <div class="lightbox__caption" id="lightbox-caption" style="display:none">
+        <p class="lightbox__caption-title" id="lightbox-caption-title"></p>
+        <p class="lightbox__caption-text" id="lightbox-caption-text"></p>
+      </div>
+    </div>
   </div>
 
   <script src="particles.js"></script>

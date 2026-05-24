@@ -1429,3 +1429,61 @@ body.modal-open {
 .gallery-overlay__grid::-webkit-scrollbar {
   display: none;
 }
+
+/* Lightbox Caption */
+.lightbox__inner {
+  position: relative;
+  z-index: 301;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: min(90vw, 900px);
+  max-height: 90dvh;
+  gap: 1rem;
+}
+
+.lightbox__img {
+  position: relative;
+  z-index: 301;
+  max-width: 100%;
+  max-height: 70dvh;
+  border-radius: 12px;
+  object-fit: contain;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.8);
+  transform: scale(0.88);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+
+.lightbox.is-open .lightbox__img {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.lightbox__caption {
+  position: relative;
+  z-index: 301;
+  max-width: 600px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.35s ease 0.15s, transform 0.35s ease 0.15s;
+}
+
+.lightbox.is-open .lightbox__caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.lightbox__caption-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f4f4f5;
+  margin-bottom: 0.4rem;
+}
+
+.lightbox__caption-text {
+  font-size: 0.88rem;
+  color: #9ca3af;
+  line-height: 1.65;
+}
