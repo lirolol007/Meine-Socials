@@ -175,7 +175,51 @@
     var overlay = document.getElementById("gallery-overlay");
     var closeBtn = document.getElementById("gallery-overlay-close");
     var backdrop = document.getElementById("gallery-overlay-backdrop");
+    var grid = document.getElementById("gallery-overlay-grid");
     if (!btn || !overlay) return;
+
+    var loaded = false;
+
+    async function loadGalleryImages() {
+      try {
+        var res = await fetch("https://api.github.com/repos/Lirolol007/Meine-Socials/contents/");
+        var files = await res.json();
+        var images = files.filter(function(f) { return /^gallery\d+\./i.test(f.name); });
+        images.sort(function(a, b) {
+          var na = parseInt(a.name.match(/\d+/)[0]);
+          var nb = parseInt(b.name.match(/\d+/)[0]);
+          return na - nb;
+        });
+        if (!images.length) {
+          grid.innerHTML = "<p style='font-size:0.85rem;color:#9ca3af;padding:1rem'>Noch keine Bilder</p>";
+          return;
+        }
+        grid.innerHTML = "";
+        images.forEach(function(f) {
+          var item = document.createElement("div");
+          item.className = "ao-gallery__item";
+          var img = document.createElement("img");
+          img.src = f.download_url;
+          img.alt = f.name;
+          img.loading = "lazy";
+          item.appendChild(img);
+          item.addEventListener("click", function() {
+            var lb = document.getElementById("lightbox");
+            var lbImg = document.getElementById("lightbox-img");
+            if (!lb || !lbImg) return;
+            lbImg.src = f.download_url;
+            lb.removeAttribute("hidden");
+            requestAnimationFrame(function() {
+              requestAnimationFrame(function() { lb.classList.add("is-open"); });
+            });
+          });
+          grid.appendChild(item);
+        });
+        loaded = true;
+      } catch(e) {
+        grid.innerHTML = "<p style='font-size:0.85rem;color:#ff6b6b;padding:1rem'>Fehler beim Laden der Bilder</p>";
+      }
+    }
 
     function openGallery() {
       overlay.removeAttribute("hidden");
@@ -185,6 +229,7 @@
         });
       });
       document.body.classList.add("modal-open");
+      if (!loaded) loadGalleryImages();
     }
 
     function closeGallery() {
@@ -200,24 +245,6 @@
     backdrop.addEventListener("click", closeGallery);
 
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && !overlay.hasAttribute("hidden")) {
-        closeGallery();
-      }
-    });
-
-    /* Lightbox auch im Galerie-Overlay */
-    overlay.querySelectorAll(".ao-gallery__item img").forEach(function (img) {
-      img.parentElement.addEventListener("click", function () {
-        var lb = document.getElementById("lightbox");
-        var lbImg = document.getElementById("lightbox-img");
-        if (!lb || !lbImg) return;
-        lbImg.src = img.src;
-        lb.removeAttribute("hidden");
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            lb.classList.add("is-open");
-          });
-        });
-      });
+      if (e.key === "Escape" && !overlay.hasAttribute("hidden")) closeGallery();
     });
   })();
