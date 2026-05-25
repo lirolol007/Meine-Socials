@@ -250,7 +250,15 @@
   window.addEventListener("load", function() {
     var saved = localStorage.getItem("liro_admin_v2");
     if (saved) {
-      try { var d = JSON.parse(saved); if (d.token && d.token.startsWith("ghp_")) { githubToken = d.token; showAdmin(); } } catch(e) {}
+      try { 
+        var d = JSON.parse(saved); 
+        if (d.token && d.token.startsWith("ghp_")) { 
+          githubToken = d.token; 
+          showAdmin(); 
+        } 
+      } catch(e) {
+        localStorage.removeItem("liro_admin_v2");
+      }
     }
   });
 
@@ -283,7 +291,17 @@
     loadLinksFromRepo();
   }
 
-  document.getElementById("logout-btn").addEventListener("click", function() { localStorage.removeItem("liro_admin_v2"); location.reload(); });
+  /* Vercel-sicherer Logout ohne page reload Loop */
+  document.getElementById("logout-btn").addEventListener("click", function() { 
+    localStorage.removeItem("liro_admin_v2"); 
+    githubToken = "";
+    document.getElementById("pw-input").value = "";
+    document.getElementById("token-input").value = "";
+    document.getElementById("admin-panel").style.display = "none";
+    document.getElementById("login-screen").style.display = "block";
+    var err = document.getElementById("pw-error");
+    if(err) err.style.display = "none";
+  });
 
   /* Tabs */
   document.querySelectorAll(".tab-btn").forEach(function(btn) {
@@ -524,7 +542,6 @@
       // Kollegen laden
       var collabEditor = document.getElementById("collab-editor");
       collabEditor.innerHTML = "";
-      var collabMatches = html.matchAll ? html.matchAll(/<span class="collab-card__name">([\s\S]*?)<\/span>[\s\S]*?href="([^"]*)"[^>]*>Zum Kanal<\/a>/g) : [];
       var collabList = [];
       html.replace(/<span class="collab-card__name">([\s\S]*?)<\/span>[\s\S]*?href="([^"]*)"[^>]*>Zum Kanal<\/a>/g, function(m, name, url) {
         collabList.push({ name: name.trim(), url: url.trim() });
