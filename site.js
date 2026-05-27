@@ -118,11 +118,9 @@
         setTimeout(function () {
           overlay.setAttribute("hidden", "");
         }, 450);
-        document.body.classList.remove("modal-open");
       }
     }
   });
-})();
 
   /* —— Lightbox —— */
   (function () {
@@ -260,112 +258,98 @@
     });
   })();
 
-  /* —— Site Data laden —— */
-  (function () {
-    var siteDataJSON = null;
-    
-    // Versuche von site-data.json zu laden
+  /* —— Site Data laden (am Ende) —— */
+  setTimeout(function() {
     fetch("site-data.json?t=" + Date.now())
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(d) { 
-        if (d) {
-          siteDataJSON = d;
-          applyData(d);
-        }
+        if (!d) return;
+        applyData(d);
       })
-      .catch(function() { 
-        console.log("site-data.json nicht gefunden, verwende defaults");
+      .catch(function(e) { 
+        console.log("site-data.json konnte nicht geladen werden");
       });
+  }, 100);
 
-    function applyData(d) {
-      if (!d) return;
+  function applyData(d) {
+    if (!d) return;
 
-      // Hauptseite
-      var nameEl = document.querySelector(".name");
-      if (nameEl) nameEl.textContent = d.name || "";
+    var nameEl = document.querySelector(".name");
+    if (nameEl) nameEl.textContent = d.name || "";
 
-      var badgeEl = document.querySelector(".badge");
-      if (badgeEl) badgeEl.textContent = d.badge || "";
+    var badgeEl = document.querySelector(".badge");
+    if (badgeEl) badgeEl.textContent = d.badge || "";
 
-      var tagsEl = document.querySelector(".tags");
-      if (tagsEl && d.tags && d.tags.length) {
-        tagsEl.innerHTML = d.tags.map(function(t) {
-          return '<span class="tag">' + t + '</span>';
-        }).join("");
-      }
-
-      var cpEl = document.querySelector(".catchphrase");
-      if (cpEl) cpEl.textContent = d.catchphrase || "";
-
-      var bioEl = document.querySelector(".bio");
-      if (bioEl) bioEl.innerHTML = (d.bio || "") + "<br>Willkommen :3";
-
-      // Über mich Hero
-      var heroName = document.querySelector(".ao-hero__name");
-      if (heroName) heroName.textContent = d.name || "";
-
-      var heroSub = document.querySelector(".ao-hero__sub");
-      if (heroSub) heroSub.textContent = d.bio || "";
-
-      var heroQuote = document.querySelector(".ao-hero__quote");
-      if (heroQuote) heroQuote.textContent = "„" + (d.quote || "") + """;
-
-      // Fakten
-      var facts = document.querySelectorAll(".ao-fact__val");
-      var factVals = [d.factName, d.factAge, d.factHeight, d.factOrigin];
-      facts.forEach(function(el, i) { if (factVals[i] !== undefined) el.textContent = factVals[i]; });
-
-      // Bio Absätze
-      var bioBlock = document.querySelectorAll(".ao-text-block p");
-      if (bioBlock[0] && d.bio1) bioBlock[0].textContent = d.bio1;
-      if (bioBlock[1] && d.bio2) bioBlock[1].textContent = d.bio2;
-
-      // Links
-      if (d.links) {
-        Object.keys(d.links).forEach(function(brand) {
-          var link = d.links[brand];
-          var el = document.querySelector('[data-brand="' + brand + '"]');
-          if (!el) return;
-          var labelEl = el.querySelector(".link__label");
-          if (labelEl) labelEl.textContent = link.label || "";
-          var hintEl = el.querySelector(".link__hint");
-          if (hintEl) {
-            if (link.hint) { hintEl.textContent = link.hint; hintEl.style.display = ""; }
-            else hintEl.style.display = "none";
-          }
-        });
-      }
-
-      // Kollegen
-      if (d.collabs) {
-        var collabList = document.querySelector(".collab-list");
-        if (collabList) {
-          collabList.innerHTML = d.collabs.map(function(c) {
-            var initial = c.name.charAt(0).toUpperCase();
-            var tiktokHandle = c.url.includes("@") ? c.url.split("@")[1].split("?")[0] : "";
-            return '<li class="collab-card">' +
-              '<div class="collab-card__avatar-wrap">' +
-              '<img class="collab-card__avatar" src="collabs/' + c.name.toLowerCase() + '.jpg" ' +
-              'data-fallback="https://unavatar.io/tiktok/' + tiktokHandle + '" ' +
-              'alt="' + c.name + '" width="44" height="44">' +
-              '<span class="collab-card__initials" aria-hidden="true">' + initial + '</span>' +
-              '</div>' +
-              '<div class="collab-card__info">' +
-              '<span class="collab-card__name">' + c.name + '</span>' +
-              '<a class="collab-card__btn" href="' + c.url + '" target="_blank" rel="noopener noreferrer">Zum Kanal</a>' +
-              '</div></li>';
-          }).join("");
-          // Fallback-Handler neu binden
-          collabList.querySelectorAll(".collab-card__avatar[data-fallback]").forEach(function(img) {
-            img.addEventListener("error", function() {
-              if (img.dataset.tried) { img.classList.add("is-broken"); return; }
-              img.dataset.tried = "1"; img.src = img.getAttribute("data-fallback");
-            });
-          });
-        }
-      }
+    var tagsEl = document.querySelector(".tags");
+    if (tagsEl && d.tags && d.tags.length) {
+      tagsEl.innerHTML = d.tags.map(function(t) {
+        return '<span class="tag">' + t + '</span>';
+      }).join("");
     }
 
-    // Für die Admin-Seite: Daten als Fenster-Variable verfügbar machen
-    window.siteData = { get: function() { return siteDataJSON; }, apply: applyData };
-  })();
+    var cpEl = document.querySelector(".catchphrase");
+    if (cpEl) cpEl.textContent = d.catchphrase || "";
+
+    var bioEl = document.querySelector(".bio");
+    if (bioEl) bioEl.innerHTML = (d.bio || "") + "<br>Willkommen :3";
+
+    var heroName = document.querySelector(".ao-hero__name");
+    if (heroName) heroName.textContent = d.name || "";
+
+    var heroSub = document.querySelector(".ao-hero__sub");
+    if (heroSub) heroSub.textContent = d.bio || "";
+
+    var heroQuote = document.querySelector(".ao-hero__quote");
+    if (heroQuote) heroQuote.textContent = "„" + (d.quote || "") + """;
+
+    var facts = document.querySelectorAll(".ao-fact__val");
+    var factVals = [d.factName, d.factAge, d.factHeight, d.factOrigin];
+    facts.forEach(function(el, i) { if (factVals[i] !== undefined) el.textContent = factVals[i]; });
+
+    var bioBlock = document.querySelectorAll(".ao-text-block p");
+    if (bioBlock[0] && d.bio1) bioBlock[0].textContent = d.bio1;
+    if (bioBlock[1] && d.bio2) bioBlock[1].textContent = d.bio2;
+
+    if (d.links) {
+      Object.keys(d.links).forEach(function(brand) {
+        var link = d.links[brand];
+        var el = document.querySelector('[data-brand="' + brand + '"]');
+        if (!el) return;
+        var labelEl = el.querySelector(".link__label");
+        if (labelEl) labelEl.textContent = link.label || "";
+        var hintEl = el.querySelector(".link__hint");
+        if (hintEl) {
+          if (link.hint) { hintEl.textContent = link.hint; hintEl.style.display = ""; }
+          else hintEl.style.display = "none";
+        }
+      });
+    }
+
+    if (d.collabs) {
+      var collabList = document.querySelector(".collab-list");
+      if (collabList) {
+        collabList.innerHTML = d.collabs.map(function(c) {
+          var initial = c.name.charAt(0).toUpperCase();
+          var tiktokHandle = c.url.includes("@") ? c.url.split("@")[1].split("?")[0] : "";
+          return '<li class="collab-card">' +
+            '<div class="collab-card__avatar-wrap">' +
+            '<img class="collab-card__avatar" src="collabs/' + c.name.toLowerCase() + '.jpg" ' +
+            'data-fallback="https://unavatar.io/tiktok/' + tiktokHandle + '" ' +
+            'alt="' + c.name + '" width="44" height="44">' +
+            '<span class="collab-card__initials" aria-hidden="true">' + initial + '</span>' +
+            '</div>' +
+            '<div class="collab-card__info">' +
+            '<span class="collab-card__name">' + c.name + '</span>' +
+            '<a class="collab-card__btn" href="' + c.url + '" target="_blank" rel="noopener noreferrer">Zum Kanal</a>' +
+            '</div></li>';
+        }).join("");
+        collabList.querySelectorAll(".collab-card__avatar[data-fallback]").forEach(function(img) {
+          img.addEventListener("error", function() {
+            if (img.dataset.tried) { img.classList.add("is-broken"); return; }
+            img.dataset.tried = "1"; img.src = img.getAttribute("data-fallback");
+          });
+        });
+      }
+    }
+  }
+})();
