@@ -118,12 +118,20 @@ async function loadHomeModals() {
   const collabList = document.getElementById("collab-list");
   if (collabList && data.collabs?.length > 0) {
     collabList.innerHTML = data.collabs.map(c => `
-      <li>
-        <a href="${c.url}" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; font-weight: 600;">
-          ${c.name} ↗
+      <li style="text-align: center; list-style: none; padding: 1rem;">
+        <a href="${c.url}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; transition: transform 0.3s;">
+          <img src="${c.avatar || 'profile.jpg'}" alt="${c.name}" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.15); object-fit: cover; transition: transform 0.3s;">
+          <span style="color: var(--accent); font-weight: 600;">
+            ${c.name} ↗
+          </span>
         </a>
       </li>
     `).join("");
+    collabList.style.display = "grid";
+    collabList.style.gridTemplateColumns = "repeat(auto-fit, minmax(120px, 1fr))";
+    collabList.style.gap = "1rem";
+    collabList.style.listStyle = "none";
+    collabList.style.padding = "1rem 0";
   }
 }
 
