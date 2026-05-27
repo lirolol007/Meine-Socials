@@ -120,6 +120,147 @@
       margin-bottom: 1rem;
     }
 
+    /* ===== Blog Post Modal ===== */
+    .blog-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      overflow-y: auto;
+      padding: 2rem 1rem;
+    }
+
+    .blog-modal.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .blog-modal__content {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3rem;
+      max-width: 900px;
+      width: 100%;
+      margin: auto;
+      position: relative;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .blog-modal__close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .blog-modal__close:hover {
+      color: var(--accent);
+    }
+
+    .blog-post__title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .blog-post__meta {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .blog-post__body {
+      line-height: 1.8;
+      color: var(--text-muted);
+    }
+
+    /* ===== Block Styles ===== */
+    .blog-block {
+      margin-bottom: 2rem;
+    }
+
+    .blog-block--text p {
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    .blog-block--text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .blog-block--heading {
+      margin-bottom: 1.5rem;
+    }
+
+    .blog-block--heading h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .blog-block--image {
+      margin: 2rem 0;
+    }
+
+    .blog-block--image.position-left {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .blog-block--image.position-right {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .blog-block--image.position-right .blog-block--image__img {
+      order: 2;
+    }
+
+    .blog-block--image.position-full {
+      display: block;
+    }
+
+    .blog-block--image__img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .blog-block--image__img img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
     @media (max-width: 768px) {
       .blog-hero__title {
         font-size: 1.75rem;
@@ -128,6 +269,23 @@
       .blog-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+      }
+
+      .blog-modal__content {
+        padding: 2rem 1.5rem;
+      }
+
+      .blog-post__title {
+        font-size: 1.5rem;
+      }
+
+      .blog-block--image.position-left,
+      .blog-block--image.position-right {
+        grid-template-columns: 1fr;
+      }
+
+      .blog-block--image.position-right .blog-block--image__img {
+        order: unset;
       }
 
       .page--blog {
@@ -167,14 +325,12 @@
   </div>
 
   <!-- Blog-Post Modal -->
-  <div class="modal" id="blog-modal">
-    <div class="modal__backdrop" onclick="closeBlogModal()"></div>
-    <div class="modal__panel">
-      <button class="modal__close" onclick="closeBlogModal()">✕</button>
-      <h2 class="modal__title" id="blog-modal-title"></h2>
-      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;" id="blog-modal-date"></p>
-      <img id="blog-modal-img" style="width: 100%; border-radius: 12px; margin-bottom: 1.5rem; max-height: 300px; object-fit: cover;" alt="">
-      <div id="blog-modal-content" style="line-height: 1.8; color: var(--text-muted);"></div>
+  <div class="blog-modal" id="blog-modal">
+    <div class="blog-modal__content">
+      <button class="blog-modal__close" onclick="closeBlogPost()">✕</button>
+      <h1 class="blog-post__title" id="blog-post-title"></h1>
+      <div class="blog-post__meta" id="blog-post-meta"></div>
+      <div class="blog-post__body" id="blog-post-body"></div>
     </div>
   </div>
 

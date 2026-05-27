@@ -66,19 +66,21 @@ document.getElementById("nav-toggle")?.addEventListener("click", () => {
 });
 
 /* ===== Blog Page ===== */
+let allBlogPosts = [];
+
 async function initBlogPage() {
   const grid = document.getElementById("blog-grid");
   if (!grid) return;
 
   const data = await loadSiteData();
-  const posts = data.blogPosts || [];
+  allBlogPosts = data.blogPosts || [];
 
-  if (posts.length === 0) {
+  if (allBlogPosts.length === 0) {
     grid.innerHTML = '<div class="blog-empty"><p>Noch keine Blog-Posts vorhanden.</p></div>';
     return;
   }
 
-  grid.innerHTML = posts
+  grid.innerHTML = allBlogPosts
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .map(post => `
       <div class="blog-card" onclick="openBlogPost(${post.id})">
@@ -94,41 +96,86 @@ async function initBlogPage() {
     .join("");
 }
 
-/* ===== Blog Modal ===== */
-let currentBlogPosts = [];
-
-function openBlogPost(id) {
-  const post = currentBlogPosts.find(p => p.id === id);
-  if (!post) return;
-
-  document.getElementById("blog-modal-title").textContent = post.title;
-  document.getElementById("blog-modal-date").textContent = new Date(post.date).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' });
-  
-  const imgEl = document.getElementById("blog-modal-img");
-  if (post.image) {
-    imgEl.src = post.image;
-    imgEl.style.display = "block";
-  } else {
-    imgEl.style.display = "none";
+/* ===== Blog Post Rendering ===== */
+function renderBlogBlocks(blocksJson) {
+  let blocks = [];
+  try {
+    blocks = JSON.parse(blocksJson);
+  } catch (e) {
+    return "<p>Fehler beim Laden der Blöcke</p>";
   }
 
-  document.getElementById("blog-modal-content").innerHTML = post.content;
-  document.getElementById("blog-modal").classList.add("is-open");
+  return blocks.map(block => {
+    if (block.type === "text") {
+      return `
+        <div class="blog-block blog-block--text">
+          <p>${block.content.replace(/\n/g, '</p><p>')}</p>
+        </div>
+      `;
+    }
+
+    if (block.type === "heading") {
+      return `
+        <div class="blog-block blog-block--heading">
+          <h3>${block.content}</h3>
+        </div>
+      `;
+    }
+
+    if (block.type === "image") {
+      const position = block.position || "left";
+      const width = block.width || "50";
+      return `
+        <div class="blog-block blog-block--image position-${position}">
+          <div class="blog-block--image__img" style="width: ${position === 'full' ? '100%' : width + '%'};">
+            <img src="${block.url}" alt="Blog Image">
+          </div>
+        </div>
+      `;
+    }
+
+    return "";
+  }).join("");
 }
 
-function closeBlogModal() {
+function openBlogPost(id) {
+  const post = allBlogPosts.find(p => p.id === id);
+  if (!post) return;
+
+  document.getElementById("blog-post-title").textContent = post.title;
+  
+  const dateStr = new Date(post.date).toLocaleDateString('de-DE', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  document.getElementById("blog-post-meta").innerHTML = `
+    <span>📅 ${dateStr}</span>
+  `;
+
+  const bodyHtml = renderBlogBlocks(post.content);
+  document.getElementById("blog-post-body").innerHTML = bodyHtml;
+  
+  document.getElementById("blog-modal").classList.add("is-open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeBlogPost() {
   document.getElementById("blog-modal").classList.remove("is-open");
+  document.body.style.overflow = "auto";
 }
 
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeBlogModal();
+  if (e.key === "Escape") closeBlogPost();
+});
+
+document.getElementById("blog-modal")?.addEventListener("click", (e) => {
+  if (e.target.id === "blog-modal") closeBlogPost();
 });
 
 /* ===== Init ===== */
 window.addEventListener("load", async () => {
   initTheme();
-  const data = await loadSiteData();
-  currentBlogPosts = data.blogPosts || [];
   
   if (document.getElementById("blog-grid")) {
     initBlogPage();
