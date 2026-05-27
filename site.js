@@ -305,7 +305,8 @@
     if (heroSub) heroSub.textContent = d.bio || "";
 
     var heroQuote = document.querySelector(".ao-hero__quote");
-    if (heroQuote) heroQuote.textContent = "„" + (d.quote || "") + """;
+    var heroQuote = document.querySelector(".ao-hero__quote");
+    if (heroQuote) heroQuote.textContent = String.fromCharCode(8222) + (d.quote || "") + String.fromCharCode(8221);
 
     var facts = document.querySelectorAll(".ao-fact__val");
     var factVals = [d.factName, d.factAge, d.factHeight, d.factOrigin];
