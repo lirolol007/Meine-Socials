@@ -1,381 +1,166 @@
-/* ===== Caching & Utilities ===== */
-const CACHE_KEY = "liro_site_data_cache";
-const CACHE_EXPIRY = 3600000; // 1 Stunde
-
-function fromBase64(str) {
-  try {
-    return decodeURIComponent(escape(atob(str)));
-  } catch (e) {
-    return str;
+(function() {
+  /* ===== Dark/Light Mode ===== */
+  var themeBtn = document.getElementById('theme-toggle');
+  var savedTheme = localStorage.getItem('theme') || 'dark';
+  
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    if (themeBtn) themeBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
   }
-}
-
-/* ===== Load Site Data WITH CACHING ===== */
-async function loadSiteData() {
-  // Check localStorage first
-  const cached = localStorage.getItem(CACHE_KEY);
-  if (cached) {
-    try {
-      const data = JSON.parse(cached);
-      if (data.expiry > Date.now()) {
-        console.log("📦 Daten aus Cache geladen");
-        return data.content;
-      }
-    } catch (e) {}
+  
+  setTheme(savedTheme);
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function() {
+      var current = document.documentElement.getAttribute('data-theme') || 'dark';
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
   }
 
-  try {
-    console.log("🌐 Lade site-data.json von GitHub...");
-    const res = await fetch(
-      `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/site-data.json?t=${Date.now()}`
-    );
+  /* ===== Nav Toggle Mobile ===== */
+  var navToggle = document.getElementById('nav-toggle');
+  var navLinks = document.querySelector('.nav__links');
+  if (navToggle) {
+    navToggle.addEventListener('click', function() {
+      navLinks.classList.toggle('active');
+    });
+  }
+
+  /* ===== Load Data ===== */
+  var siteData = null;
+  fetch('site-data.json?t=' + Date.now())
+    .then(r => r.ok ? r.json() : null)
+    .then(d => {
+      if (!d) return;
+      siteData = d;
+      loadPageData();
+    })
+    .catch(e => console.log('site-data.json nicht geladen'));
+
+  function loadPageData() {
+    var path = window.location.pathname;
     
-    if (!res.ok) {
-      throw new Error(`GitHub Error ${res.status}`);
+    if (path.includes('about')) {
+      loadAbout();
+    } else if (path.includes('gallery')) {
+      loadGallery();
+    } else if (path.includes('blog')) {
+      loadBlog();
     }
+  }
 
-    const data = await res.json();
+  /* ===== About Page ===== */
+  function loadAbout() {
+    if (!siteData.pages.about) return;
+    var page = siteData.pages.about;
     
-    // Cache it
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-      content: data,
-      expiry: Date.now() + CACHE_EXPIRY
-    }));
-
-    console.log("✅ site-data.json geladen & gecacht");
-    return data;
-  } catch (e) {
-    console.warn("⚠️ Fehler beim Laden von site-data.json:", e.message);
-    return getDefaultData();
+    var titleEl = document.getElementById('page-title');
+    var subtitleEl = document.getElementById('page-subtitle');
+    var contentEl = document.getElementById('page-content');
+    
+    if (titleEl) titleEl.textContent = page.title;
+    if (subtitleEl) subtitleEl.textContent = page.subtitle;
+    if (contentEl) contentEl.innerHTML = page.content;
+    
+    // Fakten
+    var facts = ['factName', 'factAge', 'factHeight', 'factOrigin'];
+    facts.forEach((fact, i) => {
+      var el = document.getElementById('fact-' + ['name', 'age', 'height', 'origin'][i]);
+      if (el) el.textContent = siteData[fact] || '—';
+    });
   }
-}
 
-function getDefaultData() {
-  return {
-    name: "Liro",
-    badge: "VRChat Creator",
-    factName: "Liro / Leon",
-    factAge: "19",
-    factHeight: "1,78 m",
-    factOrigin: "🇩🇪 Deutschland",
-    bio1: "Moin — ich bin Liro und mache vor allem VRChat-Content",
-    bio2: "Ich freue mich über neue Bekanntschaften!",
-    pages: {
-      about: {
-        title: "Über mich",
-        subtitle: "VRChat Creator, Streamer & Chaos-Agent",
-        content: "<p>Moin!</p>"
+  /* ===== Gallery Page ===== */
+  function loadGallery() {
+    var grid = document.getElementById('gallery-grid');
+    if (!grid) return;
+    
+    fetch('https://api.github.com/repos/Lirolol007/Meine-Socials/contents/')
+      .then(r => r.json())
+      .then(files => {
+        var images = files.filter(f => /^gallery\d+\./i.test(f.name));
+        images.sort((a, b) => {
+          var na = parseInt(a.name.match(/\d+/)[0]);
+          var nb = parseInt(b.name.match(/\d+/)[0]);
+          return na - nb;
+        });
+        
+        if (!images.length) {
+          grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Keine Bilder vorhanden</p>';
+          return;
+        }
+        
+        grid.innerHTML = '';
+        images.forEach(f => {
+          var captions = siteData.galleryTitles || {};
+          var cap = captions[f.name] || {};
+          
+          var item = document.createElement('div');
+          item.className = 'gallery-item';
+          item.innerHTML = `<img src="${f.download_url}" alt="${f.name}" loading="lazy">
+            <div class="gallery-item__caption">
+              ${cap.title ? '<div class="gallery-item__title">' + cap.title + '</div>' : ''}
+            </div>`;
+          item.addEventListener('click', () => openLightbox(f.download_url, cap.title || '', cap.text || ''));
+          grid.appendChild(item);
+        });
+      })
+      .catch(e => {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #ff6b6b;">Fehler beim Laden</p>';
+      });
+  }
+
+  function openLightbox(src, title, text) {
+    var lightbox = document.getElementById('lightbox');
+    var img = document.getElementById('lightbox-img');
+    var titleEl = document.getElementById('lightbox-title');
+    var textEl = document.getElementById('lightbox-text');
+    
+    if (img) img.src = src;
+    if (titleEl) titleEl.textContent = title;
+    if (textEl) textEl.textContent = text;
+    if (lightbox) {
+      lightbox.removeAttribute('hidden');
+      lightbox.classList.add('is-open');
+    }
+  }
+
+  var lightboxClose = document.getElementById('lightbox-close');
+  if (lightboxClose) {
+    lightboxClose.addEventListener('click', () => {
+      var lightbox = document.getElementById('lightbox');
+      if (lightbox) {
+        lightbox.classList.remove('is-open');
+        setTimeout(() => lightbox.setAttribute('hidden', ''), 300);
       }
-    },
-    blogPosts: [],
-    galleryTitles: {},
-    collabs: []
-  };
-}
-
-/* ===== Theme Toggle ===== */
-function initTheme() {
-  const stored = localStorage.getItem("theme") || "dark";
-  document.documentElement.setAttribute("data-theme", stored);
-  updateThemeButton();
-}
-
-function updateThemeButton() {
-  const btn = document.getElementById("theme-toggle");
-  if (!btn) return;
-  const current = document.documentElement.getAttribute("data-theme") || "dark";
-  btn.textContent = current === "dark" ? "☀️" : "🌙";
-}
-
-document.getElementById("theme-toggle")?.addEventListener("click", () => {
-  const current = document.documentElement.getAttribute("data-theme") || "dark";
-  const next = current === "dark" ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", next);
-  localStorage.setItem("theme", next);
-  updateThemeButton();
-});
-
-/* ===== Nav Toggle ===== */
-document.getElementById("nav-toggle")?.addEventListener("click", () => {
-  const links = document.querySelector(".nav__links");
-  if (links) links.classList.toggle("active");
-});
-
-/* ===== HOME PAGE - Load Modals ===== */
-async function loadHomeModals() {
-  const data = await loadSiteData();
-  
-  // Modal: Über mich
-  const aboutContent = document.getElementById("modal-about-content");
-  if (aboutContent) {
-    const aboutText = data.bio1 && data.bio2 
-      ? `<p>${data.bio1}</p><p>${data.bio2}</p>`
-      : data.pages?.about?.content || "<p>Keine Inhalte</p>";
-    aboutContent.innerHTML = aboutText;
+    });
   }
 
-  // Modal: Kollegen
-  const collabList = document.getElementById("collab-list");
-  if (collabList && data.collabs?.length > 0) {
-    collabList.innerHTML = data.collabs.map(c => `
-      <li>
-        <a href="${c.url}" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; font-weight: 600;">
-          ${c.name} ↗
-        </a>
-      </li>
-    `).join("");
-  }
-}
-
-/* ===== ABOUT PAGE ===== */
-async function initAboutPage() {
-  const contentEl = document.getElementById("page-content");
-  if (!contentEl) return;
-
-  console.log("📄 Laden About-Seite...");
-  const data = await loadSiteData();
-  const about = data.pages?.about || {};
-
-  const titleEl = document.getElementById("page-title");
-  const subtitleEl = document.getElementById("page-subtitle");
-
-  if (titleEl) titleEl.textContent = about.title || "Über mich";
-  if (subtitleEl) subtitleEl.textContent = about.subtitle || "";
-
-  let content = about.content || "";
-  if (!content && data.bio1) {
-    content = `<p>${data.bio1}</p>`;
-    if (data.bio2) content += `<p>${data.bio2}</p>`;
-  }
-  
-  contentEl.innerHTML = content || "<p>Keine Inhalte verfügbar</p>";
-
-  // Facts
-  if (document.getElementById("fact-name")) document.getElementById("fact-name").textContent = data.factName || "—";
-  if (document.getElementById("fact-age")) document.getElementById("fact-age").textContent = data.factAge || "—";
-  if (document.getElementById("fact-height")) document.getElementById("fact-height").textContent = data.factHeight || "—";
-  if (document.getElementById("fact-origin")) document.getElementById("fact-origin").textContent = data.factOrigin || "—";
-
-  console.log("✅ About-Seite geladen");
-}
-
-/* ===== GALLERY PAGE ===== */
-async function initGalleryPage() {
-  const grid = document.getElementById("gallery-grid");
-  if (!grid) return;
-
-  console.log("🖼️ Laden Galerie...");
-
-  try {
-    const data = await loadSiteData();
-    const captions = data.galleryTitles || {};
-
-    // Hardcoded gallery images - direct URLs
-    const galleryImages = [
-      "gallery1.png",
-      "gallery2.png",
-      "gallery3.png",
-      "gallery4.png",
-      "gallery5.png",
-      "gallery6.png",
-      "gallery7.png",
-      "gallery8.png",
-      "gallery9.png",
-      "gallery10.png",
-      "gallery11.png",
-      "gallery12.png"
-    ];
-
-    const imageHtml = galleryImages.map((filename, idx) => {
-      const cap = captions[filename] || {};
-      const rawUrl = `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${filename}`;
-      return `
-        <div class="gallery-item" data-index="${idx}" data-url="${rawUrl}" data-title="${(cap.title || filename).replace(/"/g, "&quot;")}" data-text="${(cap.text || '').replace(/"/g, "&quot;")}">
-          <img src="${rawUrl}" alt="${filename}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
-          ${cap.title ? `<div class="gallery-item__caption"><span class="gallery-item__title">${cap.title}</span></div>` : ""}
-        </div>
-      `;
-    }).join("");
-
-    grid.innerHTML = imageHtml;
-    console.log("✅ Galerie geladen - 12 Bilder");
-  } catch (e) {
-    console.error("❌ Galerie-Fehler:", e);
-    grid.innerHTML = `<p style="grid-column: 1/-1; color: #ff6b6b; text-align: center;">❌ Fehler beim Laden der Galerie</p>`;
-  }
-}
-
-/* ===== Gallery Lightbox ===== */
-function openGalleryLightbox(url, title, text) {
-  const lightbox = document.getElementById("lightbox");
-  if (!lightbox) return;
-  
-  document.getElementById("lightbox-img").src = url;
-  document.getElementById("lightbox-title").textContent = title;
-  document.getElementById("lightbox-text").textContent = text;
-  lightbox.removeAttribute("hidden");
-  document.body.style.overflow = "hidden";
-}
-
-function closeGalleryLightbox() {
-  const lightbox = document.getElementById("lightbox");
-  if (lightbox) lightbox.setAttribute("hidden", "");
-  document.body.style.overflow = "auto";
-}
-
-document.getElementById("lightbox-close")?.addEventListener("click", closeGalleryLightbox);
-document.getElementById("lightbox")?.addEventListener("click", (e) => {
-  if (e.target.id === "lightbox" || e.target.classList.contains("modal__backdrop")) {
-    closeGalleryLightbox();
-  }
-});
-
-// Gallery item click handler
-document.addEventListener("click", (e) => {
-  const galleryItem = e.target.closest(".gallery-item");
-  if (galleryItem) {
-    const url = galleryItem.dataset.url;
-    const title = galleryItem.dataset.title;
-    const text = galleryItem.dataset.text;
-    openGalleryLightbox(url, title, text);
-  }
-});
-
-/* ===== BLOG PAGE ===== */
-let allBlogPosts = [];
-
-async function initBlogPage() {
-  const grid = document.getElementById("blog-grid");
-  if (!grid) return;
-
-  console.log("📝 Laden Blog...");
-  const data = await loadSiteData();
-  allBlogPosts = data.blogPosts || [];
-
-  if (allBlogPosts.length === 0) {
-    grid.innerHTML = '<div class="blog-empty" style="grid-column: 1/-1;"><p>Noch keine Blog-Posts vorhanden.</p></div>';
-    return;
-  }
-
-  grid.innerHTML = allBlogPosts
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .map(post => `
-      <div class="blog-card" onclick="openBlogPost(${post.id})">
-        ${post.image ? `<img src="${post.image}" alt="${post.title}" class="blog-card__img">` : `<div class="blog-card__img"></div>`}
+  /* ===== Blog Page ===== */
+  function loadBlog() {
+    var grid = document.getElementById('blog-grid');
+    if (!grid || !siteData.blogPosts) return;
+    
+    grid.innerHTML = '';
+    
+    if (!siteData.blogPosts.length) {
+      grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Keine Blog-Posts vorhanden</p>';
+      return;
+    }
+    
+    siteData.blogPosts.forEach(post => {
+      var card = document.createElement('a');
+      card.href = '/blog/' + post.id + '.html';
+      card.className = 'blog-card';
+      card.innerHTML = `
+        ${post.image ? '<img class="blog-card__img" src="' + post.image + '" alt="' + post.title + '" loading="lazy">' : ''}
         <div class="blog-card__content">
-          <p class="blog-card__date">${new Date(post.date).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <div class="blog-card__date">${new Date(post.date).toLocaleDateString('de-DE')}</div>
           <h3 class="blog-card__title">${post.title}</h3>
           <p class="blog-card__excerpt">${post.excerpt}</p>
-          <a href="#" class="blog-card__btn" onclick="return false;">Lesen →</a>
-        </div>
-      </div>
-    `)
-    .join("");
-
-  console.log("✅ Blog geladen");
-}
-
-/* ===== Blog Post Rendering ===== */
-function renderBlogBlocks(blocksJson) {
-  let blocks = [];
-  try {
-    blocks = JSON.parse(blocksJson);
-  } catch (e) {
-    return "<p>Fehler beim Laden der Blöcke</p>";
+          <a href="/blog/${post.id}.html" class="blog-card__btn">Lesen →</a>
+        </div>`;
+      grid.appendChild(card);
+    });
   }
-
-  return blocks.map(block => {
-    if (block.type === "text") {
-      return `
-        <div class="blog-block blog-block--text">
-          <p>${block.content.replace(/\n/g, '</p><p>')}</p>
-        </div>
-      `;
-    }
-
-    if (block.type === "heading") {
-      return `
-        <div class="blog-block blog-block--heading">
-          <h3>${block.content}</h3>
-        </div>
-      `;
-    }
-
-    if (block.type === "image") {
-      const position = block.position || "left";
-      const width = block.width || "50";
-      return `
-        <div class="blog-block blog-block--image position-${position}">
-          <div class="blog-block--image__img" style="width: ${position === 'full' ? '100%' : width + '%'};">
-            <img src="${block.url}" alt="Blog Image">
-          </div>
-        </div>
-      `;
-    }
-
-    return "";
-  }).join("");
-}
-
-function openBlogPost(id) {
-  const post = allBlogPosts.find(p => p.id === id);
-  if (!post) return;
-
-  const modal = document.getElementById("blog-modal");
-  if (!modal) return;
-
-  document.getElementById("blog-post-title").textContent = post.title;
-  
-  const dateStr = new Date(post.date).toLocaleDateString('de-DE', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
-  document.getElementById("blog-post-meta").innerHTML = `<span>📅 ${dateStr}</span>`;
-
-  const bodyHtml = renderBlogBlocks(post.content);
-  document.getElementById("blog-post-body").innerHTML = bodyHtml;
-  
-  modal.classList.add("is-open");
-  document.body.style.overflow = "hidden";
-}
-
-function closeBlogPost() {
-  const modal = document.getElementById("blog-modal");
-  if (modal) modal.classList.remove("is-open");
-  document.body.style.overflow = "auto";
-}
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    closeBlogPost();
-    closeGalleryLightbox();
-  }
-});
-
-document.getElementById("blog-modal")?.addEventListener("click", (e) => {
-  if (e.target.id === "blog-modal") closeBlogPost();
-});
-
-/* ===== Init ALL ===== */
-window.addEventListener("load", async () => {
-  console.log("🚀 pages.js init...");
-  initTheme();
-  
-  if (document.getElementById("blog-grid")) {
-    console.log("→ Blog-Seite erkannt");
-    await initBlogPage();
-  }
-  
-  if (document.getElementById("gallery-grid")) {
-    console.log("→ Galerie-Seite erkannt");
-    await initGalleryPage();
-  }
-  
-  if (document.getElementById("page-content")) {
-    console.log("→ About-Seite erkannt");
-    await initAboutPage();
-  }
-
-  console.log("✅ pages.js ready!");
-});
+})();

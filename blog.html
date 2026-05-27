@@ -3,296 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog — Liro</title>
+  <title>Liro — Blog</title>
+  <meta name="description" content="Liro's Blog — Gedanken, Updates & Stories über VRChat und Content Creation.">
+  <meta name="robots" content="index, follow">
   <link rel="icon" href="profile.jpg" type="image/jpeg">
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    .page--blog {
-      min-height: calc(100vh - 60px);
-      padding-bottom: 100px;
-    }
-
-    .blog-hero {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .blog-hero__title {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, var(--text), var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .blog-hero__subtitle {
-      font-size: 1.1rem;
-      color: var(--text-muted);
-    }
-
-    .blog-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 2rem;
-      margin-bottom: 3rem;
-    }
-
-    .blog-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      transition: all 0.3s;
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
-    }
-
-    .blog-card:hover {
-      transform: translateY(-8px);
-      border-color: var(--accent);
-      box-shadow: 0 10px 30px var(--accent-glow);
-    }
-
-    .blog-card__img {
-      width: 100%;
-      aspect-ratio: 16/9;
-      object-fit: cover;
-      display: block;
-      background: var(--bg);
-    }
-
-    .blog-card__content {
-      padding: 1.5rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .blog-card__date {
-      font-size: 0.75rem;
-      color: var(--accent);
-      font-weight: 600;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-    }
-
-    .blog-card__title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 0.75rem;
-      line-height: 1.4;
-      color: var(--text);
-    }
-
-    .blog-card__excerpt {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      line-height: 1.6;
-      flex: 1;
-    }
-
-    .blog-card__btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.9rem;
-      margin-top: 1rem;
-      transition: gap 0.3s;
-    }
-
-    .blog-card__btn:hover {
-      gap: 0.75rem;
-    }
-
-    .blog-empty {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--text-muted);
-    }
-
-    .blog-empty p {
-      margin-bottom: 1rem;
-    }
-
-    /* ===== Blog Post Modal ===== */
-    .blog-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 200;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      overflow-y: auto;
-      padding: 2rem 1rem;
-    }
-
-    .blog-modal.is-open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .blog-modal__content {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 3rem;
-      max-width: 900px;
-      width: 100%;
-      margin: auto;
-      position: relative;
-      animation: slideDown 0.3s ease;
-    }
-
-    @keyframes slideDown {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .blog-modal__close {
-      position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: color 0.3s;
-    }
-
-    .blog-modal__close:hover {
-      color: var(--accent);
-    }
-
-    .blog-post__title {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: var(--text);
-    }
-
-    .blog-post__meta {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .blog-post__body {
-      line-height: 1.8;
-      color: var(--text-muted);
-    }
-
-    /* ===== Block Styles ===== */
-    .blog-block {
-      margin-bottom: 2rem;
-    }
-
-    .blog-block--text p {
-      margin-bottom: 1rem;
-      color: var(--text-muted);
-      line-height: 1.8;
-    }
-
-    .blog-block--text p:last-child {
-      margin-bottom: 0;
-    }
-
-    .blog-block--heading {
-      margin-bottom: 1.5rem;
-    }
-
-    .blog-block--heading h3 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .blog-block--image {
-      margin: 2rem 0;
-    }
-
-    .blog-block--image.position-left {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      align-items: center;
-    }
-
-    .blog-block--image.position-right {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      align-items: center;
-    }
-
-    .blog-block--image.position-right .blog-block--image__img {
-      order: 2;
-    }
-
-    .blog-block--image.position-full {
-      display: block;
-    }
-
-    .blog-block--image__img {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-
-    .blog-block--image__img img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    @media (max-width: 768px) {
-      .blog-hero__title {
-        font-size: 1.75rem;
-      }
-
-      .blog-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-
-      .blog-modal__content {
-        padding: 2rem 1.5rem;
-      }
-
-      .blog-post__title {
-        font-size: 1.5rem;
-      }
-
-      .blog-block--image.position-left,
-      .blog-block--image.position-right {
-        grid-template-columns: 1fr;
-      }
-
-      .blog-block--image.position-right .blog-block--image__img {
-        order: unset;
-      }
-
-      .page--blog {
-        padding-bottom: 100px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="styles-new.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <nav class="nav">
@@ -304,35 +22,34 @@
         <li><a href="/gallery.html" class="nav__link">Galerie</a></li>
         <li><a href="/blog.html" class="nav__link active">Blog</a></li>
       </ul>
-      <button id="theme-toggle" class="nav__theme">🌙</button>
-      <button id="nav-toggle" class="nav__toggle">☰</button>
+      <button class="nav__theme" id="theme-toggle" aria-label="Theme Toggle">🌙</button>
+      <button class="nav__toggle" id="nav-toggle">☰</button>
     </div>
   </nav>
 
-  <div class="page page--blog page--wide">
+  <main class="page page--wide">
     <div class="page__inner">
-      <div class="blog-hero">
-        <h1 class="blog-hero__title">📝 Blog</h1>
-        <p class="blog-hero__subtitle" id="blog-subtitle">Meine neuesten Gedanken & Geschichten</p>
+      <div class="about-hero" style="margin-bottom: 2rem;">
+        <h1 class="about-hero__title">Blog</h1>
+        <p class="about-hero__subtitle">Gedanken, Updates & Stories</p>
       </div>
 
       <div class="blog-grid" id="blog-grid">
-        <div class="blog-empty">
-          <p>Lädt Blog-Posts...</p>
-        </div>
+        <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Lädt...</p>
       </div>
     </div>
-  </div>
+  </main>
 
-  <!-- Blog-Post Modal -->
-  <div class="blog-modal" id="blog-modal">
-    <div class="blog-modal__content">
-      <button class="blog-modal__close" onclick="closeBlogPost()">✕</button>
-      <h1 class="blog-post__title" id="blog-post-title"></h1>
-      <div class="blog-post__meta" id="blog-post-meta"></div>
-      <div class="blog-post__body" id="blog-post-body"></div>
-    </div>
-  </div>
+  <footer class="footer">
+    <nav class="footer-nav">
+      <button class="footer-nav__link" data-modal-open="about">Über mich</button>
+      <span class="footer-nav__sep">·</span>
+      <button class="footer-nav__link" data-modal-open="collabs">Kollegen</button>
+      <span class="footer-nav__sep">·</span>
+      <button class="footer-nav__link" data-modal-open="contact">Kontakt</button>
+    </nav>
+    <p class="footer__credit">Avatar Art by Liro</p>
+  </footer>
 
   <script src="pages.js"></script>
 </body>
