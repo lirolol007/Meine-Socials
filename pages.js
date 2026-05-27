@@ -185,7 +185,7 @@ async function initGalleryPage() {
       throw new Error("Keine Dateiliste erhalten");
     }
 
-    const images = files.filter(f => /^gallery\d+\.(png|jpg|jpeg|gif|webp)$/i.test(f.name));
+    const images = files.filter(f => /^[Gg]allery\d+\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP)$/i.test(f.name));
 
     console.log("📦 Gefundene Bilder:", images.length);
 
@@ -207,10 +207,10 @@ async function initGalleryPage() {
       const cap = captions[f.name] || {};
       const rawUrl = `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${f.name}`;
       return `
-        <div class="gallery-item" onclick="openGalleryLightbox('${rawUrl}', '${(cap.title || f.name).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
+        <button class="gallery-item" style="background: none; border: none; padding: 0; cursor: pointer;" onclick="openGalleryLightbox('${rawUrl}', '${(cap.title || f.name).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
           <img src="${rawUrl}" alt="${f.name}" loading="lazy">
           ${cap.title ? `<div class="gallery-item__caption"><span class="gallery-item__title">${cap.title}</span></div>` : ""}
-        </div>
+        </button>
       `;
     }).join("");
 
