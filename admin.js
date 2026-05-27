@@ -55,7 +55,7 @@ async function loadSiteData() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     
     siteData = await res.json();
-    console.log("✅ Data loaded:", siteData);
+    console.log("✅ site-data.json geladen:", siteData);
     populateAllFields();
   } catch (e) {
     alert(`❌ Fehler: ${e.message}`);
@@ -241,8 +241,13 @@ function populateGalleryTab() {
   const container = document.getElementById("gallery-container");
   container.innerHTML = "";
   
-  if (siteData.pages?.gallery?.items && siteData.pages.gallery.items.length > 0) {
-    siteData.pages.gallery.items.forEach((item, idx) => {
+  if (!siteData.pages) siteData.pages = {};
+  if (!siteData.pages.gallery) siteData.pages.gallery = { items: [] };
+  
+  const items = siteData.pages.gallery.items || [];
+  
+  if (items.length > 0) {
+    items.forEach((item, idx) => {
       const div = document.createElement("div");
       div.className = "form-section";
       div.innerHTML = `
@@ -251,7 +256,7 @@ function populateGalleryTab() {
           <button class="btn btn-small btn-secondary" type="button" onclick="removeGalleryItem(${idx})">🗑️</button>
         </div>
         <div class="form-grid">
-          <div class="form-group">
+          <div class="form-group form-full">
             <label>Bild (URL/Dateiname)</label>
             <input type="text" class="gallery-image" data-idx="${idx}" value="${item.image || ""}">
           </div>
@@ -259,7 +264,7 @@ function populateGalleryTab() {
             <label>Titel</label>
             <input type="text" class="gallery-title" data-idx="${idx}" value="${item.title || ""}">
           </div>
-          <div class="form-group form-full">
+          <div class="form-group">
             <label>Beschreibung</label>
             <input type="text" class="gallery-desc" data-idx="${idx}" value="${item.description || ""}">
           </div>
@@ -337,7 +342,7 @@ document.getElementById("create-blog-btn")?.addEventListener("click", async () =
   const image = document.getElementById("new-blog-image").value;
   
   if (!title || !date || !excerpt) {
-    showStatus("blog-status", "❌ Bitte alle Felder ausfüllen!", "error");
+    showStatus("blog-status", "❌ Bitte Titel, Datum und Excerpt ausfüllen!", "error");
     return;
   }
   
@@ -451,7 +456,7 @@ async function saveToGitHub(statusId) {
       { headers: { Authorization: `token ${authToken}` } }
     );
     
-    if (!shaRes.ok) throw new Error("SHA-Fehler");
+    if (!shaRes.ok) throw new Error("SHA abrufen fehlgeschlagen");
     const shaData = await shaRes.json();
     
     const updateRes = await fetch(
@@ -470,12 +475,13 @@ async function saveToGitHub(statusId) {
       }
     );
     
-    if (!updateRes.ok) throw new Error("GitHub-Fehler");
+    if (!updateRes.ok) throw new Error("GitHub Update fehlgeschlagen");
     
     showStatus(statusId, "✅ Gespeichert! Seite neuladen für Updates...", "success");
-    console.log("✅ Gespeichert!");
+    console.log("✅ Zu GitHub gepusht!");
   } catch (e) {
     showStatus(statusId, `❌ Fehler: ${e.message}`, "error");
+    console.error(e);
   }
 }
 
