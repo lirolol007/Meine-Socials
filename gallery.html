@@ -13,33 +13,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="bg-glow bg-glow--1"></div>
-  <div class="bg-glow bg-glow--2"></div>
-  <canvas class="particles" id="particles" aria-hidden="true"></canvas>
-
-  <!-- Top Navigation -->
   <nav class="nav">
     <div class="nav__inner">
       <a href="/" class="nav__logo">🦊 Liro</a>
-      <ul class="nav__links" id="top-nav-links">
+      <ul class="nav__links">
         <li><a href="/" class="nav__link">Home</a></li>
         <li><a href="/about.html" class="nav__link">Über mich</a></li>
         <li><a href="/gallery.html" class="nav__link active">Galerie</a></li>
         <li><a href="/blog.html" class="nav__link">Blog</a></li>
       </ul>
-      <button class="nav__theme" id="theme-toggle">🌙</button>
+      <button class="nav__theme" id="theme-toggle" aria-label="Theme Toggle">🌙</button>
       <button class="nav__toggle" id="nav-toggle">☰</button>
     </div>
   </nav>
 
   <main class="page page--wide">
-    <div class="about-hero" style="margin-bottom: 2rem;">
-      <h1 class="about-hero__title">🖼️ Galerie</h1>
-      <p class="about-hero__subtitle">VRChat & Content Highlights</p>
-    </div>
+    <div class="page__inner">
+      <div class="about-hero" style="margin-bottom: 2rem;">
+        <h1 class="about-hero__title">Galerie</h1>
+        <p class="about-hero__subtitle">VRChat & Content Highlights</p>
+      </div>
 
-    <div class="gallery-grid" id="gallery-grid">
-      <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Lädt...</p>
+      <div class="gallery-grid" id="gallery-grid">
+        <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Lädt...</p>
+      </div>
     </div>
   </main>
 
@@ -57,40 +54,6 @@
     </div>
   </div>
 
-  <!-- Footer Modals Only -->
-  <div class="modal" id="modal-about" hidden aria-modal="true" role="dialog">
-    <div class="modal__backdrop"></div>
-    <div class="modal__panel">
-      <button class="modal__close" data-modal-close>×</button>
-      <h2 class="modal__title">Über mich</h2>
-      <div id="modal-about-content" style="color: var(--text-muted); line-height: 1.8;">Lädt...</div>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-collabs" hidden aria-modal="true" role="dialog">
-    <div class="modal__backdrop"></div>
-    <div class="modal__panel">
-      <button class="modal__close" data-modal-close>×</button>
-      <h2 class="modal__title">Kollegen & Freunde</h2>
-      <ul class="collab-list" id="collab-list">
-        <li style="text-align: center; color: var(--text-muted);">Lädt...</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-contact" hidden aria-modal="true" role="dialog">
-    <div class="modal__backdrop"></div>
-    <div class="modal__panel">
-      <button class="modal__close" data-modal-close>×</button>
-      <h2 class="modal__title">Kontakt</h2>
-      <div style="color: var(--text-muted); line-height: 1.8;">
-        <p><strong>E-Mail:</strong> <a id="contact-email" href="mailto:liro.lol007@gmail.com" style="color: var(--accent); text-decoration: none;">Liro.lol007@gmail.com</a></p>
-        <p style="margin-top: 1rem;"><strong>Discord:</strong> Schreib mich an oder tritt unserem Server bei!</p>
-        <p style="margin-top: 1rem;"><strong>Telegram:</strong> @Liro025</p>
-      </div>
-    </div>
-  </div>
-
   <footer class="footer">
     <nav class="footer-nav">
       <button class="footer-nav__link" data-modal-open="about">Über mich</button>
@@ -102,9 +65,6 @@
     <p class="footer__credit">Avatar Art by Liro</p>
   </footer>
 
-  <script src="particles.js"></script>
-  <script src="cursor.js"></script>
-  <script src="site.js"></script>
   <script src="pages.js"></script>
 </body>
 </html>
