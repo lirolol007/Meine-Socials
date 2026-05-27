@@ -26,6 +26,91 @@
     });
   }
 
+  /* ===== Cursor Glow ===== */
+  if (window.matchMedia("(pointer: fine)").matches) {
+    var cursorGlow = document.createElement('div');
+    cursorGlow.className = 'cursor-glow';
+    document.body.appendChild(cursorGlow);
+    
+    var cx = 0, cy = 0, tx = 0, ty = 0;
+    
+    document.addEventListener('mousemove', function(e) {
+      tx = e.clientX;
+      ty = e.clientY;
+      cursorGlow.classList.add('active');
+    });
+    
+    document.addEventListener('mouseleave', function() {
+      cursorGlow.classList.remove('active');
+    });
+    
+    function updateGlow() {
+      cx += (tx - cx) * 0.2;
+      cy += (ty - cy) * 0.2;
+      cursorGlow.style.transform = 'translate(' + (cx - 20) + 'px, ' + (cy - 20) + 'px)';
+      requestAnimationFrame(updateGlow);
+    }
+    updateGlow();
+  }
+
+  /* ===== Particles ===== */
+  var canvas = document.getElementById('particles');
+  if (canvas) {
+    var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    var particles = [];
+    
+    function Particle() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 2 + 0.5;
+      this.speedX = Math.random() * 0.5 - 0.25;
+      this.speedY = Math.random() * 0.5 - 0.25;
+      this.opacity = Math.random() * 0.5 + 0.2;
+    }
+    
+    Particle.prototype.draw = function() {
+      ctx.fillStyle = 'rgba(239, 68, 68, ' + this.opacity + ')';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    };
+    
+    Particle.prototype.update = function() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      
+      if (this.x < 0) this.x = canvas.width;
+      if (this.x > canvas.width) this.x = 0;
+      if (this.y < 0) this.y = canvas.height;
+      if (this.y > canvas.height) this.y = 0;
+    };
+    
+    for (var i = 0; i < 50; i++) {
+      particles.push(new Particle());
+    }
+    
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      for (var i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+      }
+      
+      requestAnimationFrame(animate);
+    }
+    
+    window.addEventListener('resize', function() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+    
+    animate();
+  }
+
   /* ===== E-Mail obfuskieren ===== */
   var emailLink = document.getElementById('contact-email');
   if (emailLink) {
