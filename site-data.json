@@ -87,6 +87,15 @@
       "subtitle": "Gedanken, Updates & Stories"
     }
   },
-  "blogPosts": [],
+  "blogPosts": [
+    {
+      "id": 1779900813196,
+      "title": "Test test ",
+      "date": "2026-05-27",
+      "excerpt": "Ist nur nen Test ",
+      "image": "gallery1.ong",
+      "content": "[{\"type\":\"text\",\"content\":\"LOL \"},{\"type\":\"heading\",\"content\":\"Ultra LOL\"}]"
+    }
+  ],
   "contactText": ""
 }
