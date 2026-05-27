@@ -1,4 +1,7 @@
-/* ===== Utilities ===== */
+/* ===== Caching & Utilities ===== */
+const CACHE_KEY = "liro_site_data_cache";
+const CACHE_EXPIRY = 3600000; // 1 Stunde
+
 function fromBase64(str) {
   try {
     return decodeURIComponent(escape(atob(str)));
@@ -7,22 +10,42 @@ function fromBase64(str) {
   }
 }
 
-let siteDataCache = null;
-
-/* ===== Load Site Data ===== */
+/* ===== Load Site Data WITH CACHING ===== */
 async function loadSiteData() {
-  if (siteDataCache) return siteDataCache;
-  
+  // Check localStorage first
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    try {
+      const data = JSON.parse(cached);
+      if (data.expiry > Date.now()) {
+        console.log("📦 Daten aus Cache geladen");
+        return data.content;
+      }
+    } catch (e) {}
+  }
+
   try {
+    console.log("🌐 Lade site-data.json von GitHub...");
     const res = await fetch(
-      `https://api.github.com/repos/Lirolol007/Meine-Socials/contents/site-data.json?t=${Date.now()}`
+      `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/site-data.json?t=${Date.now()}`
     );
-    if (!res.ok) throw new Error("site-data.json nicht gefunden");
-    const file = await res.json();
-    siteDataCache = JSON.parse(fromBase64(file.content.replace(/\n/g, "")));
-    return siteDataCache;
+    
+    if (!res.ok) {
+      throw new Error(`GitHub Error ${res.status}`);
+    }
+
+    const data = await res.json();
+    
+    // Cache it
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      content: data,
+      expiry: Date.now() + CACHE_EXPIRY
+    }));
+
+    console.log("✅ site-data.json geladen & gecacht");
+    return data;
   } catch (e) {
-    console.warn("❌ site-data.json konnte nicht geladen werden:", e.message);
+    console.warn("⚠️ Fehler beim Laden von site-data.json:", e.message);
     return getDefaultData();
   }
 }
@@ -35,6 +58,8 @@ function getDefaultData() {
     factAge: "19",
     factHeight: "1,78 m",
     factOrigin: "🇩🇪 Deutschland",
+    bio1: "Moin — ich bin Liro und mache vor allem VRChat-Content",
+    bio2: "Ich freue mich über neue Bekanntschaften!",
     pages: {
       about: {
         title: "Über mich",
@@ -117,7 +142,6 @@ async function initAboutPage() {
   if (titleEl) titleEl.textContent = about.title || "Über mich";
   if (subtitleEl) subtitleEl.textContent = about.subtitle || "";
 
-  // Load content from bio1 + bio2 OR pages.about.content
   let content = about.content || "";
   if (!content && data.bio1) {
     content = `<p>${data.bio1}</p>`;
@@ -144,13 +168,23 @@ async function initGalleryPage() {
   grid.innerHTML = "<p style=\"grid-column: 1/-1; text-align: center; color: var(--text-muted);\">Lädt Bilder...</p>";
 
   try {
+    // Use raw.githubusercontent instead of API to avoid rate limits
     const res = await fetch(
-      `https://api.github.com/repos/Lirolol007/Meine-Socials/contents/?t=${Date.now()}`
+      `https://api.github.com/repos/Lirolol007/Meine-Socials/contents/?ref=main&t=${Date.now()}`,
+      {
+        headers: { "Accept": "application/vnd.github.v3+json" }
+      }
     );
     
-    if (!res.ok) throw new Error(`GitHub API Fehler: ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`GitHub API Fehler: ${res.status}`);
+    }
 
     const files = await res.json();
+    if (!Array.isArray(files)) {
+      throw new Error("Keine Dateiliste erhalten");
+    }
+
     const images = files.filter(f => /^gallery\d+\.(png|jpg|jpeg|gif|webp)$/i.test(f.name));
 
     console.log("📦 Gefundene Bilder:", images.length);
@@ -171,9 +205,10 @@ async function initGalleryPage() {
 
     grid.innerHTML = images.map(f => {
       const cap = captions[f.name] || {};
+      const rawUrl = `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${f.name}`;
       return `
-        <div class="gallery-item" onclick="openGalleryLightbox('${f.download_url}', '${(cap.title || f.name).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
-          <img src="${f.download_url}" alt="${f.name}" loading="lazy">
+        <div class="gallery-item" onclick="openGalleryLightbox('${rawUrl}', '${(cap.title || f.name).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
+          <img src="${rawUrl}" alt="${f.name}" loading="lazy">
           ${cap.title ? `<div class="gallery-item__caption"><span class="gallery-item__title">${cap.title}</span></div>` : ""}
         </div>
       `;
@@ -182,7 +217,7 @@ async function initGalleryPage() {
     console.log("✅ Galerie geladen");
   } catch (e) {
     console.error("❌ Galerie-Fehler:", e);
-    grid.innerHTML = `<p style="grid-column: 1/-1; color: #ff6b6b;">❌ Fehler beim Laden der Galerie: ${e.message}</p>`;
+    grid.innerHTML = `<p style="grid-column: 1/-1; color: #ff6b6b; text-align: center;">❌ Fehler beim Laden der Galerie</p>`;
   }
 }
 
@@ -326,8 +361,6 @@ document.addEventListener("keydown", (e) => {
 document.getElementById("blog-modal")?.addEventListener("click", (e) => {
   if (e.target.id === "blog-modal") closeBlogPost();
 });
-
-document.getElementById("blog-modal-close")?.addEventListener("click", closeBlogPost);
 
 /* ===== Init ALL ===== */
 window.addEventListener("load", async () => {
