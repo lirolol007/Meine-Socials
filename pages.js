@@ -1,4 +1,7 @@
-/* ===== Utilities ===== */
+/* ===== Caching & Utilities ===== */
+const CACHE_KEY = "liro_site_data_cache";
+const CACHE_EXPIRY = 3600000; // 1 Stunde
+
 function fromBase64(str) {
   try {
     return decodeURIComponent(escape(atob(str)));
@@ -7,17 +10,42 @@ function fromBase64(str) {
   }
 }
 
-/* ===== Load Site Data ===== */
+/* ===== Load Site Data WITH CACHING ===== */
 async function loadSiteData() {
+  // Check localStorage first
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    try {
+      const data = JSON.parse(cached);
+      if (data.expiry > Date.now()) {
+        console.log("📦 Daten aus Cache geladen");
+        return data.content;
+      }
+    } catch (e) {}
+  }
+
   try {
+    console.log("🌐 Lade site-data.json von GitHub...");
     const res = await fetch(
-      `https://api.github.com/repos/Lirolol007/Meine-Socials/contents/site-data.json?t=${Date.now()}`
+      `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/site-data.json?t=${Date.now()}`
     );
-    if (!res.ok) throw new Error("site-data.json nicht gefunden");
-    const file = await res.json();
-    return JSON.parse(fromBase64(file.content.replace(/\n/g, "")));
+    
+    if (!res.ok) {
+      throw new Error(`GitHub Error ${res.status}`);
+    }
+
+    const data = await res.json();
+    
+    // Cache it
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      content: data,
+      expiry: Date.now() + CACHE_EXPIRY
+    }));
+
+    console.log("✅ site-data.json geladen & gecacht");
+    return data;
   } catch (e) {
-    console.warn("site-data.json konnte nicht geladen werden:", e.message);
+    console.warn("⚠️ Fehler beim Laden von site-data.json:", e.message);
     return getDefaultData();
   }
 }
@@ -30,6 +58,8 @@ function getDefaultData() {
     factAge: "19",
     factHeight: "1,78 m",
     factOrigin: "🇩🇪 Deutschland",
+    bio1: "Moin — ich bin Liro und mache vor allem VRChat-Content",
+    bio2: "Ich freue mich über neue Bekanntschaften!",
     pages: {
       about: {
         title: "Über mich",
@@ -38,7 +68,8 @@ function getDefaultData() {
       }
     },
     blogPosts: [],
-    galleryTitles: {}
+    galleryTitles: {},
+    collabs: []
   };
 }
 
@@ -70,6 +101,32 @@ document.getElementById("nav-toggle")?.addEventListener("click", () => {
   if (links) links.classList.toggle("active");
 });
 
+/* ===== HOME PAGE - Load Modals ===== */
+async function loadHomeModals() {
+  const data = await loadSiteData();
+  
+  // Modal: Über mich
+  const aboutContent = document.getElementById("modal-about-content");
+  if (aboutContent) {
+    const aboutText = data.bio1 && data.bio2 
+      ? `<p>${data.bio1}</p><p>${data.bio2}</p>`
+      : data.pages?.about?.content || "<p>Keine Inhalte</p>";
+    aboutContent.innerHTML = aboutText;
+  }
+
+  // Modal: Kollegen
+  const collabList = document.getElementById("collab-list");
+  if (collabList && data.collabs?.length > 0) {
+    collabList.innerHTML = data.collabs.map(c => `
+      <li>
+        <a href="${c.url}" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; font-weight: 600;">
+          ${c.name} ↗
+        </a>
+      </li>
+    `).join("");
+  }
+}
+
 /* ===== ABOUT PAGE ===== */
 async function initAboutPage() {
   const contentEl = document.getElementById("page-content");
@@ -85,18 +142,19 @@ async function initAboutPage() {
   if (titleEl) titleEl.textContent = about.title || "Über mich";
   if (subtitleEl) subtitleEl.textContent = about.subtitle || "";
 
-  contentEl.innerHTML = about.content || "<p>Keine Inhalte verfügbar</p>";
+  let content = about.content || "";
+  if (!content && data.bio1) {
+    content = `<p>${data.bio1}</p>`;
+    if (data.bio2) content += `<p>${data.bio2}</p>`;
+  }
+  
+  contentEl.innerHTML = content || "<p>Keine Inhalte verfügbar</p>";
 
-  // Facts — mit DEINEN IDs!
-  const factName = document.getElementById("fact-name");
-  const factAge = document.getElementById("fact-age");
-  const factHeight = document.getElementById("fact-height");
-  const factOrigin = document.getElementById("fact-origin");
-
-  if (factName) factName.textContent = data.factName || "—";
-  if (factAge) factAge.textContent = data.factAge || "—";
-  if (factHeight) factHeight.textContent = data.factHeight || "—";
-  if (factOrigin) factOrigin.textContent = data.factOrigin || "—";
+  // Facts
+  if (document.getElementById("fact-name")) document.getElementById("fact-name").textContent = data.factName || "—";
+  if (document.getElementById("fact-age")) document.getElementById("fact-age").textContent = data.factAge || "—";
+  if (document.getElementById("fact-height")) document.getElementById("fact-height").textContent = data.factHeight || "—";
+  if (document.getElementById("fact-origin")) document.getElementById("fact-origin").textContent = data.factOrigin || "—";
 
   console.log("✅ About-Seite geladen");
 }
@@ -107,57 +165,47 @@ async function initGalleryPage() {
   if (!grid) return;
 
   console.log("🖼️ Laden Galerie...");
-  grid.innerHTML = "<p style=\"grid-column: 1/-1; text-align: center; color: var(--text-muted);\">Lädt Bilder...</p>";
 
   try {
-    // Fetch repo contents für Galerie-Bilder
-    const res = await fetch(
-      `https://api.github.com/repos/Lirolol007/Meine-Socials/contents/?t=${Date.now()}`
-    );
-    
-    if (!res.ok) {
-      throw new Error(`GitHub API Fehler: ${res.status}`);
-    }
-
-    const files = await res.json();
-    const images = files.filter(f => /^gallery\d+\.(png|jpg|jpeg|gif|webp)$/i.test(f.name));
-
-    console.log("📦 Gefundene Bilder:", images.length);
-
-    if (images.length === 0) {
-      grid.innerHTML = "<p style=\"grid-column: 1/-1; text-align: center; color: var(--text-muted);\">Noch keine Bilder in der Galerie</p>";
-      return;
-    }
-
-    // Sort by number
-    images.sort((a, b) => {
-      const numA = parseInt(a.name.match(/\d+/)[0]);
-      const numB = parseInt(b.name.match(/\d+/)[0]);
-      return numA - numB;
-    });
-
-    // Load captions
     const data = await loadSiteData();
     const captions = data.galleryTitles || {};
 
-    grid.innerHTML = images.map(f => {
-      const cap = captions[f.name] || {};
+    // Hardcoded gallery images - direct URLs
+    const galleryImages = [
+      "gallery1.png",
+      "gallery2.png",
+      "gallery3.png",
+      "gallery4.png",
+      "gallery5.png",
+      "gallery6.png",
+      "gallery7.png",
+      "gallery8.png",
+      "gallery9.png",
+      "gallery10.png",
+      "gallery11.png",
+      "gallery12.png"
+    ];
+
+    const imageHtml = galleryImages.map(filename => {
+      const cap = captions[filename] || {};
+      const rawUrl = `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${filename}`;
       return `
-        <div class="gallery-item" onclick="openGalleryLightbox('${f.download_url}', '${(cap.title || f.name).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
-          <img src="${f.download_url}" alt="${f.name}" loading="lazy">
+        <button class="gallery-item" style="background: none; border: none; padding: 0; cursor: pointer;" onclick="openGalleryLightbox('${rawUrl}', '${(cap.title || filename).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
+          <img src="${rawUrl}" alt="${filename}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
           ${cap.title ? `<div class="gallery-item__caption"><span class="gallery-item__title">${cap.title}</span></div>` : ""}
-        </div>
+        </button>
       `;
     }).join("");
 
-    console.log("✅ Galerie geladen");
+    grid.innerHTML = imageHtml;
+    console.log("✅ Galerie geladen - 12 Bilder");
   } catch (e) {
     console.error("❌ Galerie-Fehler:", e);
-    grid.innerHTML = `<p style="grid-column: 1/-1; color: #ff6b6b;">❌ Fehler beim Laden der Galerie: ${e.message}</p>`;
+    grid.innerHTML = `<p style="grid-column: 1/-1; color: #ff6b6b; text-align: center;">❌ Fehler beim Laden der Galerie</p>`;
   }
 }
 
-/* ===== Gallery Lightbox (mit DEINEN IDs!) ===== */
+/* ===== Gallery Lightbox ===== */
 function openGalleryLightbox(url, title, text) {
   const lightbox = document.getElementById("lightbox");
   if (!lightbox) return;
@@ -171,9 +219,7 @@ function openGalleryLightbox(url, title, text) {
 
 function closeGalleryLightbox() {
   const lightbox = document.getElementById("lightbox");
-  if (lightbox) {
-    lightbox.setAttribute("hidden", "");
-  }
+  if (lightbox) lightbox.setAttribute("hidden", "");
   document.body.style.overflow = "auto";
 }
 
@@ -196,7 +242,7 @@ async function initBlogPage() {
   allBlogPosts = data.blogPosts || [];
 
   if (allBlogPosts.length === 0) {
-    grid.innerHTML = '<div class="blog-empty"><p>Noch keine Blog-Posts vorhanden.</p></div>';
+    grid.innerHTML = '<div class="blog-empty" style="grid-column: 1/-1;"><p>Noch keine Blog-Posts vorhanden.</p></div>';
     return;
   }
 
@@ -264,6 +310,9 @@ function openBlogPost(id) {
   const post = allBlogPosts.find(p => p.id === id);
   if (!post) return;
 
+  const modal = document.getElementById("blog-modal");
+  if (!modal) return;
+
   document.getElementById("blog-post-title").textContent = post.title;
   
   const dateStr = new Date(post.date).toLocaleDateString('de-DE', { 
@@ -276,7 +325,7 @@ function openBlogPost(id) {
   const bodyHtml = renderBlogBlocks(post.content);
   document.getElementById("blog-post-body").innerHTML = bodyHtml;
   
-  document.getElementById("blog-modal").classList.add("is-open");
+  modal.classList.add("is-open");
   document.body.style.overflow = "hidden";
 }
 
@@ -299,10 +348,14 @@ document.getElementById("blog-modal")?.addEventListener("click", (e) => {
 
 /* ===== Init ALL ===== */
 window.addEventListener("load", async () => {
-  console.log("🚀 Pages.js initializing...");
+  console.log("🚀 pages.js init...");
   initTheme();
   
-  // Check welche Seite wir sind und lade entsprechend
+  if (document.getElementById("modal-about-content")) {
+    console.log("→ Home-Seite erkannt");
+    await loadHomeModals();
+  }
+  
   if (document.getElementById("blog-grid")) {
     console.log("→ Blog-Seite erkannt");
     await initBlogPage();
@@ -318,5 +371,5 @@ window.addEventListener("load", async () => {
     await initAboutPage();
   }
 
-  console.log("✅ Pages.js ready!");
+  console.log("✅ pages.js ready!");
 });

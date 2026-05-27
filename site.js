@@ -25,6 +25,9 @@
   var modals = document.querySelectorAll(".modal");
   var openButtons = document.querySelectorAll("[data-modal-open]");
 
+  console.log("Modals gefunden:", modals.length);
+  console.log("Open Buttons gefunden:", openButtons.length);
+
   function closeAllModals() {
     modals.forEach(function (modal) {
       modal.classList.remove("is-open");
@@ -39,6 +42,7 @@
 
   openButtons.forEach(function (btn) {
     btn.addEventListener("click", function () {
+      console.log("Button geklickt:", btn.getAttribute("data-modal-open"));
       var id = btn.getAttribute("data-modal-open");
       if (id === "about") {
         var overlay = document.getElementById("about-overlay");
@@ -54,6 +58,7 @@
       }
       closeAllModals();
       var modal = document.getElementById("modal-" + id);
+      console.log("Modal gesucht:", "modal-" + id, "gefunden:", !!modal);
       if (!modal) return;
       modal.removeAttribute("hidden");
       requestAnimationFrame(function () {
@@ -300,7 +305,8 @@
     if (heroSub) heroSub.textContent = d.bio || "";
 
     var heroQuote = document.querySelector(".ao-hero__quote");
-    if (heroQuote) heroQuote.textContent = "„" + (d.quote || "") + """;
+    var heroQuote = document.querySelector(".ao-hero__quote");
+    if (heroQuote) heroQuote.textContent = String.fromCharCode(8222) + (d.quote || "") + String.fromCharCode(8221);
 
     var facts = document.querySelectorAll(".ao-fact__val");
     var factVals = [d.factName, d.factAge, d.factHeight, d.factOrigin];
