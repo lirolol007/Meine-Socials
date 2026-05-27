@@ -168,47 +168,40 @@ async function initGalleryPage() {
   grid.innerHTML = "<p style=\"grid-column: 1/-1; text-align: center; color: var(--text-muted);\">Lädt Bilder...</p>";
 
   try {
-    // Use raw.githubusercontent instead of API to avoid rate limits
-    const res = await fetch(
-      `https://api.github.com/repos/Lirolol007/Meine-Socials/contents/?ref=main&t=${Date.now()}`,
-      {
-        headers: { "Accept": "application/vnd.github.v3+json" }
-      }
-    );
-    
-    if (!res.ok) {
-      throw new Error(`GitHub API Fehler: ${res.status}`);
+    const data = await loadSiteData();
+    const captions = data.galleryTitles || {};
+
+    // Hardcoded gallery image list - no API call needed!
+    const galleryImages = [];
+    for (let i = 1; i <= 20; i++) {
+      const filename = `gallery${i}.png`;
+      const rawUrl = `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${filename}`;
+      
+      // Check if image exists by trying to load it
+      const img = new Image();
+      img.onerror = () => console.log(`❌ ${filename} nicht gefunden`);
+      img.onload = () => {
+        console.log(`✅ ${filename} gefunden`);
+        galleryImages.push({ name: filename, url: rawUrl });
+      };
+      img.src = rawUrl;
     }
 
-    const files = await res.json();
-    if (!Array.isArray(files)) {
-      throw new Error("Keine Dateiliste erhalten");
-    }
+    // Wait a bit for images to load
+    await new Promise(r => setTimeout(r, 1500));
 
-    const images = files.filter(f => /^[Gg]allery\d+\.(png|jpg|jpeg|gif|webp|PNG|JPG|JPEG|GIF|WEBP)$/i.test(f.name));
+    console.log("📦 Gefundene Bilder:", galleryImages.length);
 
-    console.log("📦 Gefundene Bilder:", images.length);
-
-    if (images.length === 0) {
+    if (galleryImages.length === 0) {
       grid.innerHTML = "<p style=\"grid-column: 1/-1; text-align: center; color: var(--text-muted);\">Noch keine Bilder in der Galerie</p>";
       return;
     }
 
-    images.sort((a, b) => {
-      const numA = parseInt(a.name.match(/\d+/)[0]);
-      const numB = parseInt(b.name.match(/\d+/)[0]);
-      return numA - numB;
-    });
-
-    const data = await loadSiteData();
-    const captions = data.galleryTitles || {};
-
-    grid.innerHTML = images.map(f => {
+    grid.innerHTML = galleryImages.map(f => {
       const cap = captions[f.name] || {};
-      const rawUrl = `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${f.name}`;
       return `
-        <button class="gallery-item" style="background: none; border: none; padding: 0; cursor: pointer;" onclick="openGalleryLightbox('${rawUrl}', '${(cap.title || f.name).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
-          <img src="${rawUrl}" alt="${f.name}" loading="lazy">
+        <button class="gallery-item" style="background: none; border: none; padding: 0; cursor: pointer;" onclick="openGalleryLightbox('${f.url}', '${(cap.title || f.name).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
+          <img src="${f.url}" alt="${f.name}" loading="lazy">
           ${cap.title ? `<div class="gallery-item__caption"><span class="gallery-item__title">${cap.title}</span></div>` : ""}
         </button>
       `;
