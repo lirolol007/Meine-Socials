@@ -7,17 +7,22 @@ function fromBase64(str) {
   }
 }
 
+let siteDataCache = null;
+
 /* ===== Load Site Data ===== */
 async function loadSiteData() {
+  if (siteDataCache) return siteDataCache;
+  
   try {
     const res = await fetch(
       `https://api.github.com/repos/Lirolol007/Meine-Socials/contents/site-data.json?t=${Date.now()}`
     );
     if (!res.ok) throw new Error("site-data.json nicht gefunden");
     const file = await res.json();
-    return JSON.parse(fromBase64(file.content.replace(/\n/g, "")));
+    siteDataCache = JSON.parse(fromBase64(file.content.replace(/\n/g, "")));
+    return siteDataCache;
   } catch (e) {
-    console.warn("site-data.json konnte nicht geladen werden:", e.message);
+    console.warn("❌ site-data.json konnte nicht geladen werden:", e.message);
     return getDefaultData();
   }
 }
@@ -38,7 +43,8 @@ function getDefaultData() {
       }
     },
     blogPosts: [],
-    galleryTitles: {}
+    galleryTitles: {},
+    collabs: []
   };
 }
 
@@ -70,6 +76,32 @@ document.getElementById("nav-toggle")?.addEventListener("click", () => {
   if (links) links.classList.toggle("active");
 });
 
+/* ===== HOME PAGE - Load Modals ===== */
+async function loadHomeModals() {
+  const data = await loadSiteData();
+  
+  // Modal: Über mich
+  const aboutContent = document.getElementById("modal-about-content");
+  if (aboutContent) {
+    const aboutText = data.bio1 && data.bio2 
+      ? `<p>${data.bio1}</p><p>${data.bio2}</p>`
+      : data.pages?.about?.content || "<p>Keine Inhalte</p>";
+    aboutContent.innerHTML = aboutText;
+  }
+
+  // Modal: Kollegen
+  const collabList = document.getElementById("collab-list");
+  if (collabList && data.collabs?.length > 0) {
+    collabList.innerHTML = data.collabs.map(c => `
+      <li>
+        <a href="${c.url}" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; font-weight: 600;">
+          ${c.name} ↗
+        </a>
+      </li>
+    `).join("");
+  }
+}
+
 /* ===== ABOUT PAGE ===== */
 async function initAboutPage() {
   const contentEl = document.getElementById("page-content");
@@ -85,18 +117,20 @@ async function initAboutPage() {
   if (titleEl) titleEl.textContent = about.title || "Über mich";
   if (subtitleEl) subtitleEl.textContent = about.subtitle || "";
 
-  contentEl.innerHTML = about.content || "<p>Keine Inhalte verfügbar</p>";
+  // Load content from bio1 + bio2 OR pages.about.content
+  let content = about.content || "";
+  if (!content && data.bio1) {
+    content = `<p>${data.bio1}</p>`;
+    if (data.bio2) content += `<p>${data.bio2}</p>`;
+  }
+  
+  contentEl.innerHTML = content || "<p>Keine Inhalte verfügbar</p>";
 
-  // Facts — mit DEINEN IDs!
-  const factName = document.getElementById("fact-name");
-  const factAge = document.getElementById("fact-age");
-  const factHeight = document.getElementById("fact-height");
-  const factOrigin = document.getElementById("fact-origin");
-
-  if (factName) factName.textContent = data.factName || "—";
-  if (factAge) factAge.textContent = data.factAge || "—";
-  if (factHeight) factHeight.textContent = data.factHeight || "—";
-  if (factOrigin) factOrigin.textContent = data.factOrigin || "—";
+  // Facts
+  if (document.getElementById("fact-name")) document.getElementById("fact-name").textContent = data.factName || "—";
+  if (document.getElementById("fact-age")) document.getElementById("fact-age").textContent = data.factAge || "—";
+  if (document.getElementById("fact-height")) document.getElementById("fact-height").textContent = data.factHeight || "—";
+  if (document.getElementById("fact-origin")) document.getElementById("fact-origin").textContent = data.factOrigin || "—";
 
   console.log("✅ About-Seite geladen");
 }
@@ -110,14 +144,11 @@ async function initGalleryPage() {
   grid.innerHTML = "<p style=\"grid-column: 1/-1; text-align: center; color: var(--text-muted);\">Lädt Bilder...</p>";
 
   try {
-    // Fetch repo contents für Galerie-Bilder
     const res = await fetch(
       `https://api.github.com/repos/Lirolol007/Meine-Socials/contents/?t=${Date.now()}`
     );
     
-    if (!res.ok) {
-      throw new Error(`GitHub API Fehler: ${res.status}`);
-    }
+    if (!res.ok) throw new Error(`GitHub API Fehler: ${res.status}`);
 
     const files = await res.json();
     const images = files.filter(f => /^gallery\d+\.(png|jpg|jpeg|gif|webp)$/i.test(f.name));
@@ -129,14 +160,12 @@ async function initGalleryPage() {
       return;
     }
 
-    // Sort by number
     images.sort((a, b) => {
       const numA = parseInt(a.name.match(/\d+/)[0]);
       const numB = parseInt(b.name.match(/\d+/)[0]);
       return numA - numB;
     });
 
-    // Load captions
     const data = await loadSiteData();
     const captions = data.galleryTitles || {};
 
@@ -157,7 +186,7 @@ async function initGalleryPage() {
   }
 }
 
-/* ===== Gallery Lightbox (mit DEINEN IDs!) ===== */
+/* ===== Gallery Lightbox ===== */
 function openGalleryLightbox(url, title, text) {
   const lightbox = document.getElementById("lightbox");
   if (!lightbox) return;
@@ -171,9 +200,7 @@ function openGalleryLightbox(url, title, text) {
 
 function closeGalleryLightbox() {
   const lightbox = document.getElementById("lightbox");
-  if (lightbox) {
-    lightbox.setAttribute("hidden", "");
-  }
+  if (lightbox) lightbox.setAttribute("hidden", "");
   document.body.style.overflow = "auto";
 }
 
@@ -196,7 +223,7 @@ async function initBlogPage() {
   allBlogPosts = data.blogPosts || [];
 
   if (allBlogPosts.length === 0) {
-    grid.innerHTML = '<div class="blog-empty"><p>Noch keine Blog-Posts vorhanden.</p></div>';
+    grid.innerHTML = '<div class="blog-empty" style="grid-column: 1/-1;"><p>Noch keine Blog-Posts vorhanden.</p></div>';
     return;
   }
 
@@ -264,6 +291,9 @@ function openBlogPost(id) {
   const post = allBlogPosts.find(p => p.id === id);
   if (!post) return;
 
+  const modal = document.getElementById("blog-modal");
+  if (!modal) return;
+
   document.getElementById("blog-post-title").textContent = post.title;
   
   const dateStr = new Date(post.date).toLocaleDateString('de-DE', { 
@@ -276,7 +306,7 @@ function openBlogPost(id) {
   const bodyHtml = renderBlogBlocks(post.content);
   document.getElementById("blog-post-body").innerHTML = bodyHtml;
   
-  document.getElementById("blog-modal").classList.add("is-open");
+  modal.classList.add("is-open");
   document.body.style.overflow = "hidden";
 }
 
@@ -297,12 +327,18 @@ document.getElementById("blog-modal")?.addEventListener("click", (e) => {
   if (e.target.id === "blog-modal") closeBlogPost();
 });
 
+document.getElementById("blog-modal-close")?.addEventListener("click", closeBlogPost);
+
 /* ===== Init ALL ===== */
 window.addEventListener("load", async () => {
-  console.log("🚀 Pages.js initializing...");
+  console.log("🚀 pages.js init...");
   initTheme();
   
-  // Check welche Seite wir sind und lade entsprechend
+  if (document.getElementById("modal-about-content")) {
+    console.log("→ Home-Seite erkannt");
+    await loadHomeModals();
+  }
+  
   if (document.getElementById("blog-grid")) {
     console.log("→ Blog-Seite erkannt");
     await initBlogPage();
@@ -318,5 +354,5 @@ window.addEventListener("load", async () => {
     await initAboutPage();
   }
 
-  console.log("✅ Pages.js ready!");
+  console.log("✅ pages.js ready!");
 });

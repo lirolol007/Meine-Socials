@@ -114,6 +114,7 @@
       text-align: center;
       padding: 3rem 1rem;
       color: var(--text-muted);
+      grid-column: 1 / -1;
     }
 
     .blog-empty p {
@@ -327,7 +328,7 @@
   <!-- Blog-Post Modal -->
   <div class="blog-modal" id="blog-modal">
     <div class="blog-modal__content">
-      <button class="blog-modal__close" onclick="closeBlogPost()">✕</button>
+      <button class="blog-modal__close" id="blog-modal-close" onclick="closeBlogPost()">✕</button>
       <h1 class="blog-post__title" id="blog-post-title"></h1>
       <div class="blog-post__meta" id="blog-post-meta"></div>
       <div class="blog-post__body" id="blog-post-body"></div>
