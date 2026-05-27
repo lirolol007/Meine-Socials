@@ -362,11 +362,6 @@ window.addEventListener("load", async () => {
   console.log("🚀 pages.js init...");
   initTheme();
   
-  if (document.getElementById("modal-about-content")) {
-    console.log("→ Home-Seite erkannt");
-    await loadHomeModals();
-  }
-  
   if (document.getElementById("blog-grid")) {
     console.log("→ Blog-Seite erkannt");
     await initBlogPage();
