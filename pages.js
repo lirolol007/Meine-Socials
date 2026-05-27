@@ -186,14 +186,14 @@ async function initGalleryPage() {
       "gallery12.png"
     ];
 
-    const imageHtml = galleryImages.map((filename, idx) => {
+    const imageHtml = galleryImages.map(filename => {
       const cap = captions[filename] || {};
       const rawUrl = `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${filename}`;
       return `
-        <div class="gallery-item" data-index="${idx}" data-url="${rawUrl}" data-title="${(cap.title || filename).replace(/"/g, "&quot;")}" data-text="${(cap.text || '').replace(/"/g, "&quot;")}">
+        <button class="gallery-item" style="background: none; border: none; padding: 0; cursor: pointer;" onclick="openGalleryLightbox('${rawUrl}', '${(cap.title || filename).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
           <img src="${rawUrl}" alt="${filename}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
           ${cap.title ? `<div class="gallery-item__caption"><span class="gallery-item__title">${cap.title}</span></div>` : ""}
-        </div>
+        </button>
       `;
     }).join("");
 
@@ -227,17 +227,6 @@ document.getElementById("lightbox-close")?.addEventListener("click", closeGaller
 document.getElementById("lightbox")?.addEventListener("click", (e) => {
   if (e.target.id === "lightbox" || e.target.classList.contains("modal__backdrop")) {
     closeGalleryLightbox();
-  }
-});
-
-// Gallery item click handler
-document.addEventListener("click", (e) => {
-  const galleryItem = e.target.closest(".gallery-item");
-  if (galleryItem) {
-    const url = galleryItem.dataset.url;
-    const title = galleryItem.dataset.title;
-    const text = galleryItem.dataset.text;
-    openGalleryLightbox(url, title, text);
   }
 });
 
@@ -361,6 +350,11 @@ document.getElementById("blog-modal")?.addEventListener("click", (e) => {
 window.addEventListener("load", async () => {
   console.log("🚀 pages.js init...");
   initTheme();
+  
+  if (document.getElementById("modal-about-content")) {
+    console.log("→ Home-Seite erkannt");
+    await loadHomeModals();
+  }
   
   if (document.getElementById("blog-grid")) {
     console.log("→ Blog-Seite erkannt");
