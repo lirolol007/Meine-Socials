@@ -10,22 +10,10 @@ function fromBase64(str) {
   }
 }
 
-/* ===== Load Site Data WITH CACHING ===== */
+/* ===== Load Site Data WITHOUT CACHING ===== */
 async function loadSiteData() {
-  // Check localStorage first
-  const cached = localStorage.getItem(CACHE_KEY);
-  if (cached) {
-    try {
-      const data = JSON.parse(cached);
-      if (data.expiry > Date.now()) {
-        console.log("📦 Daten aus Cache geladen");
-        return data.content;
-      }
-    } catch (e) {}
-  }
-
   try {
-    console.log("🌐 Lade site-data.json von GitHub...");
+    console.log("🌐 Lade site-data.json von GitHub (frisch)...");
     const res = await fetch(
       `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/site-data.json?t=${Date.now()}`
     );
@@ -35,14 +23,7 @@ async function loadSiteData() {
     }
 
     const data = await res.json();
-    
-    // Cache it
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-      content: data,
-      expiry: Date.now() + CACHE_EXPIRY
-    }));
-
-    console.log("✅ site-data.json geladen & gecacht");
+    console.log("✅ site-data.json geladen (FRISCH - kein Cache!)");
     return data;
   } catch (e) {
     console.warn("⚠️ Fehler beim Laden von site-data.json:", e.message);
