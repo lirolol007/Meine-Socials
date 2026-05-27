@@ -186,14 +186,14 @@ async function initGalleryPage() {
       "gallery12.png"
     ];
 
-    const imageHtml = galleryImages.map(filename => {
+    const imageHtml = galleryImages.map((filename, idx) => {
       const cap = captions[filename] || {};
       const rawUrl = `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${filename}`;
       return `
-        <button class="gallery-item" style="background: none; border: none; padding: 0; cursor: pointer;" onclick="openGalleryLightbox('${rawUrl}', '${(cap.title || filename).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
+        <div class="gallery-item" data-index="${idx}" data-url="${rawUrl}" data-title="${(cap.title || filename).replace(/"/g, "&quot;")}" data-text="${(cap.text || '').replace(/"/g, "&quot;")}">
           <img src="${rawUrl}" alt="${filename}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
           ${cap.title ? `<div class="gallery-item__caption"><span class="gallery-item__title">${cap.title}</span></div>` : ""}
-        </button>
+        </div>
       `;
     }).join("");
 
@@ -227,6 +227,17 @@ document.getElementById("lightbox-close")?.addEventListener("click", closeGaller
 document.getElementById("lightbox")?.addEventListener("click", (e) => {
   if (e.target.id === "lightbox" || e.target.classList.contains("modal__backdrop")) {
     closeGalleryLightbox();
+  }
+});
+
+// Gallery item click handler
+document.addEventListener("click", (e) => {
+  const galleryItem = e.target.closest(".gallery-item");
+  if (galleryItem) {
+    const url = galleryItem.dataset.url;
+    const title = galleryItem.dataset.title;
+    const text = galleryItem.dataset.text;
+    openGalleryLightbox(url, title, text);
   }
 });
 
