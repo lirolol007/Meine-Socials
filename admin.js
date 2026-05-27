@@ -24,16 +24,42 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const rememberMe = document.getElementById("rememberMe").checked;
 
   if (password !== ADMIN_PASSWORD) {
-    alert("❌ Passwort falsch!");
+    alert("❌ Passwort falsch! Standard: 'liro2024'");
+    return;
+  }
+
+  if (!token || token.trim() === "") {
+    alert("❌ Token darf nicht leer sein!");
     return;
   }
 
   if (!token.startsWith("ghp_")) {
-    alert("❌ Token ungültig (muss mit ghp_ starten)");
+    alert("❌ Token ungültig!\nMuss mit 'ghp_' starten.\n\nWie man einen Token erstellt:\n1. GitHub → Settings → Developer Settings\n2. Personal Access Tokens → Tokens (classic)\n3. Generate new token (classic)\n4. Permissions: repo + admin:repo_hook");
     return;
   }
 
   githubToken = token;
+  
+  // Test Token
+  try {
+    const testRes = await fetch(`https://api.github.com/user`, {
+      headers: { Authorization: `token ${token}` }
+    });
+    
+    if (!testRes.ok) {
+      console.error("Token test failed:", testRes.status);
+      alert("❌ Token ungültig oder abgelaufen!\nStatus: " + testRes.status);
+      return;
+    }
+
+    const user = await testRes.json();
+    console.log("✅ Token gültig für:", user.login);
+  } catch (e) {
+    console.error("Token test error:", e);
+    alert("❌ Token-Validierung fehlgeschlagen:\n" + e.message);
+    return;
+  }
+
   if (rememberMe) {
     localStorage.setItem("liro_admin_v2", token);
   }
@@ -112,15 +138,36 @@ async function getFileSha(filename) {
 
 async function loadSiteData() {
   try {
-    const res = await fetch(
-      `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/site-data.json?t=${Date.now()}`,
-      { headers: { Authorization: `token ${githubToken}` } }
-    );
-    if (!res.ok) throw new Error("site-data.json nicht gefunden");
-    const file = await res.json();
-    return JSON.parse(fromBase64(file.content.replace(/\n/g, "")));
+    const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/site-data.json?t=${Date.now()}`;
+    console.log("📡 Fetch:", url);
+    
+    const res = await fetch(url, {
+      headers: { 
+        Authorization: `token ${githubToken}`,
+        Accept: "application/vnd.github.v3.raw"
+      }
+    });
+    
+    console.log("Response status:", res.status);
+    
+    if (res.status === 401) {
+      throw new Error("GitHub Token ungültig oder abgelaufen (401)");
+    }
+    
+    if (res.status === 404) {
+      console.warn("site-data.json nicht gefunden (404), nutze Default...");
+      return getDefaultData();
+    }
+    
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`GitHub API Fehler ${res.status}: ${errText}`);
+    }
+    
+    const text = await res.text();
+    return JSON.parse(text);
   } catch (e) {
-    console.warn("site-data.json konnte nicht geladen werden:", e.message);
+    console.warn("Fehler beim Laden von site-data.json:", e.message);
     return getDefaultData();
   }
 }
@@ -202,13 +249,23 @@ async function saveSiteData(data) {
 
 /* ===== Load Data ===== */
 async function loadData() {
-  siteData = await loadSiteData();
-  loadProfilForm();
-  loadLinksForm();
-  loadModalsForm();
-  loadAboutForm();
-  loadBlogList();
-  await loadGalleryList();
+  try {
+    console.log("📥 Lade site-data.json...");
+    siteData = await loadSiteData();
+    console.log("✅ site-data.json geladen:", siteData);
+    
+    loadProfilForm();
+    loadLinksForm();
+    loadModalsForm();
+    loadAboutForm();
+    loadBlogList();
+    await loadGalleryList();
+    
+    showStatus("profil-status", "success", "✅ Daten geladen!");
+  } catch (e) {
+    console.error("❌ Fehler beim Laden:", e);
+    alert("❌ Fehler beim Laden der Daten:\n" + e.message);
+  }
 }
 
 /* ===== TAB 1: Profil ===== */
