@@ -86,5 +86,14 @@
       "subtitle": "Gedanken, Updates & Stories"
     }
   },
-  "blogPosts": []
+  "blogPosts": [
+    {
+      "id": null,
+      "title": "Erster Blog-Post!",
+      "date": "2026-05-27",
+      "excerpt": "Ich Teste gerade das hier und weis noch nicht genau wofür ich das so nutzen sollte XD",
+      "content": "Jo ich Weis nciht wofür aber ich habe jetzt eine Blog Funktion auf dieser seite XD vielleicht schreibe ich hier irgendwann paar sachen oderso.",
+      "image": "gallery1.png"
+    }
+  ]
 }
