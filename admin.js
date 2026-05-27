@@ -64,8 +64,15 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     localStorage.setItem("liro_admin_v2", token);
   }
 
-  document.getElementById("loginScreen").classList.remove("active");
-  document.getElementById("adminPanel").style.display = "block";
+  // Login erfolgreich - zeige Admin Panel
+  const loginScreen = document.getElementById("loginScreen");
+  const adminPanel = document.getElementById("adminPanel");
+  
+  console.log("🔓 Login erfolgreich! Zeige Admin Panel...");
+  
+  loginScreen.style.display = "none";
+  loginScreen.classList.remove("active");
+  adminPanel.style.display = "block";
 
   await loadData();
 });
@@ -74,19 +81,32 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 window.addEventListener("load", async () => {
   const savedToken = localStorage.getItem("liro_admin_v2");
   if (savedToken) {
+    console.log("🔑 Auto-Login mit gespeichertem Token...");
     githubToken = savedToken;
-    document.getElementById("loginScreen").classList.remove("active");
-    document.getElementById("adminPanel").style.display = "block";
+    
+    const loginScreen = document.getElementById("loginScreen");
+    const adminPanel = document.getElementById("adminPanel");
+    
+    loginScreen.style.display = "none";
+    loginScreen.classList.remove("active");
+    adminPanel.style.display = "block";
+    
     await loadData();
   }
 });
 
 /* ===== Logout ===== */
 document.getElementById("logoutBtn").addEventListener("click", () => {
+  console.log("🚪 Logout...");
   githubToken = null;
   localStorage.removeItem("liro_admin_v2");
-  document.getElementById("loginScreen").classList.add("active");
-  document.getElementById("adminPanel").style.display = "none";
+  
+  const loginScreen = document.getElementById("loginScreen");
+  const adminPanel = document.getElementById("adminPanel");
+  
+  loginScreen.style.display = "flex";
+  loginScreen.classList.add("active");
+  adminPanel.style.display = "none";
 });
 
 /* ===== Tab Navigation ===== */
