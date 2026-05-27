@@ -3,14 +3,138 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liro — Blog</title>
-  <meta name="description" content="Liro's Blog — Gedanken, Updates & Stories über VRChat und Content Creation.">
-  <meta name="robots" content="index, follow">
+  <title>Blog — Liro</title>
   <link rel="icon" href="profile.jpg" type="image/jpeg">
   <link rel="stylesheet" href="styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .page--blog {
+      min-height: calc(100vh - 60px);
+      padding-bottom: 100px;
+    }
+
+    .blog-hero {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .blog-hero__title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--text), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .blog-hero__subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .blog-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .blog-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 30px var(--accent-glow);
+    }
+
+    .blog-card__img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      display: block;
+      background: var(--bg);
+    }
+
+    .blog-card__content {
+      padding: 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .blog-card__date {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .blog-card__title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .blog-card__excerpt {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .blog-card__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      transition: gap 0.3s;
+    }
+
+    .blog-card__btn:hover {
+      gap: 0.75rem;
+    }
+
+    .blog-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+
+    .blog-empty p {
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .blog-hero__title {
+        font-size: 1.75rem;
+      }
+
+      .blog-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .page--blog {
+        padding-bottom: 100px;
+      }
+    }
+  </style>
 </head>
 <body>
   <nav class="nav">
@@ -22,34 +146,37 @@
         <li><a href="/gallery.html" class="nav__link">Galerie</a></li>
         <li><a href="/blog.html" class="nav__link active">Blog</a></li>
       </ul>
-      <button class="nav__theme" id="theme-toggle" aria-label="Theme Toggle">🌙</button>
-      <button class="nav__toggle" id="nav-toggle">☰</button>
+      <button id="theme-toggle" class="nav__theme">🌙</button>
+      <button id="nav-toggle" class="nav__toggle">☰</button>
     </div>
   </nav>
 
-  <main class="page page--wide">
+  <div class="page page--blog page--wide">
     <div class="page__inner">
-      <div class="about-hero" style="margin-bottom: 2rem;">
-        <h1 class="about-hero__title">Blog</h1>
-        <p class="about-hero__subtitle">Gedanken, Updates & Stories</p>
+      <div class="blog-hero">
+        <h1 class="blog-hero__title">📝 Blog</h1>
+        <p class="blog-hero__subtitle" id="blog-subtitle">Meine neuesten Gedanken & Geschichten</p>
       </div>
 
       <div class="blog-grid" id="blog-grid">
-        <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Lädt...</p>
+        <div class="blog-empty">
+          <p>Lädt Blog-Posts...</p>
+        </div>
       </div>
     </div>
-  </main>
+  </div>
 
-  <footer class="footer">
-    <nav class="footer-nav">
-      <button class="footer-nav__link" data-modal-open="about">Über mich</button>
-      <span class="footer-nav__sep">·</span>
-      <button class="footer-nav__link" data-modal-open="collabs">Kollegen</button>
-      <span class="footer-nav__sep">·</span>
-      <button class="footer-nav__link" data-modal-open="contact">Kontakt</button>
-    </nav>
-    <p class="footer__credit">Avatar Art by Liro</p>
-  </footer>
+  <!-- Blog-Post Modal -->
+  <div class="modal" id="blog-modal">
+    <div class="modal__backdrop" onclick="closeBlogModal()"></div>
+    <div class="modal__panel">
+      <button class="modal__close" onclick="closeBlogModal()">✕</button>
+      <h2 class="modal__title" id="blog-modal-title"></h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;" id="blog-modal-date"></p>
+      <img id="blog-modal-img" style="width: 100%; border-radius: 12px; margin-bottom: 1.5rem; max-height: 300px; object-fit: cover;" alt="">
+      <div id="blog-modal-content" style="line-height: 1.8; color: var(--text-muted);"></div>
+    </div>
+  </div>
 
   <script src="pages.js"></script>
 </body>
