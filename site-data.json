@@ -1,75 +1,56 @@
 {
   "name": "Liro",
   "badge": "VRChat Creator",
-  "tags": [
-    "🦊 Fox",
-    "VR",
-    "DE",
-    "Meow :3"
-  ],
-  "catchphrase": "So ein Furry oder so... :3",
+  "tags": ["🦊 Fox", "VR", "DE"],
+  "catchphrase": "Direkt, ehrlich & viel Quatsch :3",
   "bio": "VRChat · Streams · Content",
-  "quote": "So ein Furry oder so... :3",
+  "quote": "Direkt, ehrlich & viel Quatsch :3",
   "factName": "Liro / Leon",
   "factAge": "19",
   "factHeight": "1,78 m",
   "factOrigin": "🇩🇪 Deutschland",
-  "bio1": "Hi :3 — ich bin Liro und mache vor allem VRChat-Content: streame, schneide Videos und viel Chaos mit der Community :3",
+  "bio1": "Moin — ich bin Liro und mache vor allem VRChat-Content: streame, schneide Videos und viel Chaos mit der Community :3",
   "bio2": "Ich bin eine direkte Person und freue mich immer über neue Bekanntschaften. Wenn du quatschen oder mitmachen willst, meld dich gern!",
   "links": {
-    "tiktok": {
-      "label": "TikTok",
-      "hint": "Hier bin ich am Aktivsten :3"
-    },
-    "discord": {
-      "label": "Discord",
-      "hint": "Joint unserem Discord!"
-    },
-    "twitch": {
-      "label": "Twitch",
-      "hint": "Folgt rein, für zukünftige Streams :3"
-    },
-    "youtube": {
-      "label": "YouTube",
-      "hint": "Abonniert meinen YouTube Kanal :3"
-    },
-    "telegram": {
-      "label": "Telegram",
-      "hint": "@Liro025"
-    },
-    "vrchat": {
-      "label": "VRChat",
-      "hint": "Add mich — Liro0"
-    },
-    "kofi": {
-      "label": "Ko-fi",
-      "hint": "Ko-fi Seite"
-    }
+    "tiktok":   { "label": "TikTok",   "hint": "Hauptplattform — @liro7160" },
+    "discord":  { "label": "Discord",  "hint": "Liro/Ryio Community Server" },
+    "twitch":   { "label": "Twitch",   "hint": "Streams & Just Chatting" },
+    "youtube":  { "label": "YouTube",  "hint": "" },
+    "telegram": { "label": "Telegram", "hint": "@Liro025" },
+    "vrchat":   { "label": "VRChat",   "hint": "Add mich — Liro0" },
+    "kofi":     { "label": "Ko-fi",    "hint": "Ko-fi Seite" }
   },
   "collabs": [
-    {
-      "name": "Ryio",
-      "url": "https://www.tiktok.com/@fluffy_ryio"
+    { "name": "Ryio",     "url": "https://www.tiktok.com/@fluffy_ryio" },
+    { "name": "DragonPro","url": "https://www.tiktok.com/@dragonpro08" },
+    { "name": "Linxy",    "url": "https://www.tiktok.com/@lynxi.vrc" },
+    { "name": "Kieran",   "url": "https://www.tiktok.com/@kieran.catto" },
+    { "name": "Rakurim",  "url": "https://www.tiktok.com/@rakurimde" },
+    { "name": "Xarrax",   "url": "https://www.tiktok.com/@xarrax.official" }
+  ],
+  "pages": {
+    "about": {
+      "title": "Über mich",
+      "subtitle": "VRChat Creator, Streamer & Chaos-Agent",
+      "content": "<p>Moin! Ich bin Liro und lebe für VRChat und die Community drumherum.</p><p>Was ich mache: Streams, Videos, Avatare, Community-Events und vor allem viel Spaß mit tollen Menschen.</p><p>Wenn du VRChat magst, gern Chaos hast und authentische Creator suchst — schau gerne vorbei!</p>"
     },
-    {
-      "name": "DragonPro",
-      "url": "https://www.tiktok.com/@dragonpro08"
+    "gallery": {
+      "title": "Galerie",
+      "subtitle": "VRChat & Content Highlights"
     },
+    "blog": {
+      "title": "Blog",
+      "subtitle": "Gedanken, Updates & Stories"
+    }
+  },
+  "blogPosts": [
     {
-      "name": "Linxy",
-      "url": "https://www.tiktok.com/@lynxi.vrc"
-    },
-    {
-      "name": "Kieran",
-      "url": "https://www.tiktok.com/@kieran.catto"
-    },
-    {
-      "name": "Rakurim",
-      "url": "https://www.tiktok.com/@rakurimde"
-    },
-    {
-      "name": "Xarrax",
-      "url": "https://www.tiktok.com/@xarrax.official"
+      "id": 1,
+      "title": "Willkommen auf meinem Blog!",
+      "date": "2026-05-27",
+      "excerpt": "Das ist mein erster Blog-Post. Hier schreibe ich über alles mögliche — VRChat, Creator-Tipps, persönliche Gedanken und mehr.",
+      "content": "<p>Hey! Das ist mein neuer Blog. Hier kannst du meine Gedanken, Erfahrungen und Updates lesen.</p><p>Was du hier erwarten kannst: VRChat-Tipps, Creator-Insights, persönliche Stories und alles was mir gerade im Kopf rumgeht.</p><p>Viel Spaß beim Lesen! :3</p>",
+      "image": "gallery1.png"
     }
   ]
 }

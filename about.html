@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liro — Über mich</title>
+  <meta name="description" content="Erfahre mehr über Liro — VRChat Creator, Streamer und Content Creator.">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" href="profile.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="styles-new.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo">🦊 Liro</a>
+      <ul class="nav__links">
+        <li><a href="/" class="nav__link">Home</a></li>
+        <li><a href="/about.html" class="nav__link active">Über mich</a></li>
+        <li><a href="/gallery.html" class="nav__link">Galerie</a></li>
+        <li><a href="/blog.html" class="nav__link">Blog</a></li>
+      </ul>
+      <button class="nav__theme" id="theme-toggle" aria-label="Theme Toggle">🌙</button>
+      <button class="nav__toggle" id="nav-toggle">☰</button>
+    </div>
+  </nav>
+
+  <main class="page page--wide">
+    <div class="page__inner">
+      <div class="about-hero">
+        <h1 class="about-hero__title" id="page-title">Über mich</h1>
+        <p class="about-hero__subtitle" id="page-subtitle">VRChat Creator, Streamer & Chaos-Agent</p>
+      </div>
+
+      <div class="about-content">
+        <div class="about-content__text" id="page-content">
+          <p>Lade Inhalt...</p>
+        </div>
+        <div class="about-content__img">
+          <img src="profile.jpg" alt="Liro Avatar" loading="lazy">
+        </div>
+      </div>
+
+      <section class="ao-section">
+        <h2 class="ao-section__title">Steckbrief</h2>
+        <div class="ao-facts">
+          <div class="ao-fact">
+            <span class="ao-fact__label">Name</span>
+            <span class="ao-fact__val" id="fact-name">—</span>
+          </div>
+          <div class="ao-fact">
+            <span class="ao-fact__label">Alter</span>
+            <span class="ao-fact__val" id="fact-age">—</span>
+          </div>
+          <div class="ao-fact">
+            <span class="ao-fact__label">Größe</span>
+            <span class="ao-fact__val" id="fact-height">—</span>
+          </div>
+          <div class="ao-fact">
+            <span class="ao-fact__label">Herkunft</span>
+            <span class="ao-fact__val" id="fact-origin">—</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <nav class="footer-nav">
+      <button class="footer-nav__link" data-modal-open="about">Über mich</button>
+      <span class="footer-nav__sep">·</span>
+      <button class="footer-nav__link" data-modal-open="collabs">Kollegen</button>
+      <span class="footer-nav__sep">·</span>
+      <button class="footer-nav__link" data-modal-open="contact">Kontakt</button>
+    </nav>
+    <p class="footer__credit">Avatar Art by Liro</p>
+  </footer>
+
+  <script src="pages.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liro — Galerie</title>
+  <meta name="description" content="VRChat & Content Galerie von Liro — hochwertige Screenshots und Highlights.">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" href="profile.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="styles-new.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo">🦊 Liro</a>
+      <ul class="nav__links">
+        <li><a href="/" class="nav__link">Home</a></li>
+        <li><a href="/about.html" class="nav__link">Über mich</a></li>
+        <li><a href="/gallery.html" class="nav__link active">Galerie</a></li>
+        <li><a href="/blog.html" class="nav__link">Blog</a></li>
+      </ul>
+      <button class="nav__theme" id="theme-toggle" aria-label="Theme Toggle">🌙</button>
+      <button class="nav__toggle" id="nav-toggle">☰</button>
+    </div>
+  </nav>
+
+  <main class="page page--wide">
+    <div class="page__inner">
+      <div class="about-hero" style="margin-bottom: 2rem;">
+        <h1 class="about-hero__title">Galerie</h1>
+        <p class="about-hero__subtitle">VRChat & Content Highlights</p>
+      </div>
+
+      <div class="gallery-grid" id="gallery-grid">
+        <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Lädt...</p>
+      </div>
+    </div>
+  </main>
+
+  <div id="lightbox" class="modal" hidden>
+    <div class="modal__backdrop"></div>
+    <div class="modal__panel">
+      <button class="modal__close" id="lightbox-close">×</button>
+      <div style="text-align: center; padding: 1rem;">
+        <img id="lightbox-img" src="" alt="" style="max-width: 100%; max-height: 70dvh; border-radius: 12px; margin-bottom: 1rem;">
+        <div id="lightbox-caption" style="text-align: center;">
+          <h3 id="lightbox-title" style="margin-bottom: 0.5rem; font-size: 1.1rem;"></h3>
+          <p id="lightbox-text" style="color: var(--text-muted); line-height: 1.6;"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <nav class="footer-nav">
+      <button class="footer-nav__link" data-modal-open="about">Über mich</button>
+      <span class="footer-nav__sep">·</span>
+      <button class="footer-nav__link" data-modal-open="collabs">Kollegen</button>
+      <span class="footer-nav__sep">·</span>
+      <button class="footer-nav__link" data-modal-open="contact">Kontakt</button>
+    </nav>
+    <p class="footer__credit">Avatar Art by Liro</p>
+  </footer>
+
+  <script src="pages.js"></script>
+</body>
+</html>
