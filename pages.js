@@ -165,49 +165,40 @@ async function initGalleryPage() {
   if (!grid) return;
 
   console.log("🖼️ Laden Galerie...");
-  grid.innerHTML = "<p style=\"grid-column: 1/-1; text-align: center; color: var(--text-muted);\">Lädt Bilder...</p>";
 
   try {
     const data = await loadSiteData();
     const captions = data.galleryTitles || {};
 
-    // Hardcoded gallery image list - no API call needed!
-    const galleryImages = [];
-    for (let i = 1; i <= 20; i++) {
-      const filename = `gallery${i}.png`;
+    // Hardcoded gallery images - direct URLs
+    const galleryImages = [
+      "gallery1.png",
+      "gallery2.png",
+      "gallery3.png",
+      "gallery4.png",
+      "gallery5.png",
+      "gallery6.png",
+      "gallery7.png",
+      "gallery8.png",
+      "gallery9.png",
+      "gallery10.png",
+      "gallery11.png",
+      "gallery12.png"
+    ];
+
+    const imageHtml = galleryImages.map(filename => {
+      const cap = captions[filename] || {};
       const rawUrl = `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${filename}`;
-      
-      // Check if image exists by trying to load it
-      const img = new Image();
-      img.onerror = () => console.log(`❌ ${filename} nicht gefunden`);
-      img.onload = () => {
-        console.log(`✅ ${filename} gefunden`);
-        galleryImages.push({ name: filename, url: rawUrl });
-      };
-      img.src = rawUrl;
-    }
-
-    // Wait a bit for images to load
-    await new Promise(r => setTimeout(r, 1500));
-
-    console.log("📦 Gefundene Bilder:", galleryImages.length);
-
-    if (galleryImages.length === 0) {
-      grid.innerHTML = "<p style=\"grid-column: 1/-1; text-align: center; color: var(--text-muted);\">Noch keine Bilder in der Galerie</p>";
-      return;
-    }
-
-    grid.innerHTML = galleryImages.map(f => {
-      const cap = captions[f.name] || {};
       return `
-        <button class="gallery-item" style="background: none; border: none; padding: 0; cursor: pointer;" onclick="openGalleryLightbox('${f.url}', '${(cap.title || f.name).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
-          <img src="${f.url}" alt="${f.name}" loading="lazy">
+        <button class="gallery-item" style="background: none; border: none; padding: 0; cursor: pointer;" onclick="openGalleryLightbox('${rawUrl}', '${(cap.title || filename).replace(/'/g, "\\'")}', '${(cap.text || '').replace(/'/g, "\\'")}'">
+          <img src="${rawUrl}" alt="${filename}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
           ${cap.title ? `<div class="gallery-item__caption"><span class="gallery-item__title">${cap.title}</span></div>` : ""}
         </button>
       `;
     }).join("");
 
-    console.log("✅ Galerie geladen");
+    grid.innerHTML = imageHtml;
+    console.log("✅ Galerie geladen - 12 Bilder");
   } catch (e) {
     console.error("❌ Galerie-Fehler:", e);
     grid.innerHTML = `<p style="grid-column: 1/-1; color: #ff6b6b; text-align: center;">❌ Fehler beim Laden der Galerie</p>`;
