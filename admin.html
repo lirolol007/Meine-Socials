@@ -139,6 +139,11 @@
       color: var(--accent);
     }
     
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+    
     .tabs {
       display: flex;
       gap: 1rem;
@@ -230,75 +235,97 @@
       }
     }
     
-    .upload-zone {
-      border: 2px dashed var(--border);
-      border-radius: 12px;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-bottom: 1rem;
-    }
-    
-    .upload-zone:hover {
-      border-color: var(--accent);
-      background: rgba(239, 68, 68, 0.05);
-    }
-    
-    .upload-zone.active {
-      border-color: var(--accent);
-      background: rgba(239, 68, 68, 0.1);
-    }
-    
-    .preview-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    
-    .preview-item {
-      position: relative;
-      aspect-ratio: 1;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    
-    .preview-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .gallery-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    
-    .gallery-card {
+    .blog-block {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 8px;
-      overflow: hidden;
       padding: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
     }
-    
-    .gallery-card img {
+
+    .blog-block__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .blog-block__type {
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 0.9rem;
+    }
+
+    .blog-block__remove {
+      background: transparent;
+      border: none;
+      color: #ff6b6b;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0;
+      transition: all 0.2s;
+    }
+
+    .blog-block__remove:hover {
+      transform: scale(1.2);
+    }
+
+    .blog-block-text textarea,
+    .blog-block-heading input,
+    .blog-block-image input,
+    .blog-block-image select {
       width: 100%;
-      aspect-ratio: 4/3;
-      object-fit: cover;
+      padding: 0.8rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
       border-radius: 6px;
+      color: var(--text);
+      font-family: inherit;
       margin-bottom: 0.5rem;
     }
-    
-    .gallery-card input {
-      width: 100%;
+
+    .blog-block-image {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .blog-block-image__preview {
+      grid-column: 1 / -1;
       margin-bottom: 0.5rem;
     }
-    
+
+    .blog-block-image__preview img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .blog-block-image__upload {
+      grid-column: 1 / -1;
+    }
+
+    .upload-zone-small {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-zone-small:hover {
+      border-color: var(--accent);
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    .upload-zone-small.active {
+      border-color: var(--accent);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
     .blog-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -306,33 +333,21 @@
       padding: 1rem;
       margin-bottom: 1rem;
     }
-    
+
     .blog-card h4 {
       margin-bottom: 0.5rem;
       color: var(--text);
     }
-    
+
     .blog-card p {
       color: var(--text-muted);
       font-size: 0.85rem;
       margin-bottom: 0.5rem;
     }
-    
+
     .btn-group {
       display: flex;
       gap: 0.5rem;
-    }
-    
-    .btn-small {
-      padding: 0.5rem 1rem;
-      font-size: 0.8rem;
-    }
-    
-    .modal-input {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
     }
   </style>
 </head>
@@ -375,7 +390,6 @@
       <button class="tab-btn" data-tab="links">🔗 Links & Kollegen</button>
       <button class="tab-btn" data-tab="modals">💬 Über mich / Kontakt</button>
       <button class="tab-btn" data-tab="about">ℹ️ About-Seite</button>
-      <button class="tab-btn" data-tab="gallery">🖼️ Galerie</button>
       <button class="tab-btn" data-tab="blog">📝 Blog</button>
     </div>
 
@@ -468,7 +482,7 @@
       <button class="btn" id="save-links-btn">💾 Links & Kollegen Speichern</button>
     </div>
 
-    <!-- TAB 3: Modals (Über mich, Kontakt) -->
+    <!-- TAB 3: Modals -->
     <div class="tab-content" id="modals-tab">
       <div id="modals-status" class="status"></div>
 
@@ -522,58 +536,53 @@
       <button class="btn" id="save-about-btn">💾 About-Seite Speichern</button>
     </div>
 
-    <!-- TAB 5: Galerie -->
-    <div class="tab-content" id="gallery-tab">
-      <div id="gallery-status" class="status"></div>
-
-      <div class="form-section">
-        <h3>Bilder hochladen</h3>
-        <div class="upload-zone" id="uploadZone">
-          <p>📁 Bilder hierher ziehen oder klicken zum Auswählen</p>
-          <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
-        </div>
-        <div class="preview-grid" id="previewGrid"></div>
-      </div>
-
-      <div class="form-section">
-        <h3>Galerie-Bilder & Captions</h3>
-        <div id="gallery-list"></div>
-      </div>
-
-      <button class="btn" id="save-gallery-btn">💾 Galerie Speichern</button>
-    </div>
-
-    <!-- TAB 6: Blog -->
+    <!-- TAB 5: Blog -->
     <div class="tab-content" id="blog-tab">
       <div id="blog-status" class="status"></div>
 
       <div class="form-section">
-        <h3>Neuer Blog-Post</h3>
+        <h3>📝 Neuer Blog-Post</h3>
+        
         <div class="form-group">
           <label>Titel</label>
-          <input type="text" id="new-blog-title">
+          <input type="text" id="new-blog-title" placeholder="z.B. Mein erstes VRChat Abenteuer">
         </div>
+
         <div class="form-group">
           <label>Datum</label>
           <input type="date" id="new-blog-date">
         </div>
+
         <div class="form-group">
-          <label>Excerpt (Kurzversion)</label>
-          <textarea id="new-blog-excerpt" style="min-height: 60px;"></textarea>
+          <label>Excerpt (Kurzversion für die Übersicht)</label>
+          <textarea id="new-blog-excerpt" style="min-height: 60px;" placeholder="Kurzer Text der auf der Übersicht angezeigt wird..."></textarea>
         </div>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;">
+
+        <h4 style="margin-bottom: 1rem; color: var(--accent);">Blog-Inhalt (Blöcke)</h4>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+          Füge Blöcke hinzu: Text, Überschriften, Bilder (mit Position). Jeder Block wird nacheinander angezeigt.
+        </p>
+
+        <div id="blog-blocks-container" style="margin-bottom: 1.5rem;"></div>
+
+        <button type="button" id="add-text-block-btn" class="btn btn-secondary" style="margin-right: 0.5rem; margin-bottom: 0.5rem;">+ Text-Block</button>
+        <button type="button" id="add-heading-block-btn" class="btn btn-secondary" style="margin-right: 0.5rem; margin-bottom: 0.5rem;">+ Überschrift</button>
+        <button type="button" id="add-image-block-btn" class="btn btn-secondary" style="margin-bottom: 0.5rem;">+ Bild-Block</button>
+
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;">
+
         <div class="form-group">
-          <label>Content (HTML erlaubt)</label>
-          <textarea id="new-blog-content" style="min-height: 200px;"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Bild (optional)</label>
+          <label>Vorschau-Bild (optional, zeigt auf Übersicht)</label>
           <input type="text" id="new-blog-image" placeholder="gallery1.png">
         </div>
-        <button class="btn" id="create-blog-btn">✍️ Blog-Post Erstellen</button>
+
+        <button class="btn" id="create-blog-btn" style="margin-top: 1rem;">✍️ Blog-Post Erstellen</button>
       </div>
 
       <div class="form-section">
-        <h3>Bestehende Blog-Posts</h3>
+        <h3>📋 Bestehende Blog-Posts</h3>
         <div id="blog-list"></div>
       </div>
     </div>
