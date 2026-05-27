@@ -80,7 +80,8 @@
     },
     "gallery": {
       "title": "Galerie",
-      "subtitle": "VRChat & Content Highlights"
+      "subtitle": "VRChat & Content Highlights",
+      "items": []
     },
     "blog": {
       "title": "Blog",
