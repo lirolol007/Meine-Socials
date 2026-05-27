@@ -384,12 +384,21 @@ body.is-cursor-active .cursor-glow {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.8);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 200;
   padding: 1rem;
   overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.modal:not([hidden]) {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .modal__backdrop {
