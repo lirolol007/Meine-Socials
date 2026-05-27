@@ -13,7 +13,7 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="robots" content="index, follow, noarchive">
   <link rel="icon" href="profile.jpg" type="image/jpeg">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-new.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,10 +21,23 @@
 <body>
   <div class="bg-glow bg-glow--1"></div>
   <div class="bg-glow bg-glow--2"></div>
-  <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
   <canvas class="particles" id="particles" aria-hidden="true"></canvas>
 
-  <main class="page">
+  <nav class="nav">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo">🦊 Liro</a>
+      <ul class="nav__links">
+        <li><a href="/" class="nav__link active">Home</a></li>
+        <li><a href="/about.html" class="nav__link">Über mich</a></li>
+        <li><a href="/gallery.html" class="nav__link">Galerie</a></li>
+        <li><a href="/blog.html" class="nav__link">Blog</a></li>
+      </ul>
+      <button class="nav__theme" id="theme-toggle" aria-label="Theme Toggle">🌙</button>
+      <button class="nav__toggle" id="nav-toggle">☰</button>
+    </div>
+  </nav>
+
+  <main class="page page--linktree">
     <header class="profile">
       <div class="avatar-wrap">
         <img
@@ -41,9 +54,8 @@
         <span class="tag">🦊 Fox</span>
         <span class="tag">VR</span>
         <span class="tag">DE</span>
-        <span class="tag">Meow :3</span>
       </div>
-      <p class="catchphrase">So ein furry, oder so... :3</p>
+      <p class="catchphrase">Direkt, ehrlich & viel Quatsch :3</p>
       <p class="bio">VRChat · Streams · Content<br>Willkommen :3</p>
     </header>
 
@@ -59,7 +71,7 @@
         <span class="link__arrow" aria-hidden="true">→</span>
       </a>
 
-      <a class="link" data-brand="discord" href="https://discord.gg/FnrmxadcVp" target="_blank" rel="noopener noreferrer">
+      <a class="link" data-brand="discord" href="https://discord.gg/zrtu6d7Em" target="_blank" rel="noopener noreferrer">
         <span class="link__icon link__icon--discord" aria-hidden="true">
           <img src="icons/discord.svg" alt="">
         </span>
@@ -76,7 +88,7 @@
         </span>
         <span class="link__text">
           <span class="link__label">Twitch</span>
-          <span class="link__hint">Folgt gerne mal rein :3</span>
+          <span class="link__hint">Streams & Just Chatting</span>
         </span>
         <span class="link__arrow" aria-hidden="true">→</span>
       </a>
@@ -102,9 +114,11 @@
         <span class="link__arrow" aria-hidden="true">→</span>
       </a>
 
-      <a class="link" data-brand="vrchat" href="https://vrchat.com/home/user/usr_2e3bf4e4-2e02-4c79-a7c4-166299327f4d" target="_blank" rel="noopener noreferrer">
+      <a class="link" data-brand="vrchat" href="https://vrchat.com/home/user/usr_2e3bf4e4-1234-5678-9abc-def012345678" target="_blank" rel="noopener noreferrer">
         <span class="link__icon link__icon--vrchat" aria-hidden="true">
-          <img src="icons/vrchat.svg" alt="">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+          </svg>
         </span>
         <span class="link__text">
           <span class="link__label">VRChat</span>
@@ -126,213 +140,55 @@
     </nav>
 
     <footer class="footer">
-      <nav class="footer-nav" aria-label="Weitere Infos">
-        <button type="button" class="footer-nav__link" data-modal-open="about">Über mich</button>
-        <span class="footer-nav__sep" aria-hidden="true">·</span>
-        <button type="button" class="footer-nav__link" data-modal-open="collabs">Kollegen</button>
-        <span class="footer-nav__sep" aria-hidden="true">·</span>
-        <button type="button" class="footer-nav__link" data-modal-open="contact">Kontakt</button>
+      <nav class="footer-nav">
+        <button class="footer-nav__link" data-modal-open="about">Über mich</button>
+        <span class="footer-nav__sep">·</span>
+        <button class="footer-nav__link" data-modal-open="collabs">Kollegen</button>
+        <span class="footer-nav__sep">·</span>
+        <button class="footer-nav__link" data-modal-open="contact">Kontakt</button>
       </nav>
       <p class="footer__credit">Avatar Art by Liro</p>
-      <p>© 2026 Liro</p>
     </footer>
   </main>
 
-  <div class="about-overlay" id="about-overlay" hidden aria-modal="true" role="dialog" aria-labelledby="about-overlay-title">
-    <button type="button" class="about-overlay__close" id="about-overlay-close" aria-label="Schließen">×</button>
-
-    <div class="ao-cursor-glow" aria-hidden="true"></div>
-    <div class="about-overlay__scroll">
-
-      <!-- Hero -->
-      <section class="ao-hero">
-        <div class="ao-hero__img-wrap">
-          <img src="profile.jpg" alt="Liro Avatar" class="ao-hero__img">
-        </div>
-        <div class="ao-hero__text">
-          <p class="ao-hero__eyebrow">🦊 Über mich</p>
-          <h1 class="ao-hero__name" id="about-overlay-title">Liro</h1>
-          <p class="ao-hero__sub">VRChat Creator · Streamer · Content</p>
-          <p class="ao-hero__quote">„So ein furry, Oder so... :3"</p>
-        </div>
-      </section>
-
-      <!-- Fakten -->
-      <section class="ao-section">
-        <h2 class="ao-section__title">Steckbrief</h2>
-        <div class="ao-facts">
-          <div class="ao-fact">
-            <span class="ao-fact__label">Name</span>
-            <span class="ao-fact__val">Liro / Leon</span>
-          </div>
-          <div class="ao-fact">
-            <span class="ao-fact__label">Alter</span>
-            <span class="ao-fact__val">19</span>
-          </div>
-          <div class="ao-fact">
-            <span class="ao-fact__label">Größe</span>
-            <span class="ao-fact__val">1,78 m</span>
-          </div>
-          <div class="ao-fact">
-            <span class="ao-fact__label">Herkunft</span>
-            <span class="ao-fact__val">🇩🇪 Deutschland</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- Über mich Text -->
-      <section class="ao-section">
-        <h2 class="ao-section__title">Wer bin ich?</h2>
-        <div class="ao-text-block">
-          <p>Moin — ich bin <strong>Liro</strong> und mache vor allem <strong>VRChat-Content</strong>: streame, schneide Videos und viel Chaos mit der Community :3</p>
-          <p>Ich bin eine <strong>direkte Person</strong> und freue mich immer über neue Bekanntschaften. Wenn du quatschen oder mitmachen willst, meld dich gern!</p>
-        </div>
-      </section>
-
-      <!-- Bilder Galerie -->
-      <section class="ao-section">
-        <h2 class="ao-section__title">VRChat &amp; Content</h2>
-        <div class="ao-gallery">
-          <div class="ao-gallery__item">
-            <img src="gallery1.png" alt="VRChat Screenshot 1" loading="lazy">
-          </div>
-          <div class="ao-gallery__item">
-            <img src="gallery2.png" alt="VRChat Screenshot 2" loading="lazy">
-          </div>
-          <div class="ao-gallery__item">
-            <img src="gallery3.png" alt="VRChat Screenshot 3" loading="lazy">
-          </div>
-        </div>
-        <div class="ao-gallery__more-wrap">
-          <button type="button" class="ao-gallery__more-btn" id="gallery-more-btn">
-            <span>Mehr anzeigen</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-        </div>
-      </section>
-
-      <!-- Footer der Overlay-Seite -->
-      <div class="ao-footer">
-        <p>© 2026 Liro · <a href="https://www.tiktok.com/@liro7160" target="_blank" rel="noopener noreferrer">@liro7160</a></p>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="modal" id="modal-collabs" hidden>
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel" role="dialog" aria-labelledby="modal-collabs-title">
-      <button type="button" class="modal__close" data-modal-close aria-label="Schließen">×</button>
-      <h2 class="modal__title" id="modal-collabs-title">Kollegen &amp; Freunde</h2>
-      <div class="modal__body">
-        <p>Leute zum Folgen:</p>
-        <ul class="collab-list">
-          <li class="collab-card">
-            <div class="collab-card__avatar-wrap">
-              <img class="collab-card__avatar" src="collabs/ryio.jpg" data-fallback="https://unavatar.io/tiktok/fluffy_ryio" alt="Ryio" width="44" height="44">
-              <span class="collab-card__initials" aria-hidden="true">R</span>
-            </div>
-            <div class="collab-card__info">
-              <span class="collab-card__name">Ryio</span>
-              <a class="collab-card__btn" href="https://www.tiktok.com/@fluffy_ryio" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
-            </div>
-          </li>
-          <li class="collab-card">
-            <div class="collab-card__avatar-wrap">
-              <img class="collab-card__avatar" src="collabs/dragonpro.jpg" data-fallback="https://unavatar.io/tiktok/dragonpro08" alt="DragonPro" width="44" height="44">
-              <span class="collab-card__initials" aria-hidden="true">D</span>
-            </div>
-            <div class="collab-card__info">
-              <span class="collab-card__name">DragonPro</span>
-              <a class="collab-card__btn" href="https://www.tiktok.com/@dragonpro08" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
-            </div>
-          </li>
-          <li class="collab-card">
-            <div class="collab-card__avatar-wrap">
-              <img class="collab-card__avatar" src="collabs/linxy.jpg" data-fallback="https://unavatar.io/tiktok/lynxi.vrc" alt="Linxy" width="44" height="44">
-              <span class="collab-card__initials" aria-hidden="true">L</span>
-            </div>
-            <div class="collab-card__info">
-              <span class="collab-card__name">Linxy</span>
-              <a class="collab-card__btn" href="https://www.tiktok.com/@lynxi.vrc" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
-            </div>
-          </li>
-          <li class="collab-card">
-            <div class="collab-card__avatar-wrap">
-              <img class="collab-card__avatar" src="collabs/kieran.jpg" data-fallback="https://unavatar.io/tiktok/kieran.catto" alt="Kieran" width="44" height="44">
-              <span class="collab-card__initials" aria-hidden="true">K</span>
-            </div>
-            <div class="collab-card__info">
-              <span class="collab-card__name">Kieran</span>
-              <a class="collab-card__btn" href="https://www.tiktok.com/@kieran.catto" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
-            </div>
-          </li>
-          <li class="collab-card">
-            <div class="collab-card__avatar-wrap">
-              <img class="collab-card__avatar" src="collabs/rakurim.jpg" data-fallback="https://unavatar.io/tiktok/rakurimde" alt="Rakurim" width="44" height="44">
-              <span class="collab-card__initials" aria-hidden="true">R</span>
-            </div>
-            <div class="collab-card__info">
-              <span class="collab-card__name">Rakurim</span>
-              <a class="collab-card__btn" href="https://www.tiktok.com/@rakurimde" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
-            </div>
-          </li>
-          <li class="collab-card">
-            <div class="collab-card__avatar-wrap">
-              <img class="collab-card__avatar" src="collabs/xarrax.jpg" data-fallback="https://unavatar.io/tiktok/xarrax.official" alt="Xarrax" width="44" height="44">
-              <span class="collab-card__initials" aria-hidden="true">X</span>
-            </div>
-            <div class="collab-card__info">
-              <span class="collab-card__name">Xarrax</span>
-              <a class="collab-card__btn" href="https://www.tiktok.com/@xarrax.official" target="_blank" rel="noopener noreferrer">Zum Kanal</a>
-            </div>
-          </li>
-        </ul>
+  <!-- Modals: Über mich, Kollegen, Kontakt -->
+  <div class="modal" id="modal-about" hidden aria-modal="true" role="dialog">
+    <div class="modal__backdrop"></div>
+    <div class="modal__panel">
+      <button class="modal__close" data-modal-close>×</button>
+      <h2 class="modal__title">Über mich</h2>
+      <div id="modal-about-content" style="color: var(--text-muted); line-height: 1.8;">
+        Lädt...
       </div>
     </div>
   </div>
 
-  <div class="modal" id="modal-contact" hidden>
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel" role="dialog" aria-labelledby="modal-contact-title">
-      <button type="button" class="modal__close" data-modal-close aria-label="Schließen">×</button>
-      <h2 class="modal__title" id="modal-contact-title">Kontakt</h2>
-      <div class="modal__body">
-        <p>Schreib mir gern eine Mail — ich melde mich, sobald ich kann :3</p>
-        <a class="modal__email" id="contact-email" href="#">E-Mail wird geladen…</a>
-      </div>
+  <div class="modal" id="modal-collabs" hidden aria-modal="true" role="dialog">
+    <div class="modal__backdrop"></div>
+    <div class="modal__panel">
+      <button class="modal__close" data-modal-close>×</button>
+      <h2 class="modal__title">Kollegen & Freunde</h2>
+      <ul class="collab-list" id="collab-list">
+        <li style="text-align: center; color: var(--text-muted);">Lädt...</li>
+      </ul>
     </div>
   </div>
 
-  <!-- Galerie Overlay -->
-  <div class="gallery-overlay" id="gallery-overlay" hidden aria-modal="true" role="dialog" aria-label="Alle Bilder">
-    <div class="gallery-overlay__backdrop" id="gallery-overlay-backdrop"></div>
-    <div class="gallery-overlay__panel">
-      <div class="gallery-overlay__header">
-        <h2 class="gallery-overlay__title">VRChat &amp; Content</h2>
-        <button type="button" class="gallery-overlay__close" id="gallery-overlay-close" aria-label="Schließen">×</button>
-      </div>
-      <div class="gallery-overlay__grid" id="gallery-overlay-grid">
-        <p style="font-size:0.85rem;color:#9ca3af;padding:1rem">Bilder werden geladen...</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Lightbox -->
-  <div class="lightbox" id="lightbox" hidden aria-modal="true" role="dialog" aria-label="Bild Vollansicht">
-    <div class="lightbox__backdrop" id="lightbox-backdrop"></div>
-    <button class="lightbox__close" id="lightbox-close" aria-label="Schließen">×</button>
-    <div class="lightbox__inner">
-      <img class="lightbox__img" id="lightbox-img" src="" alt="">
-      <div class="lightbox__caption" id="lightbox-caption" style="display:none">
-        <p class="lightbox__caption-title" id="lightbox-caption-title"></p>
-        <p class="lightbox__caption-text" id="lightbox-caption-text"></p>
+  <div class="modal" id="modal-contact" hidden aria-modal="true" role="dialog">
+    <div class="modal__backdrop"></div>
+    <div class="modal__panel">
+      <button class="modal__close" data-modal-close>×</button>
+      <h2 class="modal__title">Kontakt</h2>
+      <div style="color: var(--text-muted); line-height: 1.8;">
+        <p><strong>E-Mail:</strong> <a id="contact-email" href="mailto:liro.lol007@gmail.com" style="color: var(--accent); text-decoration: none;">Liro.lol007@gmail.com</a></p>
+        <p style="margin-top: 1rem;"><strong>Discord:</strong> Schreib mich an oder tritt unserem Server bei!</p>
+        <p style="margin-top: 1rem;"><strong>Telegram:</strong> @Liro025</p>
       </div>
     </div>
   </div>
 
   <script src="particles.js"></script>
   <script src="cursor.js"></script>
-  <script src="site.js"></script>
+  <script src="home.js"></script>
 </body>
 </html>
