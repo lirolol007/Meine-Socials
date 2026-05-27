@@ -1,15 +1,3 @@
-/* ===== Caching & Utilities ===== */
-const CACHE_KEY = "liro_site_data_cache";
-const CACHE_EXPIRY = 3600000; // 1 Stunde
-
-function fromBase64(str) {
-  try {
-    return decodeURIComponent(escape(atob(str)));
-  } catch (e) {
-    return str;
-  }
-}
-
 /* ===== Load Site Data WITHOUT CACHING ===== */
 async function loadSiteData() {
   try {
@@ -23,7 +11,7 @@ async function loadSiteData() {
     }
 
     const data = await res.json();
-    console.log("✅ site-data.json geladen (FRISCH - kein Cache!)");
+    console.log("✅ site-data.json geladen:", data);
     return data;
   } catch (e) {
     console.warn("⚠️ Fehler beim Laden von site-data.json:", e.message);
@@ -46,10 +34,18 @@ function getDefaultData() {
         title: "Über mich",
         subtitle: "VRChat Creator, Streamer & Chaos-Agent",
         content: "<p>Moin!</p>"
+      },
+      gallery: {
+        title: "Galerie",
+        subtitle: "VRChat & Content Highlights",
+        items: []
+      },
+      blog: {
+        title: "Blog",
+        subtitle: "Meine neuesten Gedanken & Geschichten"
       }
     },
     blogPosts: [],
-    galleryTitles: {},
     collabs: []
   };
 }
@@ -108,11 +104,6 @@ async function loadHomeModals() {
         </a>
       </li>
     `).join("");
-    collabList.style.display = "grid";
-    collabList.style.gridTemplateColumns = "repeat(auto-fit, minmax(120px, 1fr))";
-    collabList.style.gap = "1rem";
-    collabList.style.listStyle = "none";
-    collabList.style.padding = "1rem 0";
   }
 }
 
@@ -157,37 +148,28 @@ async function initGalleryPage() {
 
   try {
     const data = await loadSiteData();
-    const captions = data.galleryTitles || {};
+    const galleryItems = data.pages?.gallery?.items || [];
 
-    // Hardcoded gallery images - direct URLs
-    const galleryImages = [
-      "gallery1.png",
-      "gallery2.png",
-      "gallery3.png",
-      "gallery4.png",
-      "gallery5.png",
-      "gallery6.png",
-      "gallery7.png",
-      "gallery8.png",
-      "gallery9.png",
-      "gallery10.png",
-      "gallery11.png",
-      "gallery12.png"
-    ];
+    if (galleryItems.length === 0) {
+      grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Noch keine Galerie-Items</p>';
+      return;
+    }
 
-    const imageHtml = galleryImages.map((filename, idx) => {
-      const cap = captions[filename] || {};
-      const rawUrl = `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${filename}`;
+    const imageHtml = galleryItems.map((item, idx) => {
+      const imageUrl = item.image.startsWith('http') 
+        ? item.image 
+        : `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${item.image}`;
+      
       return `
-        <div class="gallery-item" data-index="${idx}" data-url="${rawUrl}" data-title="${(cap.title || filename).replace(/"/g, "&quot;")}" data-text="${(cap.text || '').replace(/"/g, "&quot;")}">
-          <img src="${rawUrl}" alt="${filename}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
-          ${cap.title ? `<div class="gallery-item__caption"><span class="gallery-item__title">${cap.title}</span></div>` : ""}
+        <div class="gallery-item" data-index="${idx}" data-url="${imageUrl}" data-title="${(item.title || '').replace(/"/g, "&quot;")}" data-text="${(item.description || '').replace(/"/g, "&quot;")}">
+          <img src="${imageUrl}" alt="${item.title || 'Gallery'}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
+          ${item.title ? `<div class="gallery-item__caption"><span class="gallery-item__title">${item.title}</span></div>` : ""}
         </div>
       `;
     }).join("");
 
     grid.innerHTML = imageHtml;
-    console.log("✅ Galerie geladen - 12 Bilder");
+    console.log("✅ Galerie geladen - " + galleryItems.length + " Items");
   } catch (e) {
     console.error("❌ Galerie-Fehler:", e);
     grid.innerHTML = `<p style="grid-column: 1/-1; color: #ff6b6b; text-align: center;">❌ Fehler beim Laden der Galerie</p>`;
@@ -250,7 +232,7 @@ async function initBlogPage() {
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .map(post => `
       <div class="blog-card" onclick="openBlogPost(${post.id})">
-        ${post.image ? `<img src="${post.image}" alt="${post.title}" class="blog-card__img">` : `<div class="blog-card__img"></div>`}
+        ${post.image ? `<img src="${post.image.startsWith('http') ? post.image : 'https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/' + post.image}" alt="${post.title}" class="blog-card__img">` : `<div class="blog-card__img"></div>`}
         <div class="blog-card__content">
           <p class="blog-card__date">${new Date(post.date).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
           <h3 class="blog-card__title">${post.title}</h3>
@@ -261,7 +243,7 @@ async function initBlogPage() {
     `)
     .join("");
 
-  console.log("✅ Blog geladen");
+  console.log("✅ Blog geladen - " + allBlogPosts.length + " Posts");
 }
 
 /* ===== Blog Post Rendering ===== */
@@ -293,10 +275,14 @@ function renderBlogBlocks(blocksJson) {
     if (block.type === "image") {
       const position = block.position || "left";
       const width = block.width || "50";
+      const imageUrl = block.url.startsWith('http') 
+        ? block.url 
+        : `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/${block.url}`;
+      
       return `
         <div class="blog-block blog-block--image position-${position}">
           <div class="blog-block--image__img" style="width: ${position === 'full' ? '100%' : width + '%'};">
-            <img src="${block.url}" alt="Blog Image">
+            <img src="${imageUrl}" alt="Blog Image">
           </div>
         </div>
       `;
