@@ -6,113 +6,128 @@
   <title>Liro — Admin Panel</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="profile.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    :root {
-      --bg: #080808;
-      --surface: rgba(255,255,255,0.05);
-      --border: rgba(255,255,255,0.08);
-      --text: #f4f4f5;
-      --text-muted: #9ca3af;
-      --accent: #ef4444;
-      --accent-glow: rgba(239, 68, 68, 0.3);
-      --radius: 16px;
-    }
-    
-    html { scroll-behavior: smooth; }
-    
-    body {
-      font-family: "Outfit", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      overflow-x: hidden;
-    }
-    
-    .admin-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-      min-height: 100vh;
-    }
-    
-    .admin-header {
-      margin-bottom: 2rem;
-      border-bottom: 2px solid var(--border);
-      padding-bottom: 1rem;
-    }
-    
-    .admin-header h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-      color: var(--text);
-    }
-    
-    .admin-header p {
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-    }
-    
+    /* Admin Panel Specific Styles */
     .admin-login {
-      display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.95);
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 1rem;
     }
-    
-    .admin-login.active {
-      display: flex;
+
+    .admin-login.hidden {
+      display: none;
     }
-    
+
     .login-box {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2rem;
-      max-width: 400px;
-      width: 90%;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 450px;
+      width: 100%;
+      animation: slideUp 0.3s ease;
     }
-    
+
     .login-box h2 {
-      margin-bottom: 1.5rem;
-      color: var(--accent);
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+      font-weight: 700;
     }
-    
+
+    .login-box p {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    .admin-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .admin-container.hidden {
+      display: none;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .admin-header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .admin-header__actions {
+      display: flex;
+      gap: 1rem;
+    }
+
     .form-group {
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
     }
-    
+
     .form-group label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 600;
       font-size: 0.9rem;
+      color: var(--text);
     }
-    
+
     .form-group input,
     .form-group textarea,
     .form-group select {
       width: 100%;
-      padding: 0.8rem;
-      background: rgba(255,255,255,0.05);
+      padding: 0.85rem;
+      background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
       border-radius: 8px;
       color: var(--text);
       font-family: inherit;
       font-size: 0.9rem;
+      transition: all 0.3s;
     }
-    
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      background: rgba(255,255,255,0.08);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.1);
+    }
+
     .form-group textarea {
       resize: vertical;
-      min-height: 100px;
+      min-height: 120px;
     }
-    
+
     .btn {
-      padding: 0.8rem 1.5rem;
+      padding: 0.85rem 1.5rem;
       background: var(--accent);
       color: white;
       border: none;
@@ -121,125 +136,133 @@
       cursor: pointer;
       transition: all 0.3s;
       font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    
+
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px var(--accent-glow);
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
     }
-    
+
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-    
+
     .btn-secondary {
       background: transparent;
       border: 1px solid var(--accent);
       color: var(--accent);
     }
-    
+
+    .btn-secondary:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
     .btn-small {
       padding: 0.5rem 1rem;
       font-size: 0.8rem;
     }
-    
+
     .tabs {
       display: flex;
-      gap: 1rem;
+      gap: 0.5rem;
       margin-bottom: 2rem;
       border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      padding-bottom: 0;
       flex-wrap: wrap;
     }
-    
+
     .tab-btn {
-      padding: 0.8rem 1.2rem;
+      padding: 0.85rem 1.2rem;
       background: none;
       border: none;
-      border-bottom: 3px solid transparent;
+      border-bottom: 2px solid transparent;
       color: var(--text-muted);
       cursor: pointer;
       font-weight: 600;
       transition: all 0.3s;
       font-size: 0.9rem;
+      white-space: nowrap;
     }
-    
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
     .tab-btn.active {
       color: var(--accent);
       border-bottom-color: var(--accent);
     }
-    
+
     .tab-content {
       display: none;
     }
-    
+
     .tab-content.active {
       display: block;
     }
-    
+
     .status {
-      padding: 1rem;
+      padding: 1rem 1.25rem;
       border-radius: 8px;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       display: none;
+      animation: slideUp 0.3s ease;
     }
-    
+
     .status.show {
       display: block;
     }
-    
+
     .status.success {
       background: rgba(34, 197, 94, 0.1);
       border: 1px solid rgba(34, 197, 94, 0.3);
       color: #22c55e;
     }
-    
+
     .status.error {
       background: rgba(239, 68, 68, 0.1);
       border: 1px solid rgba(239, 68, 68, 0.3);
       color: #ef4444;
     }
-    
+
     .form-section {
-      background: var(--surface);
+      background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 1.75rem;
     }
-    
+
     .form-section h3 {
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
       color: var(--accent);
-      font-size: 1.1rem;
+      font-size: 1.15rem;
+      font-weight: 700;
     }
-    
+
+    .form-section h4 {
+      margin-bottom: 0.75rem;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+      gap: 1.25rem;
     }
-    
-    @media (max-width: 768px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .tabs {
-        gap: 0.5rem;
-      }
-      
-      .tab-btn {
-        padding: 0.6rem 0.9rem;
-        font-size: 0.8rem;
-      }
-    }
-    
+
     .blog-block {
-      background: var(--surface);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 1rem;
+      padding: 1.25rem;
       margin-bottom: 1rem;
       position: relative;
     }
@@ -248,7 +271,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
     .blog-block__type {
@@ -271,66 +296,11 @@
       transform: scale(1.2);
     }
 
-    .blog-block-text textarea,
-    .blog-block-heading input,
-    .blog-block-image input,
-    .blog-block-image select {
-      width: 100%;
-      padding: 0.8rem;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-family: inherit;
-      margin-bottom: 0.5rem;
-    }
-
-    .blog-block-image {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .blog-block-image__preview {
-      grid-column: 1 / -1;
-      margin-bottom: 0.5rem;
-    }
-
-    .blog-block-image__preview img {
-      max-width: 100%;
-      max-height: 200px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-    }
-
-    .blog-block-image__upload {
-      grid-column: 1 / -1;
-    }
-
-    .upload-zone-small {
-      border: 2px dashed var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .upload-zone-small:hover {
-      border-color: var(--accent);
-      background: rgba(239, 68, 68, 0.05);
-    }
-
-    .upload-zone-small.active {
-      border-color: var(--accent);
-      background: rgba(239, 68, 68, 0.1);
-    }
-
     .blog-card {
-      background: var(--surface);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 1rem;
+      padding: 1.25rem;
       margin-bottom: 1rem;
     }
 
@@ -348,47 +318,88 @@
     .btn-group {
       display: flex;
       gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .admin-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .admin-header__actions {
+        width: 100%;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        gap: 0.25rem;
+      }
+
+      .tab-btn {
+        padding: 0.6rem 0.9rem;
+        font-size: 0.8rem;
+      }
+
+      .admin-container {
+        padding: 1.5rem 1rem;
+      }
+
+      .form-section {
+        padding: 1.25rem;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="bg-glow bg-glow--1"></div>
+  <div class="bg-glow bg-glow--2"></div>
+  <canvas class="particles" id="particles" aria-hidden="true"></canvas>
+
   <!-- Login Screen -->
-  <div class="admin-login active" id="loginScreen">
+  <div class="admin-login" id="loginScreen">
     <div class="login-box">
-      <h2>Admin Panel</h2>
+      <h2>🦊 Admin Panel</h2>
+      <p>Verwalte deine Website, Blog und Inhalte</p>
       <form id="loginForm">
         <div class="form-group">
           <label>Passwort</label>
-          <input type="password" id="password" required>
+          <input type="password" id="password" required placeholder="Dein Admin-Passwort">
         </div>
         <div class="form-group">
           <label>GitHub Token (ghp_...)</label>
-          <input type="password" id="token" required>
+          <input type="password" id="token" required placeholder="Dein GitHub Personal Access Token">
         </div>
         <div class="form-group">
-          <button type="submit" class="btn">Anmelden</button>
+          <button type="submit" class="btn" style="width: 100%; justify-content: center;">🔓 Anmelden</button>
         </div>
-        <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+        <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted);">
           <input type="checkbox" id="rememberMe">
-          Eingeloggt bleiben
+          Eingeloggt bleiben (30 Tage)
         </label>
       </form>
     </div>
   </div>
 
   <!-- Admin Panel -->
-  <div class="admin-container" id="adminPanel" style="display: none;">
+  <div class="admin-container hidden" id="adminPanel">
     <div class="admin-header">
-      <h1>🦊 Liro Admin Panel</h1>
-      <p>Bearbeite deine Social Links, Blog, Galerie und mehr</p>
-      <button class="btn btn-secondary" id="logoutBtn">Abmelden</button>
+      <h1>🦊 Admin Panel</h1>
+      <div class="admin-header__actions">
+        <a href="/" class="btn btn-secondary">← Zur Website</a>
+        <button class="btn btn-secondary" id="logoutBtn">Abmelden</button>
+      </div>
     </div>
 
     <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="profil">👤 Profil</button>
       <button class="tab-btn" data-tab="links">🔗 Links & Kollegen</button>
-      <button class="tab-btn" data-tab="modals">💬 Über mich / Kontakt</button>
+      <button class="tab-btn" data-tab="modals">💬 Modals</button>
       <button class="tab-btn" data-tab="about">ℹ️ About-Seite</button>
       <button class="tab-btn" data-tab="blog">📝 Blog</button>
     </div>
@@ -398,14 +409,14 @@
       <div id="profil-status" class="status"></div>
       
       <div class="form-section">
-        <h3>Hauptseite</h3>
+        <h3>👤 Hauptseite Profil</h3>
         <div class="form-grid">
           <div class="form-group">
             <label>Name</label>
             <input type="text" id="ed-name">
           </div>
           <div class="form-group">
-            <label>Badge</label>
+            <label>Badge (z.B. VRChat Creator)</label>
             <input type="text" id="ed-badge">
           </div>
           <div class="form-group">
@@ -421,14 +432,14 @@
             <input type="text" id="ed-bio">
           </div>
           <div class="form-group">
-            <label>Zitat (Über mich)</label>
+            <label>Zitat</label>
             <input type="text" id="ed-quote">
           </div>
         </div>
       </div>
 
       <div class="form-section">
-        <h3>Steckbrief</h3>
+        <h3>📋 Steckbrief</h3>
         <div class="form-grid">
           <div class="form-group">
             <label>Name</label>
@@ -450,7 +461,7 @@
       </div>
 
       <div class="form-section">
-        <h3>Bio-Text (Über mich Modal)</h3>
+        <h3>📝 Bio-Text (Über mich Modal)</h3>
         <div class="form-group">
           <label>Absatz 1</label>
           <textarea id="ed-bio1"></textarea>
@@ -469,14 +480,14 @@
       <div id="links-status" class="status"></div>
 
       <div class="form-section">
-        <h3>Social Links</h3>
+        <h3>🔗 Social Links</h3>
         <div id="links-container"></div>
       </div>
 
       <div class="form-section">
-        <h3>Kollegen</h3>
+        <h3>👥 Kollegen & Freunde</h3>
         <div id="collabs-container"></div>
-        <button class="btn btn-secondary" id="add-collab-btn" style="margin-top: 1rem;">+ Kolleg*in hinzufügen</button>
+        <button class="btn btn-secondary" id="add-collab-btn" style="margin-top: 1rem;">➕ Kolleg*in hinzufügen</button>
       </div>
 
       <button class="btn" id="save-links-btn">💾 Links & Kollegen Speichern</button>
@@ -487,13 +498,13 @@
       <div id="modals-status" class="status"></div>
 
       <div class="form-section">
-        <h3>Über mich Modal</h3>
+        <h3>💬 Über mich Modal</h3>
         <div class="form-group">
           <label>Titel</label>
           <input type="text" id="ed-about-title" placeholder="Über mich">
         </div>
         <div class="form-group">
-          <label>Subtitle</label>
+          <label>Untertitel</label>
           <input type="text" id="ed-about-subtitle" placeholder="VRChat Creator, Streamer & Chaos-Agent">
         </div>
         <div class="form-group">
@@ -503,7 +514,7 @@
       </div>
 
       <div class="form-section">
-        <h3>Kontakt Modal</h3>
+        <h3>📞 Kontakt Modal</h3>
         <div class="form-group">
           <label>Kontakt-Text (HTML erlaubt)</label>
           <textarea id="ed-contact-text" style="min-height: 150px;"></textarea>
@@ -518,13 +529,13 @@
       <div id="about-status" class="status"></div>
 
       <div class="form-section">
-        <h3>About-Seite Content</h3>
+        <h3>ℹ️ About-Seite Content</h3>
         <div class="form-group">
           <label>Titel</label>
           <input type="text" id="ed-about-page-title" placeholder="Über mich">
         </div>
         <div class="form-group">
-          <label>Subtitle</label>
+          <label>Untertitel</label>
           <input type="text" id="ed-about-page-subtitle" placeholder="VRChat Creator, Streamer & Chaos-Agent">
         </div>
         <div class="form-group">
@@ -560,16 +571,18 @@
 
         <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;">
 
-        <h4 style="margin-bottom: 1rem; color: var(--accent);">Blog-Inhalt (Blöcke)</h4>
+        <h4>📄 Blog-Inhalt (Blöcke)</h4>
         <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
           Füge Blöcke hinzu: Text, Überschriften, Bilder (mit Position). Jeder Block wird nacheinander angezeigt.
         </p>
 
         <div id="blog-blocks-container" style="margin-bottom: 1.5rem;"></div>
 
-        <button type="button" id="add-text-block-btn" class="btn btn-secondary" style="margin-right: 0.5rem; margin-bottom: 0.5rem;">+ Text-Block</button>
-        <button type="button" id="add-heading-block-btn" class="btn btn-secondary" style="margin-right: 0.5rem; margin-bottom: 0.5rem;">+ Überschrift</button>
-        <button type="button" id="add-image-block-btn" class="btn btn-secondary" style="margin-bottom: 0.5rem;">+ Bild-Block</button>
+        <div class="btn-group">
+          <button type="button" id="add-text-block-btn" class="btn btn-secondary">➕ Text-Block</button>
+          <button type="button" id="add-heading-block-btn" class="btn btn-secondary">➕ Überschrift</button>
+          <button type="button" id="add-image-block-btn" class="btn btn-secondary">➕ Bild-Block</button>
+        </div>
 
         <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;">
 
@@ -578,7 +591,7 @@
           <input type="text" id="new-blog-image" placeholder="gallery1.png">
         </div>
 
-        <button class="btn" id="create-blog-btn" style="margin-top: 1rem;">✍️ Blog-Post Erstellen</button>
+        <button class="btn" id="create-blog-btn">✍️ Blog-Post Erstellen</button>
       </div>
 
       <div class="form-section">
@@ -588,6 +601,8 @@
     </div>
   </div>
 
+  <script src="particles.js"></script>
+  <script src="cursor.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>
