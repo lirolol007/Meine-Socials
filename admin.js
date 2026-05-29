@@ -55,7 +55,8 @@ async function loadSiteData() {
     if (!res.ok) throw new Error(`GitHub HTTP ${res.status}`);
     
     siteData = await res.json();
-    console.log("✅ site-data.json geladen");
+    console.log("✅ site-data.json geladen:", siteData);
+    console.log("📝 Catchphrase:", siteData.catchphrase);
     
     populateAllFields();
     showStatus("main-status", "✅ Daten geladen!", "success");
@@ -67,16 +68,35 @@ async function loadSiteData() {
 
 // ===== POPULATE ALL FIELDS =====
 function populateAllFields() {
-  if (!siteData) return;
+  if (!siteData) {
+    console.warn("⚠️ siteData ist null!");
+    return;
+  }
+  
+  console.log("🔄 Fülle Felder...");
   
   // HAUPTSEITE
-  document.getElementById("ed-name").value = siteData.name || "";
-  document.getElementById("ed-badge").value = siteData.badge || "";
-  document.getElementById("ed-tags").value = (siteData.tags || []).join(", ");
-  document.getElementById("ed-catchphrase").value = siteData.catchphrase || "";
-  document.getElementById("ed-bio").value = siteData.bio || "";
-  document.getElementById("ed-bio1").value = siteData.bio1 || "";
-  document.getElementById("ed-bio2").value = siteData.bio2 || "";
+  const name = siteData.name || "";
+  const badge = siteData.badge || "";
+  const tags = (siteData.tags || []).join(", ");
+  const catchphrase = siteData.catchphrase || "";
+  const bio = siteData.bio || "";
+  const bio1 = siteData.bio1 || "";
+  const bio2 = siteData.bio2 || "";
+  
+  console.log("📋 Name:", name);
+  console.log("🏷️ Badge:", badge);
+  console.log("🎨 Tags:", tags);
+  console.log("💬 Catchphrase:", catchphrase);
+  console.log("📝 Bio:", bio);
+  
+  document.getElementById("ed-name").value = name;
+  document.getElementById("ed-badge").value = badge;
+  document.getElementById("ed-tags").value = tags;
+  document.getElementById("ed-catchphrase").value = catchphrase;
+  document.getElementById("ed-bio").value = bio;
+  document.getElementById("ed-bio1").value = bio1;
+  document.getElementById("ed-bio2").value = bio2;
   
   document.getElementById("ed-factName").value = siteData.factName || "";
   document.getElementById("ed-factAge").value = siteData.factAge || "";
@@ -100,6 +120,8 @@ function populateAllFields() {
   
   // MODALS
   document.getElementById("ed-contact-text").value = siteData.contactText || "";
+  
+  console.log("✅ Alle Felder gefüllt!");
 }
 
 // ===== LINKS TAB =====
