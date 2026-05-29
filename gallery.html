@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liro — Über mich</title>
+  <title>Liro — Galerie</title>
   <link rel="icon" href="profile.jpg" type="image/jpeg">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,8 +21,8 @@
       <a href="/" class="nav__logo">🦊 Liro</a>
       <ul class="nav__links" id="top-nav-links">
         <li><a href="/" class="nav__link">Home</a></li>
-        <li><a href="/about.html" class="nav__link active">Über mich</a></li>
-        <li><a href="/gallery.html" class="nav__link">Galerie</a></li>
+        <li><a href="/about.html" class="nav__link">Über mich</a></li>
+        <li><a href="/gallery.html" class="nav__link active">Galerie</a></li>
         <li><a href="/blog.html" class="nav__link">Blog</a></li>
       </ul>
       <button class="nav__theme" id="theme-toggle">🌙</button>
@@ -30,10 +30,48 @@
     </div>
   </nav>
 
-  <div style="max-width:900px;margin:3rem auto;padding:0 1.5rem;">
-    <div id="page-content">
-      <h2 style="color:var(--text);margin-bottom:1rem;">Über mich</h2>
-      <p style="color:var(--text-muted);">VRChat Creator, Streamer & Chaos-Agent</p>
+  <div style="max-width:1000px;margin:3rem auto;padding:0 1.5rem;">
+    <h1 style="text-align:center;margin-bottom:0.5rem;color:var(--text);">🖼️ Galerie</h1>
+    <p style="text-align:center;color:var(--text-muted);margin-bottom:3rem;">VRChat & Content Highlights</p>
+
+    <div id="gallery-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1.5rem;">
+      <!-- gallery1.png bis gallery12.png hardcoded -->
+      <div style="cursor:pointer;" onclick="openLightbox('gallery1.png','Bild 1')">
+        <img src="gallery1.png" alt="Bild 1" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery2.png','Bild 2')">
+        <img src="gallery2.png" alt="Bild 2" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery3.png','Bild 3')">
+        <img src="gallery3.png" alt="Bild 3" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery4.png','Bild 4')">
+        <img src="gallery4.png" alt="Bild 4" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery5.png','Bild 5')">
+        <img src="gallery5.png" alt="Bild 5" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery6.png','Bild 6')">
+        <img src="gallery6.png" alt="Bild 6" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery7.png','Bild 7')">
+        <img src="gallery7.png" alt="Bild 7" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery8.png','Bild 8')">
+        <img src="gallery8.png" alt="Bild 8" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery9.png','Bild 9')">
+        <img src="gallery9.png" alt="Bild 9" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery10.png','Bild 10')">
+        <img src="gallery10.png" alt="Bild 10" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery11.png','Bild 11')">
+        <img src="gallery11.png" alt="Bild 11" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
+      <div style="cursor:pointer;" onclick="openLightbox('gallery12.png','Bild 12')">
+        <img src="gallery12.png" alt="Bild 12" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;" onerror="this.closest('div').style.display='none'">
+      </div>
     </div>
   </div>
 
