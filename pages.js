@@ -56,9 +56,15 @@ function initTheme() {
   document.documentElement.setAttribute("data-theme", stored);
 }
 
-/* ===== HOME PAGE - Load Modals ===== */
+/* ===== HOME PAGE - Load Modals & Profile ===== */
 async function loadHomeModals() {
   const data = await loadSiteData();
+  
+  // Profil Catchphrase
+  const catchEl = document.getElementById("profile-catchphrase");
+  if (catchEl) {
+    catchEl.textContent = data.catchphrase || "";
+  }
   
   // Modal: Über mich
   const aboutContent = document.getElementById("modal-about-content");
