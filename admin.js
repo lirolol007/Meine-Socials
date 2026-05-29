@@ -304,16 +304,25 @@ function deleteBlogPost(id) {
 
 function buildBlogHTML() {
   if (blogPosts.length === 0) {
-    return '<p style="text-align:center;color:var(--text-muted);">Noch keine Blog-Posts vorhanden.</p>';
+    return '<p style="text-align:center;color:var(--text-muted);padding:3rem 0;">Noch keine Blog-Posts vorhanden.</p>';
   }
-  return blogPosts.map(post => `
-    <div data-postid="${post.id}" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;cursor:pointer;" onclick="openBlogModal('${post.id}')">
-      ${post.image ? `<img src="${post.image}" alt="${post.title}" style="width:100%;max-height:300px;object-fit:cover;border-radius:8px;margin-bottom:1rem;">` : ""}
-      <strong>${post.title}</strong>
-      <em style="display:block;color:var(--text-muted);font-size:0.85rem;margin:0.25rem 0;">📅 ${post.date}</em>
-      <p style="color:var(--text-muted);line-height:1.6;margin-top:0.5rem;">${post.excerpt}</p>
-      <div data-blocks='${JSON.stringify(post.blocks || []).replace(/'/g, "&#39;")}'></div>
-    </div>`).join("");
+  return blogPosts.map(post => {
+    const blocksJson = JSON.stringify(post.blocks || []).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+    return `<article data-postid="${post.id}" data-blocks="${blocksJson}"
+      style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;
+             overflow:hidden;margin-bottom:2rem;cursor:pointer;transition:transform 0.25s,box-shadow 0.25s;"
+      onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 40px rgba(0,0,0,0.3)'"
+      onmouseout="this.style.transform='';this.style.boxShadow=''"
+      onclick="openBlogPost(this)">
+      ${post.image ? `<img src="${post.image}" alt="${post.title}" style="width:100%;max-height:280px;object-fit:cover;display:block;">` : ""}
+      <div style="padding:1.5rem;">
+        <h2 style="margin:0 0 0.5rem;color:var(--text);font-size:1.4rem;line-height:1.3;">${post.title}</h2>
+        <p style="color:var(--accent);font-size:0.85rem;margin:0 0 0.75rem;">📅 ${post.date}</p>
+        <p style="color:var(--text-muted);line-height:1.6;margin:0;">${post.excerpt}</p>
+        <p style="color:var(--accent);font-size:0.85rem;margin-top:1rem;font-weight:600;">Weiterlesen →</p>
+      </div>
+    </article>`;
+  }).join("");
 }
 
 // ===== BLOG BLOCKS =====
@@ -363,15 +372,21 @@ function collectBlocks() {
   document.querySelectorAll(".blog-block").forEach(div => {
     const type = div.dataset.type;
     if (type === "text") {
-      const val = div.querySelector("textarea").value;
-      if (val) blocks.push({ type, content: val });
+      const val = div.querySelector(".block-text")?.value;
+      const align = div.querySelector(".block-align:checked")?.value || "left";
+      if (val) blocks.push({ type, content: val, align });
     } else if (type === "heading") {
-      const val = div.querySelector("input").value;
-      if (val) blocks.push({ type, content: val });
+      const val = div.querySelector(".block-heading")?.value;
+      const size = div.querySelector(".block-hsize:checked")?.value || "h2";
+      if (val) blocks.push({ type, content: val, size });
     } else if (type === "image") {
-      const url = div.querySelector(".block-img-url").value;
-      const caption = div.querySelector(".block-img-caption").value;
-      if (url) blocks.push({ type, url, caption });
+      const url = div.querySelector(".block-img-url")?.value;
+      const caption = div.querySelector(".block-img-caption")?.value || "";
+      const position = div.querySelector(".block-pos:checked")?.value || "full";
+      const width = div.querySelector(".block-width:checked")?.value || "100";
+      if (url) blocks.push({ type, url, caption, position, width });
+    } else if (type === "divider") {
+      blocks.push({ type });
     }
   });
   return blocks;
@@ -379,9 +394,29 @@ function collectBlocks() {
 
 function renderBlocksHTML(blocks) {
   return blocks.map(b => {
-    if (b.type === "text") return `<p style="color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">${b.content}</p>`;
-    if (b.type === "heading") return `<h3 style="font-size:1.4rem;color:var(--accent);margin:1.5rem 0 0.75rem;">${b.content}</h3>`;
-    if (b.type === "image") return `<figure style="margin:1.5rem 0;"><img src="${b.url}" style="width:100%;border-radius:8px;">${b.caption ? `<figcaption style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">${b.caption}</figcaption>` : ""}</figure>`;
+    if (b.type === "text") {
+      const align = b.align || "left";
+      const alignStyle = align === "center" ? "text-align:center;" : align === "right" ? "text-align:right;" : "";
+      return `<p style="color:var(--text-muted);line-height:1.9;margin-bottom:1.25rem;font-size:1rem;${alignStyle}">${b.content}</p>`;
+    }
+    if (b.type === "heading") {
+      const size = b.size || "h2";
+      const sizes = { h1: "2rem", h2: "1.6rem", h3: "1.3rem" };
+      return `<${size} style="font-size:${sizes[size]||"1.5rem"};color:var(--text);font-weight:700;margin:2rem 0 0.75rem;line-height:1.3;">${b.content}</${size}>`;
+    }
+    if (b.type === "image") {
+      const pos = b.position || "full";
+      const width = b.width || "100";
+      let style = "";
+      if (pos === "left")  style = `float:left;width:${width}%;margin:0 1.5rem 1rem 0;`;
+      else if (pos === "right") style = `float:right;width:${width}%;margin:0 0 1rem 1.5rem;`;
+      else style = `width:${width}%;margin:0 auto;display:block;`;
+      return `<figure style="margin:1.5rem 0;${pos==="full"?"clear:both;":""}">
+        <img src="${b.url}" style="${style}border-radius:10px;max-width:100%;">
+        ${b.caption ? `<figcaption style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;clear:both;">${b.caption}</figcaption>` : ""}
+      </figure>`;
+    }
+    if (b.type === "divider") return `<hr style="border:none;border-top:1px solid var(--border);margin:2rem 0;clear:both;">`;
     return "";
   }).join("");
 }
@@ -586,6 +621,7 @@ function initAllButtons() {
   document.getElementById("add-text-btn")?.addEventListener("click", () => addBlock("text"));
   document.getElementById("add-heading-btn")?.addEventListener("click", () => addBlock("heading"));
   document.getElementById("add-image-btn")?.addEventListener("click", () => addBlock("image"));
+  document.getElementById("add-divider-btn")?.addEventListener("click", () => addBlock("divider"));
 
   // ── BLOG: POST ERSTELLEN ──
   document.getElementById("create-post-btn")?.addEventListener("click", async () => {
@@ -627,9 +663,10 @@ function initAllButtons() {
   });
 }
 
-// ── BLOG: POST ÖFFNEN (auf der Seite) ──
-window.openBlogModal = function(id) {
-  const post = blogPosts.find(p => p.id === id);
+// ── BLOG: POST ÖFFNEN (Admin Panel) ──
+window.openBlogPost = function(el) {
+  const id = el.dataset.postid;
+  const post = blogPosts.find(p => p.id == id);
   if (!post) return;
   const modal = document.createElement("div");
   modal.className = "modal";
@@ -637,11 +674,12 @@ window.openBlogModal = function(id) {
   modal.style.cssText = "display:flex!important;";
   modal.innerHTML = `
     <div class="modal__backdrop" onclick="this.parentElement.remove()"></div>
-    <div class="modal__panel">
+    <div class="modal__panel" style="max-width:700px;">
       <button class="modal__close" onclick="this.closest('.modal').remove()">×</button>
-      <h2 class="modal__title">${post.title}</h2>
-      <p style="color:var(--text-muted);margin-bottom:1.5rem;">📅 ${post.date}</p>
-      ${renderBlocksHTML(post.blocks || [])}
+      ${post.image ? `<img src="${post.image}" style="width:100%;border-radius:8px;margin-bottom:1.5rem;">` : ""}
+      <h2 class="modal__title" style="font-size:1.75rem;">${post.title}</h2>
+      <p style="color:var(--accent);margin-bottom:1.5rem;font-size:0.9rem;">📅 ${post.date}</p>
+      <div style="line-height:1.9;">${renderBlocksHTML(post.blocks || [])}</div>
     </div>`;
   document.body.appendChild(modal);
 };
