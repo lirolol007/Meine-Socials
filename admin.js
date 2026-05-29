@@ -328,44 +328,114 @@ function buildBlogHTML() {
 // ===== BLOG BLOCKS =====
 let blogBlocks = [];
 
+// ===== OPTION BUTTONS =====
+function optionBtns(group, options, def) {
+  return options.map(o =>
+    `<button type="button" data-group="${group}" data-val="${o.v}"
+      onclick="selectOpt(this)"
+      style="padding:0.45rem 1rem;border-radius:6px;font-size:0.82rem;font-weight:600;
+             cursor:pointer;transition:all 0.2s;border:1px solid var(--border);
+             background:${o.v===def?"var(--accent)":"rgba(255,255,255,0.05)"};
+             color:${o.v===def?"#fff":"var(--text-muted)"};"
+    >${o.l}</button>`
+  ).join("");
+}
+
+function selectOpt(btn) {
+  const grp = btn.dataset.group;
+  btn.closest(".blog-block").querySelectorAll(`[data-group="${grp}"]`).forEach(b => {
+    b.style.background = "rgba(255,255,255,0.05)";
+    b.style.color = "var(--text-muted)";
+    b.style.borderColor = "var(--border)";
+  });
+  btn.style.background = "var(--accent)";
+  btn.style.color = "#fff";
+}
+
+function getOpt(div, grpPrefix, fallback) {
+  const active = [...div.querySelectorAll("[data-group]")]
+    .find(b => b.dataset.group.startsWith(grpPrefix) && b.style.background.includes("accent"));
+  return active ? active.dataset.val : fallback;
+}
+
+const IS = "width:100%;padding:0.85rem;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.9rem;box-sizing:border-box;";
+
 function addBlock(type) {
   const container = document.getElementById("blog-blocks-container");
-  const id = Date.now();
   const div = document.createElement("div");
   div.className = "blog-block";
-  div.dataset.blockId = id;
   div.dataset.type = type;
+  const id = Date.now();
+
+  const header = (label) => `
+    <div class="blog-block__header">
+      <span class="blog-block__type">${label}</span>
+      <button type="button" class="blog-block__remove" onclick="this.closest('.blog-block').remove()">×</button>
+    </div>`;
 
   if (type === "text") {
-    div.innerHTML = `<div class="blog-block__header"><span class="blog-block__type">📝 Text</span><button type="button" class="blog-block__remove" onclick="this.closest('.blog-block').remove()">×</button></div><textarea placeholder="Text eingeben..."></textarea>`;
-  } else if (type === "heading") {
-    div.innerHTML = `<div class="blog-block__header"><span class="blog-block__type">📌 Überschrift</span><button type="button" class="blog-block__remove" onclick="this.closest('.blog-block').remove()">×</button></div><input type="text" placeholder="Überschrift...">`;
-  } else if (type === "image") {
-    const dropId = "drop-blog-" + Date.now();
-    const statusId = "status-blog-" + Date.now();
     div.innerHTML = `
-      <div class="blog-block__header">
-        <span class="blog-block__type">🖼️ Bild</span>
-        <button type="button" class="blog-block__remove" onclick="this.closest('.blog-block').remove()">×</button>
-      </div>
-      <div id="${dropId}" style="border:2px dashed var(--border);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;margin-bottom:0.75rem;transition:all 0.3s;color:var(--text-muted);font-size:0.9rem;">
-        📁 Bild hierher ziehen oder klicken
+      ${header("📝 Textblock")}
+      <textarea class="block-text" placeholder="Text eingeben..."
+        style="${IS}min-height:160px;resize:vertical;margin-bottom:1rem;line-height:1.7;"></textarea>
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;min-width:80px;">Ausrichtung:</span>
+        ${optionBtns("align"+id, [{v:"left",l:"⬅ Links"},{v:"center",l:"↔ Mitte"},{v:"right",l:"Rechts ➡"}], "left")}
+      </div>`;
+
+  } else if (type === "heading") {
+    div.innerHTML = `
+      ${header("📌 Überschrift")}
+      <input type="text" class="block-heading" placeholder="Überschrift eingeben..."
+        style="${IS}margin-bottom:1rem;font-size:1.1rem;font-weight:600;">
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;min-width:80px;">Größe:</span>
+        ${optionBtns("hsize"+id, [{v:"h1",l:"H1 — Groß"},{v:"h2",l:"H2 — Mittel"},{v:"h3",l:"H3 — Klein"}], "h2")}
+      </div>`;
+
+  } else if (type === "image") {
+    const dropId = "drop-blog-" + id;
+    const statusId = "sblog-" + id;
+    div.innerHTML = `
+      ${header("🖼️ Bild")}
+      <div id="${dropId}"
+        style="border:2px dashed var(--border);border-radius:10px;padding:2.5rem 1rem;
+               text-align:center;cursor:pointer;margin-bottom:0.75rem;transition:all 0.3s;
+               color:var(--text-muted);background:rgba(255,255,255,0.02);">
+        📁 Bild hierher ziehen oder klicken zum Hochladen
       </div>
       <div id="${statusId}" class="status"></div>
-      <input type="text" class="block-img-url" placeholder="Oder URL / Dateiname eingeben..." style="margin-bottom:0.5rem;">
-      <input type="text" class="block-img-caption" placeholder="Bildunterschrift (optional)...">
-    `;
+      <input type="text" class="block-img-url" placeholder="Oder Dateiname / URL eingeben..."
+        style="${IS}margin-bottom:0.6rem;">
+      <input type="text" class="block-img-caption" placeholder="Bildunterschrift (optional)..."
+        style="${IS}margin-bottom:1rem;">
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+        <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;min-width:80px;">Position:</span>
+        ${optionBtns("pos"+id, [{v:"left",l:"⬅ Links"},{v:"right",l:"Rechts ➡"},{v:"full",l:"↔ Vollbreite"}], "full")}
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;min-width:80px;">Breite:</span>
+        ${optionBtns("width"+id, [{v:"33",l:"33%"},{v:"50",l:"50%"},{v:"66",l:"66%"},{v:"100",l:"100%"}], "100")}
+      </div>`;
     container.appendChild(div);
     setTimeout(() => {
       initDropZone(dropId, null, statusId, (filename) => {
         div.querySelector(".block-img-url").value = filename;
-        document.getElementById(dropId).innerHTML = `✅ ${filename} hochgeladen!`;
+        document.getElementById(dropId).innerHTML =
+          `✅ <strong>${filename}</strong> hochgeladen!<br>
+           <img src="${filename}" style="max-height:120px;margin-top:0.75rem;border-radius:6px;">`;
       });
     }, 100);
     return;
+
+  } else if (type === "divider") {
+    div.innerHTML = `
+      ${header("➖ Trennlinie")}
+      <hr style="border:none;border-top:1px solid var(--border);margin:0.25rem 0;">`;
   }
   container.appendChild(div);
 }
+
 
 function collectBlocks() {
   const blocks = [];
@@ -373,20 +443,16 @@ function collectBlocks() {
     const type = div.dataset.type;
     if (type === "text") {
       const val = div.querySelector(".block-text")?.value;
-      const align = getOpt(div, [...div.querySelectorAll("[data-group]")].find(b=>b.dataset.group.startsWith("align"))?.dataset.group, "left");
-      if (val) blocks.push({ type, content: val, align });
+      if (val) blocks.push({ type, content: val, align: getOpt(div, "align", "left") });
     } else if (type === "heading") {
       const val = div.querySelector(".block-heading")?.value;
-      const size = getOpt(div, [...div.querySelectorAll("[data-group]")].find(b=>b.dataset.group.startsWith("hsize"))?.dataset.group, "h2");
-      if (val) blocks.push({ type, content: val, size });
+      if (val) blocks.push({ type, content: val, size: getOpt(div, "hsize", "h2") });
     } else if (type === "image") {
       const url     = div.querySelector(".block-img-url")?.value;
       const caption = div.querySelector(".block-img-caption")?.value || "";
-      const posGroup   = [...div.querySelectorAll("[data-group]")].find(b=>b.dataset.group.startsWith("pos"))?.dataset.group;
-      const widthGroup = [...div.querySelectorAll("[data-group]")].find(b=>b.dataset.group.startsWith("width"))?.dataset.group;
-      const position = getOpt(div, posGroup, "full");
-      const width    = getOpt(div, widthGroup, "100");
-      if (url) blocks.push({ type, url, caption, position, width });
+      if (url) blocks.push({ type, url, caption,
+        position: getOpt(div, "pos", "full"),
+        width:    getOpt(div, "width", "100") });
     } else if (type === "divider") {
       blocks.push({ type });
     }
