@@ -1,615 +1,539 @@
 // ===== CONFIG =====
-const PASSWORD = "admin123"; // ⚠️ ÄNDERE DAS!
+const GITHUB_REPO = "Lirolol007/Meine-Socials";
+const GITHUB_BRANCH = "main";
+const PASSWORD = "admin123"; // ⚠️ ÄNDERN!
 
-let siteData = null;
-
-console.log("✅ admin.js loaded");
+let authToken = "";
 
 // ===== AUTH =====
-function initAuth() {
-  const stored = localStorage.getItem("admin_authenticated");
-  if (stored === "true") {
-    loginSuccess();
-  } else {
-    document.getElementById("loginScreen").classList.remove("hidden");
-  }
-}
-
 document.getElementById("loginForm")?.addEventListener("submit", (e) => {
   e.preventDefault();
   const pass = document.getElementById("password").value;
-  
-  if (pass === PASSWORD) {
-    localStorage.setItem("admin_authenticated", "true");
-    loginSuccess();
+  const token = document.getElementById("token").value;
+  if (pass === PASSWORD && token.startsWith("ghp_")) {
+    authToken = token;
+    if (document.getElementById("rememberMe").checked) {
+      localStorage.setItem("admin_token", token);
+    }
+    showAdmin();
   } else {
-    alert("❌ Falsches Passwort!");
+    alert("❌ Falsches Passwort oder ungültiger Token!");
   }
 });
 
-function loginSuccess() {
-  console.log("✅ Login erfolgreich!");
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("adminPanel").classList.remove("hidden");
-  loadSiteData();
-  initTabs();
-  initAllEventListeners();
-}
-
 document.getElementById("logoutBtn")?.addEventListener("click", () => {
-  localStorage.removeItem("admin_authenticated");
+  localStorage.removeItem("admin_token");
   location.reload();
 });
 
-// ===== LOAD DATA FROM LOCALSTORAGE =====
-function loadSiteData() {
-  try {
-    const stored = localStorage.getItem("siteData");
-    siteData = stored ? JSON.parse(stored) : getDefaultData();
-    console.log("✅ siteData geladen:", siteData);
-    
-    populateAllFields();
-    showStatus("main-status", "✅ Daten geladen!", "success");
-  } catch (e) {
-    alert(`❌ Fehler beim Laden: ${e.message}`);
-    console.error(e);
-    siteData = getDefaultData();
-    populateAllFields();
-  }
+function showAdmin() {
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("adminPanel").classList.remove("hidden");
+  loadAllData();
+  initTabs();
+  initAllButtons();
 }
 
-function getDefaultData() {
+// ===== GITHUB: HTML laden =====
+async function ghLoad(filename) {
+  const res = await fetch(
+    `https://api.github.com/repos/${GITHUB_REPO}/contents/${filename}?ref=${GITHUB_BRANCH}`,
+    { headers: { Authorization: `token ${authToken}`, Accept: "application/vnd.github.v3+json" } }
+  );
+  if (!res.ok) throw new Error(`Laden von ${filename} fehlgeschlagen: ${res.status}`);
+  const data = await res.json();
   return {
-    name: "Liro",
-    badge: "VRChat Creator",
-    tags: ["🦊 Fox", "VR", "DE", "Meow :3"],
-    catchphrase: "So ein Furry oder so... :3",
-    bio: "VRChat · Streams · Content",
-    bio1: "Moin — ich bin Liro...",
-    bio2: "Ich bin eine direkte Person...",
-    factName: "Liro / Leon",
-    factAge: "19",
-    factHeight: "1,78 m",
-    factOrigin: "🇩🇪 Deutschland",
-    links: {
-      tiktok: { label: "TikTok", hint: "Hauptplattform — @liro7160" },
-      discord: { label: "Discord", hint: "Liro/Ryio Community Server" },
-      twitch: { label: "Twitch", hint: "Streams & Just Chatting" },
-      youtube: { label: "YouTube", hint: "" },
-      telegram: { label: "Telegram", hint: "@Liro025" },
-      vrchat: { label: "VRChat", hint: "Add mich — Liro0" },
-      kofi: { label: "Ko-fi", hint: "Ko-fi Seite" }
-    },
-    collabs: [],
-    pages: {
-      about: {
-        title: "Über mich",
-        subtitle: "VRChat Creator, Streamer & Chaos-Agent",
-        content: "<p>Moin! Ich bin Liro...</p>"
-      },
-      gallery: {
-        title: "Galerie",
-        subtitle: "VRChat & Content Highlights",
-        items: []
-      },
-      blog: {
-        title: "Blog",
-        subtitle: "Gedanken, Updates & Stories"
-      }
-    },
-    blogPosts: [],
-    contactText: "Schreib mir über Discord oder Telegram!"
+    content: decodeURIComponent(escape(atob(data.content.replace(/\n/g, "")))),
+    sha: data.sha
   };
 }
 
-// ===== POPULATE ALL FIELDS =====
-function populateAllFields() {
-  console.log("🔄 Fülle alle Felder...");
-  
-  if (!siteData) {
-    console.error("❌ siteData ist null!");
-    return;
+// ===== GITHUB: HTML pushen =====
+async function ghPush(filename, content, sha) {
+  const encoded = btoa(unescape(encodeURIComponent(content)));
+  const res = await fetch(
+    `https://api.github.com/repos/${GITHUB_REPO}/contents/${filename}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${authToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: `✏️ Update ${filename} via Admin Panel`,
+        content: encoded,
+        sha,
+        branch: GITHUB_BRANCH
+      })
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(`Push fehlgeschlagen: ${err.message}`);
   }
-  
-  try {
-    // HAUPTSEITE
-    document.getElementById("ed-name").value = siteData.name || "";
-    document.getElementById("ed-badge").value = siteData.badge || "";
-    document.getElementById("ed-tags").value = (siteData.tags || []).join(", ");
-    document.getElementById("ed-catchphrase").value = siteData.catchphrase || "";
-    document.getElementById("ed-bio").value = siteData.bio || "";
-    document.getElementById("ed-bio1").value = siteData.bio1 || "";
-    document.getElementById("ed-bio2").value = siteData.bio2 || "";
-    
-    document.getElementById("ed-factName").value = siteData.factName || "";
-    document.getElementById("ed-factAge").value = siteData.factAge || "";
-    document.getElementById("ed-factHeight").value = siteData.factHeight || "";
-    document.getElementById("ed-factOrigin").value = siteData.factOrigin || "";
-    
-    console.log("✅ Hauptseite-Felder gefüllt");
-  } catch (e) {
-    console.error("❌ Fehler beim Füllen Hauptseite:", e);
-  }
-  
-  // LINKS & KOLLEGEN
-  populateLinksTab();
-  
-  // ABOUT
-  try {
-    const about = siteData.pages?.about || {};
-    document.getElementById("ed-about-title").value = about.title || "";
-    document.getElementById("ed-about-subtitle").value = about.subtitle || "";
-    document.getElementById("ed-about-content").value = about.content || "";
-    console.log("✅ About-Felder gefüllt");
-  } catch (e) {
-    console.error("❌ Fehler beim Füllen About:", e);
-  }
-  
-  // GALLERY
-  populateGalleryTab();
-  
-  // BLOG
-  populateBlogList();
-  
-  // MODALS
-  try {
-    document.getElementById("ed-contact-text").value = siteData.contactText || "";
-    console.log("✅ Modals-Felder gefüllt");
-  } catch (e) {
-    console.error("❌ Fehler beim Füllen Modals:", e);
-  }
+  return await res.json();
 }
 
-// ===== LINKS TAB =====
-function populateLinksTab() {
-  const container = document.getElementById("links-container");
-  container.innerHTML = "";
-  
-  if (siteData.links) {
-    Object.entries(siteData.links).forEach(([key, link]) => {
-      const div = document.createElement("div");
-      div.className = "link-section";
-      div.innerHTML = `
-        <h4>${key.toUpperCase()}</h4>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Label</label>
-            <input type="text" class="link-label" data-key="${key}" value="${link.label || ""}">
-          </div>
-          <div class="form-group">
-            <label>Hint</label>
-            <input type="text" class="link-hint" data-key="${key}" value="${link.hint || ""}">
-          </div>
-        </div>
-      `;
-      container.appendChild(div);
+// ===== MARKER: Wert lesen =====
+function readMarker(html, key) {
+  const regex = new RegExp(`<!--LIRO:${key}-->([\\s\\S]*?)<!--\\/LIRO:${key}-->`, "m");
+  const match = html.match(regex);
+  return match ? match[1] : "";
+}
+
+// ===== MARKER: Wert ersetzen =====
+function writeMarker(html, key, value) {
+  const regex = new RegExp(`<!--LIRO:${key}-->[\\s\\S]*?<!--\\/LIRO:${key}-->`, "gm");
+  return html.replace(regex, `<!--LIRO:${key}-->${value}<!--/LIRO:${key}-->`);
+}
+
+// ===== DATEN LADEN =====
+let cachedFiles = {};
+
+async function loadAllData() {
+  showStatus("main-status", "⏳ Lade Daten von GitHub...", "loading");
+  try {
+    cachedFiles.index = await ghLoad("index.html");
+    cachedFiles.about = await ghLoad("about.html");
+    cachedFiles.gallery = await ghLoad("gallery.html");
+    cachedFiles.blog = await ghLoad("blog.html");
+
+    const html = cachedFiles.index.content;
+
+    // Felder füllen
+    setVal("ed-name", readMarker(html, "name"));
+    setVal("ed-badge", readMarker(html, "badge"));
+    setVal("ed-catchphrase", readMarker(html, "catchphrase"));
+    setVal("ed-bio", readMarker(html, "bio"));
+
+    // Tags: HTML Tags → kommagetrennte Namen
+    const tagsHtml = readMarker(html, "tags");
+    const tagNames = [...tagsHtml.matchAll(/class="tag">([^<]+)<\/span>/g)].map(m => m[1]);
+    setVal("ed-tags", tagNames.join(", "));
+
+    // Bio Modal
+    setVal("ed-bio1", readMarker(html, "bio-modal"));
+
+    // Link Labels & Hints
+    ["tiktok","discord","twitch","youtube","telegram","vrchat","kofi"].forEach(key => {
+      setVal(`ed-link-${key}-label`, readMarker(html, `link-${key}-label`));
+      setVal(`ed-link-${key}-hint`, readMarker(html, `link-${key}-hint`));
     });
+
+    // About
+    const aboutHtml = cachedFiles.about.content;
+    setVal("ed-about-title", readMarker(aboutHtml, "about-title"));
+    setVal("ed-about-subtitle", readMarker(aboutHtml, "about-subtitle"));
+    setVal("ed-about-content", readMarker(aboutHtml, "about-content"));
+    setVal("ed-fact-name", readMarker(aboutHtml, "fact-name"));
+    setVal("ed-fact-age", readMarker(aboutHtml, "fact-age"));
+    setVal("ed-fact-height", readMarker(aboutHtml, "fact-height"));
+    setVal("ed-fact-origin", readMarker(aboutHtml, "fact-origin"));
+
+    // Kollegen parsen
+    parseCollabs(readMarker(html, "collabs"));
+
+    // Gallery parsen
+    parseGallery(readMarker(cachedFiles.gallery.content, "gallery-items"));
+
+    // Blog parsen
+    parseBlogPosts(readMarker(cachedFiles.blog.content, "blog-posts"));
+
+    showStatus("main-status", "✅ Alle Daten geladen!", "success");
+  } catch (e) {
+    showStatus("main-status", `❌ Fehler: ${e.message}`, "error");
+    console.error(e);
   }
-  
-  populateCollabs();
-  console.log("✅ Links-Tab gefüllt");
 }
 
-function populateCollabs() {
+// ===== KOLLEGEN PARSEN =====
+function collabHTML(name, url, tiktokUser) {
+  return `<li><a href="${url}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/${tiktokUser}" alt="${name}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">${name} ↗</span></a></li>`;
+}
+
+function parseCollabs(html) {
   const container = document.getElementById("collabs-container");
   container.innerHTML = "";
-  
-  if (siteData.collabs && siteData.collabs.length > 0) {
-    siteData.collabs.forEach((collab, idx) => {
-      const div = document.createElement("div");
-      div.className = "form-section";
-      div.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h4>${collab.name || "Kolleg*in " + (idx+1)}</h4>
-          <button class="btn btn-small btn-secondary" type="button" onclick="removeCollab(${idx})">🗑️</button>
-        </div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Name</label>
-            <input type="text" class="collab-name" data-idx="${idx}" value="${collab.name || ""}">
-          </div>
-          <div class="form-group">
-            <label>URL (TikTok)</label>
-            <input type="text" class="collab-url" data-idx="${idx}" value="${collab.url || ""}">
-          </div>
-        </div>
-      `;
-      container.appendChild(div);
-    });
-  }
-}
-
-function removeCollab(idx) {
-  if (confirm("Kolleg*in löschen?")) {
-    siteData.collabs.splice(idx, 1);
-    saveToLocalStorage();
-    populateCollabs();
-  }
-}
-
-document.getElementById("add-collab-btn")?.addEventListener("click", () => {
-  if (!siteData.collabs) siteData.collabs = [];
-  siteData.collabs.push({ name: "", url: "" });
-  populateCollabs();
-});
-
-// ===== GALLERY =====
-function populateGalleryTab() {
-  const container = document.getElementById("gallery-container");
-  container.innerHTML = "";
-  
-  if (!siteData.pages) siteData.pages = {};
-  if (!siteData.pages.gallery) siteData.pages.gallery = { items: [] };
-  
-  const items = siteData.pages.gallery.items || [];
-  
-  items.forEach((item, idx) => {
-    const div = document.createElement("div");
-    div.className = "form-section";
-    div.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h4>Item ${idx + 1}</h4>
-        <button class="btn btn-small btn-secondary" type="button" onclick="removeGalleryItem(${idx})">🗑️</button>
-      </div>
-      <div class="form-grid">
-        <div class="form-group form-full">
-          <label>Bild (URL)</label>
-          <input type="text" class="gallery-image" data-idx="${idx}" value="${item.image || ""}" placeholder="z.B. https://...">
-        </div>
-        <div class="form-group">
-          <label>Titel</label>
-          <input type="text" class="gallery-title" data-idx="${idx}" value="${item.title || ""}">
-        </div>
-        <div class="form-group">
-          <label>Beschreibung</label>
-          <input type="text" class="gallery-desc" data-idx="${idx}" value="${item.description || ""}">
-        </div>
-      </div>
-    `;
-    container.appendChild(div);
+  const matches = [...html.matchAll(/href="([^"]+)"[^>]*>[\s\S]*?alt="([^"]+)"[\s\S]*?unavatar\.io\/tiktok\/([^"]+)"/g)];
+  matches.forEach((m, idx) => {
+    addCollabRow(m[2], m[1], m[3]);
   });
-  
-  console.log("✅ Gallery-Tab gefüllt");
 }
 
-function removeGalleryItem(idx) {
-  if (confirm("Gallery-Item löschen?")) {
-    siteData.pages.gallery.items.splice(idx, 1);
-    saveToLocalStorage();
-    populateGalleryTab();
-  }
-}
-
-document.getElementById("add-gallery-btn")?.addEventListener("click", () => {
-  if (!siteData.pages) siteData.pages = {};
-  if (!siteData.pages.gallery) siteData.pages.gallery = { items: [] };
-  siteData.pages.gallery.items.push({ image: "", title: "", description: "" });
-  populateGalleryTab();
-});
-
-// ===== BLOG =====
-function populateBlogList() {
-  const list = document.getElementById("blog-list");
-  list.innerHTML = "";
-  
-  if (siteData.blogPosts && siteData.blogPosts.length > 0) {
-    siteData.blogPosts.forEach(post => {
-      const date = new Date(post.date).toLocaleDateString("de-DE");
-      const div = document.createElement("div");
-      div.className = "blog-card";
-      div.innerHTML = `
-        <h4>${post.title}</h4>
-        <p>📅 ${date}</p>
-        <p style="color: var(--text-muted); font-size: 0.85rem; max-height: 3em; overflow: hidden;">${post.excerpt}</p>
-        <div class="btn-group">
-          <button class="btn btn-small btn-secondary" type="button" onclick="deleteBlogPost(${post.id})">🗑️ Löschen</button>
-        </div>
-      `;
-      list.appendChild(div);
-    });
-  } else {
-    list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Noch keine Posts</p>';
-  }
-  
-  console.log("✅ Blog-List gefüllt");
-}
-
-function addBlogBlock(type) {
-  const container = document.getElementById("blog-blocks-container");
+function addCollabRow(name = "", url = "", tiktok = "") {
+  const container = document.getElementById("collabs-container");
+  const idx = Date.now() + Math.random();
   const div = document.createElement("div");
-  div.className = "blog-block";
-  div.dataset.type = type;
-  
-  if (type === "text") {
-    div.innerHTML = `
-      <div class="blog-block__header">
-        <span class="blog-block__type">📝 Text</span>
-        <button class="blog-block__remove" type="button" onclick="this.closest('.blog-block').remove()">×</button>
-      </div>
-      <textarea placeholder="Text eingeben..."></textarea>
-    `;
-  } else if (type === "heading") {
-    div.innerHTML = `
-      <div class="blog-block__header">
-        <span class="blog-block__type">📌 Überschrift</span>
-        <button class="blog-block__remove" type="button" onclick="this.closest('.blog-block').remove()">×</button>
-      </div>
-      <input type="text" placeholder="Überschrift...">
-    `;
-  } else if (type === "image") {
-    div.innerHTML = `
-      <div class="blog-block__header">
-        <span class="blog-block__type">🖼️ Bild</span>
-        <button class="blog-block__remove" type="button" onclick="this.closest('.blog-block').remove()">×</button>
-      </div>
-      <input type="text" class="image-url" placeholder="Bild-URL...">
-      <select class="image-position" style="width: 100%; padding: 0.8rem; margin-top: 0.5rem; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text); border-radius: 8px;">
-        <option value="left">📐 Links</option>
-        <option value="right">📐 Rechts</option>
-        <option value="full">📐 Vollbreite</option>
-      </select>
-      <input type="number" class="image-width" placeholder="Breite %" min="10" max="100" style="width: 100%; padding: 0.8rem; margin-top: 0.5rem; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text); border-radius: 8px;">
-    `;
-  }
-  
+  div.className = "form-section";
+  div.dataset.collab = idx;
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+      <h4 style="margin:0;color:var(--accent);">Kolleg*in</h4>
+      <button type="button" class="btn btn-small btn-secondary" onclick="this.closest('[data-collab]').remove()">🗑️</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Name</label><input type="text" class="collab-name" value="${name}" placeholder="z.B. Ryio"></div>
+      <div class="form-group"><label>TikTok Username</label><input type="text" class="collab-tiktok" value="${tiktok}" placeholder="z.B. fluffy_ryio"></div>
+      <div class="form-group form-full"><label>TikTok URL</label><input type="text" class="collab-url" value="${url}" placeholder="https://www.tiktok.com/@..."></div>
+    </div>`;
   container.appendChild(div);
 }
 
-function deleteBlogPost(id) {
-  if (confirm("Post wirklich löschen?")) {
-    siteData.blogPosts = (siteData.blogPosts || []).filter(p => p.id !== id);
-    saveToLocalStorage();
-    populateBlogList();
-    showStatus("blog-status", "✅ Post gelöscht!", "success");
+function buildCollabsHTML() {
+  let html = "";
+  document.querySelectorAll("[data-collab]").forEach(div => {
+    const name = div.querySelector(".collab-name").value;
+    const url = div.querySelector(".collab-url").value;
+    const tiktok = div.querySelector(".collab-tiktok").value;
+    if (name && url) html += collabHTML(name, url, tiktok);
+  });
+  return html;
+}
+
+// ===== GALLERY PARSEN =====
+function galleryItemHTML(image, title, desc) {
+  const safeImg = image.replace(/'/g, "\\'");
+  const safeTitle = title.replace(/'/g, "\\'");
+  return `<div style="cursor:pointer;" onclick="openLightbox('${safeImg}','${safeTitle}')"><img src="${image}" alt="${title}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;" onerror="this.closest('div').style.display='none'"><p style="margin-top:0.75rem;font-weight:600;color:var(--text);">${title}</p><p style="color:var(--text-muted);font-size:0.9rem;">${desc}</p></div>`;
+}
+
+function parseGallery(html) {
+  const container = document.getElementById("gallery-container");
+  container.innerHTML = "";
+  const matches = [...html.matchAll(/src='([^']+)'[^>]*onclick[^>]*openLightbox\('[^']*','([^']*)'\)[\s\S]*?color:var\(--text\);">([^<]*)<\/p><p[^>]*>([^<]*)<\/p><\/div>/g)];
+  if (matches.length === 0) {
+    // Fallback: einfach leere Items anzeigen
+    addGalleryRow("", "", "");
+  } else {
+    matches.forEach(m => addGalleryRow(m[1], m[2], m[4]));
   }
 }
 
-// ===== SAVE TO LOCALSTORAGE =====
-function saveToLocalStorage() {
+function addGalleryRow(image = "", title = "", desc = "") {
+  const container = document.getElementById("gallery-container");
+  const idx = Date.now() + Math.random();
+  const div = document.createElement("div");
+  div.className = "form-section";
+  div.dataset.gallery = idx;
+  div.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+      <h4 style="margin:0;color:var(--accent);">Bild</h4>
+      <button type="button" class="btn btn-small btn-secondary" onclick="this.closest('[data-gallery]').remove()">🗑️</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group form-full"><label>Bild-URL oder Dateiname</label><input type="text" class="gal-image" value="${image}" placeholder="z.B. gallery1.png oder https://..."></div>
+      <div class="form-group"><label>Titel</label><input type="text" class="gal-title" value="${title}" placeholder="Titel..."></div>
+      <div class="form-group"><label>Beschreibung</label><input type="text" class="gal-desc" value="${desc}" placeholder="Beschreibung..."></div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function buildGalleryHTML() {
+  let html = "";
+  document.querySelectorAll("[data-gallery]").forEach(div => {
+    const image = div.querySelector(".gal-image").value;
+    const title = div.querySelector(".gal-title").value;
+    const desc = div.querySelector(".gal-desc").value;
+    if (image) html += galleryItemHTML(image, title, desc);
+  });
+  return html;
+}
+
+// ===== BLOG PARSEN =====
+let blogPosts = [];
+
+function parseBlogPosts(html) {
+  blogPosts = [];
+  const matches = [...html.matchAll(/data-postid="([^"]+)"[\s\S]*?<strong>([^<]+)<\/strong>[\s\S]*?<em>([^<]+)<\/em>[\s\S]*?<p[^>]*>([^<]+)<\/p>/g)];
+  matches.forEach(m => {
+    blogPosts.push({ id: m[1], title: m[2], date: m[3], excerpt: m[4] });
+  });
+  renderBlogList();
+}
+
+function renderBlogList() {
+  const list = document.getElementById("blog-list");
+  if (blogPosts.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-muted);text-align:center;">Noch keine Posts</p>';
+    return;
+  }
+  list.innerHTML = blogPosts.map(post => `
+    <div class="blog-card">
+      <h4>${post.title}</h4>
+      <p style="color:var(--text-muted);font-size:0.85rem;">📅 ${post.date}</p>
+      <p style="color:var(--text-muted);font-size:0.85rem;">${post.excerpt}</p>
+      <button class="btn btn-small btn-secondary" onclick="deleteBlogPost('${post.id}')">🗑️ Löschen</button>
+    </div>`).join("");
+}
+
+function deleteBlogPost(id) {
+  if (!confirm("Post löschen?")) return;
+  blogPosts = blogPosts.filter(p => p.id !== id);
+  renderBlogList();
+}
+
+function buildBlogHTML() {
+  if (blogPosts.length === 0) {
+    return '<p style="text-align:center;color:var(--text-muted);">Noch keine Blog-Posts vorhanden.</p>';
+  }
+  return blogPosts.map(post => `
+    <div data-postid="${post.id}" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;cursor:pointer;" onclick="openBlogModal('${post.id}')">
+      ${post.image ? `<img src="${post.image}" alt="${post.title}" style="width:100%;max-height:300px;object-fit:cover;border-radius:8px;margin-bottom:1rem;">` : ""}
+      <strong>${post.title}</strong>
+      <em style="display:block;color:var(--text-muted);font-size:0.85rem;margin:0.25rem 0;">📅 ${post.date}</em>
+      <p style="color:var(--text-muted);line-height:1.6;margin-top:0.5rem;">${post.excerpt}</p>
+      <div data-blocks='${JSON.stringify(post.blocks || []).replace(/'/g, "&#39;")}'></div>
+    </div>`).join("");
+}
+
+// ===== BLOG BLOCKS =====
+let blogBlocks = [];
+
+function addBlock(type) {
+  const container = document.getElementById("blog-blocks-container");
+  const id = Date.now();
+  const div = document.createElement("div");
+  div.className = "blog-block";
+  div.dataset.blockId = id;
+  div.dataset.type = type;
+
+  if (type === "text") {
+    div.innerHTML = `<div class="blog-block__header"><span class="blog-block__type">📝 Text</span><button type="button" class="blog-block__remove" onclick="this.closest('.blog-block').remove()">×</button></div><textarea placeholder="Text eingeben..."></textarea>`;
+  } else if (type === "heading") {
+    div.innerHTML = `<div class="blog-block__header"><span class="blog-block__type">📌 Überschrift</span><button type="button" class="blog-block__remove" onclick="this.closest('.blog-block').remove()">×</button></div><input type="text" placeholder="Überschrift...">`;
+  } else if (type === "image") {
+    div.innerHTML = `<div class="blog-block__header"><span class="blog-block__type">🖼️ Bild</span><button type="button" class="blog-block__remove" onclick="this.closest('.blog-block').remove()">×</button></div><input type="text" class="block-img-url" placeholder="Bild-URL oder Dateiname..."><input type="text" class="block-img-caption" placeholder="Bildunterschrift (optional)..." style="margin-top:0.5rem;">`;
+  }
+  container.appendChild(div);
+}
+
+function collectBlocks() {
+  const blocks = [];
+  document.querySelectorAll(".blog-block").forEach(div => {
+    const type = div.dataset.type;
+    if (type === "text") {
+      const val = div.querySelector("textarea").value;
+      if (val) blocks.push({ type, content: val });
+    } else if (type === "heading") {
+      const val = div.querySelector("input").value;
+      if (val) blocks.push({ type, content: val });
+    } else if (type === "image") {
+      const url = div.querySelector(".block-img-url").value;
+      const caption = div.querySelector(".block-img-caption").value;
+      if (url) blocks.push({ type, url, caption });
+    }
+  });
+  return blocks;
+}
+
+function renderBlocksHTML(blocks) {
+  return blocks.map(b => {
+    if (b.type === "text") return `<p style="color:var(--text-muted);line-height:1.8;margin-bottom:1rem;">${b.content}</p>`;
+    if (b.type === "heading") return `<h3 style="font-size:1.4rem;color:var(--accent);margin:1.5rem 0 0.75rem;">${b.content}</h3>`;
+    if (b.type === "image") return `<figure style="margin:1.5rem 0;"><img src="${b.url}" style="width:100%;border-radius:8px;">${b.caption ? `<figcaption style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">${b.caption}</figcaption>` : ""}</figure>`;
+    return "";
+  }).join("");
+}
+
+// ===== SAVE FUNKTIONEN =====
+async function saveFile(filename, newContent, sha, statusId) {
+  showStatus(statusId, "⏳ Wird gespeichert...", "loading");
   try {
-    console.log("💾 Speichere zu localStorage...", siteData);
-    localStorage.setItem("siteData", JSON.stringify(siteData));
-    console.log("✅ localStorage aktualisiert!");
+    await ghPush(filename, newContent, sha);
+    cachedFiles[filename.replace(".html", "")].sha = (await ghLoad(filename)).sha;
+    showStatus(statusId, "✅ Gespeichert! GitHub aktualisiert.", "success");
     return true;
   } catch (e) {
-    console.error("❌ Fehler beim Speichern zu localStorage:", e);
+    showStatus(statusId, `❌ Fehler: ${e.message}`, "error");
+    console.error(e);
     return false;
   }
 }
 
-// ===== ALL EVENT LISTENERS =====
-function initAllEventListeners() {
-  console.log("🔌 Initialisiere alle Event Listener...");
-  
-  // HAUPTSEITE SAVE
-  const saveMainBtn = document.getElementById("save-main-btn");
-  if (saveMainBtn) {
-    saveMainBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      console.log("💾 Speichere Hauptseite...");
-      
-      siteData.name = document.getElementById("ed-name").value;
-      siteData.badge = document.getElementById("ed-badge").value;
-      siteData.tags = document.getElementById("ed-tags").value.split(",").map(t => t.trim()).filter(t => t);
-      siteData.catchphrase = document.getElementById("ed-catchphrase").value;
-      siteData.bio = document.getElementById("ed-bio").value;
-      siteData.bio1 = document.getElementById("ed-bio1").value;
-      siteData.bio2 = document.getElementById("ed-bio2").value;
-      
-      siteData.factName = document.getElementById("ed-factName").value;
-      siteData.factAge = document.getElementById("ed-factAge").value;
-      siteData.factHeight = document.getElementById("ed-factHeight").value;
-      siteData.factOrigin = document.getElementById("ed-factOrigin").value;
-      
-      if (saveToLocalStorage()) {
-        showStatus("main-status", "✅ Gespeichert! Seite wird neu geladen...", "success");
-        setTimeout(() => location.reload(), 1500);
-      } else {
-        showStatus("main-status", "❌ Fehler beim Speichern!", "error");
-      }
+// ===== ALLE BUTTONS INITIALISIEREN =====
+function initAllButtons() {
+
+  // ── HAUPTSEITE ──
+  document.getElementById("save-main-btn")?.addEventListener("click", async () => {
+    let html = cachedFiles.index.content;
+
+    html = writeMarker(html, "name", getVal("ed-name"));
+    html = writeMarker(html, "badge", getVal("ed-badge"));
+    html = writeMarker(html, "catchphrase", getVal("ed-catchphrase"));
+    html = writeMarker(html, "bio", getVal("ed-bio"));
+
+    const tags = getVal("ed-tags").split(",").map(t => t.trim()).filter(Boolean)
+      .map(t => `<span class="tag">${t}</span>`).join("");
+    html = writeMarker(html, "tags", tags);
+    html = writeMarker(html, "bio-modal", getVal("ed-bio1"));
+
+    // Gleiche Bio-Modal Änderung in about + gallery + blog
+    let aHtml = writeMarker(cachedFiles.about.content, "bio-modal", getVal("ed-bio1"));
+    let gHtml = writeMarker(cachedFiles.gallery.content, "bio-modal", getVal("ed-bio1"));
+    let bHtml = writeMarker(cachedFiles.blog.content, "bio-modal", getVal("ed-bio1"));
+
+    await saveFile("index.html", html, cachedFiles.index.sha, "main-status");
+    await ghPush("about.html", aHtml, cachedFiles.about.sha);
+    await ghPush("gallery.html", gHtml, cachedFiles.gallery.sha);
+    await ghPush("blog.html", bHtml, cachedFiles.blog.sha);
+
+    cachedFiles.index.content = html;
+    cachedFiles.about.content = aHtml;
+    cachedFiles.gallery.content = gHtml;
+    cachedFiles.blog.content = bHtml;
+  });
+
+  // ── LINKS ──
+  document.getElementById("save-links-btn")?.addEventListener("click", async () => {
+    let html = cachedFiles.index.content;
+    ["tiktok","discord","twitch","youtube","telegram","vrchat","kofi"].forEach(key => {
+      html = writeMarker(html, `link-${key}-label`, getVal(`ed-link-${key}-label`));
+      html = writeMarker(html, `link-${key}-hint`, getVal(`ed-link-${key}-hint`));
     });
-  }
-  
-  // LINKS SAVE
-  const saveLinksBtn = document.getElementById("save-links-btn");
-  if (saveLinksBtn) {
-    saveLinksBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      console.log("💾 Speichere Links...");
-      
-      document.querySelectorAll(".link-label").forEach(input => {
-        const key = input.dataset.key;
-        if (siteData.links[key]) siteData.links[key].label = input.value;
-      });
-      
-      document.querySelectorAll(".link-hint").forEach(input => {
-        const key = input.dataset.key;
-        if (siteData.links[key]) siteData.links[key].hint = input.value;
-      });
-      
-      siteData.collabs = [];
-      document.querySelectorAll(".collab-name").forEach(input => {
-        const idx = input.dataset.idx;
-        const name = input.value;
-        const url = document.querySelector(`.collab-url[data-idx="${idx}"]`)?.value || "";
-        if (name || url) siteData.collabs.push({ name, url });
-      });
-      
-      if (saveToLocalStorage()) {
-        showStatus("links-status", "✅ Gespeichert! Seite wird neu geladen...", "success");
-        setTimeout(() => location.reload(), 1500);
-      }
-    });
-  }
-  
-  // ABOUT SAVE
-  const saveAboutBtn = document.getElementById("save-about-btn");
-  if (saveAboutBtn) {
-    saveAboutBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      console.log("💾 Speichere About...");
-      
-      if (!siteData.pages) siteData.pages = {};
-      if (!siteData.pages.about) siteData.pages.about = {};
-      
-      siteData.pages.about.title = document.getElementById("ed-about-title").value;
-      siteData.pages.about.subtitle = document.getElementById("ed-about-subtitle").value;
-      siteData.pages.about.content = document.getElementById("ed-about-content").value;
-      
-      if (saveToLocalStorage()) {
-        showStatus("about-status", "✅ Gespeichert! Seite wird neu geladen...", "success");
-        setTimeout(() => location.reload(), 1500);
-      }
-    });
-  }
-  
-  // GALLERY SAVE
-  const saveGalleryBtn = document.getElementById("save-gallery-btn");
-  if (saveGalleryBtn) {
-    saveGalleryBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      console.log("💾 Speichere Gallery...");
-      
-      if (!siteData.pages) siteData.pages = {};
-      if (!siteData.pages.gallery) siteData.pages.gallery = { items: [] };
-      
-      siteData.pages.gallery.items = [];
-      document.querySelectorAll(".gallery-image").forEach(input => {
-        const idx = input.dataset.idx;
-        const image = input.value;
-        const title = document.querySelector(`.gallery-title[data-idx="${idx}"]`)?.value || "";
-        const description = document.querySelector(`.gallery-desc[data-idx="${idx}"]`)?.value || "";
-        
-        if (image) {
-          siteData.pages.gallery.items.push({ image, title, description });
-        }
-      });
-      
-      if (saveToLocalStorage()) {
-        showStatus("gallery-status", "✅ Gespeichert! Seite wird neu geladen...", "success");
-        setTimeout(() => location.reload(), 1500);
-      }
-    });
-  }
-  
-  // MODALS SAVE
-  const saveModalsBtn = document.getElementById("save-modals-btn");
-  if (saveModalsBtn) {
-    saveModalsBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      console.log("💾 Speichere Modals...");
-      
-      siteData.contactText = document.getElementById("ed-contact-text").value;
-      
-      if (saveToLocalStorage()) {
-        showStatus("modals-status", "✅ Gespeichert! Seite wird neu geladen...", "success");
-        setTimeout(() => location.reload(), 1500);
-      }
-    });
-  }
-  
-  // BLOG BUTTONS
-  document.getElementById("add-text-block-btn")?.addEventListener("click", () => addBlogBlock("text"));
-  document.getElementById("add-heading-block-btn")?.addEventListener("click", () => addBlogBlock("heading"));
-  document.getElementById("add-image-block-btn")?.addEventListener("click", () => addBlogBlock("image"));
-  
-  document.getElementById("create-blog-btn")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    console.log("✍️ Erstelle Blog Post...");
-    
-    const title = document.getElementById("new-blog-title").value;
-    const date = document.getElementById("new-blog-date").value;
-    const excerpt = document.getElementById("new-blog-excerpt").value;
-    const image = document.getElementById("new-blog-image").value;
-    
+    await saveFile("index.html", html, cachedFiles.index.sha, "links-status");
+    cachedFiles.index.content = html;
+  });
+
+  // ── KOLLEGEN ──
+  document.getElementById("add-collab-btn")?.addEventListener("click", () => addCollabRow());
+
+  document.getElementById("save-collabs-btn")?.addEventListener("click", async () => {
+    const collabsHTML = buildCollabsHTML();
+    let iHtml = writeMarker(cachedFiles.index.content, "collabs", collabsHTML);
+    let aHtml = writeMarker(cachedFiles.about.content, "collabs", collabsHTML);
+    let gHtml = writeMarker(cachedFiles.gallery.content, "collabs", collabsHTML);
+    let bHtml = writeMarker(cachedFiles.blog.content, "collabs", collabsHTML);
+
+    await saveFile("index.html", iHtml, cachedFiles.index.sha, "collabs-status");
+    await ghPush("about.html", aHtml, cachedFiles.about.sha);
+    await ghPush("gallery.html", gHtml, cachedFiles.gallery.sha);
+    await ghPush("blog.html", bHtml, cachedFiles.blog.sha);
+
+    cachedFiles.index.content = iHtml;
+    cachedFiles.about.content = aHtml;
+    cachedFiles.gallery.content = gHtml;
+    cachedFiles.blog.content = bHtml;
+  });
+
+  // ── ABOUT ──
+  document.getElementById("save-about-btn")?.addEventListener("click", async () => {
+    let html = cachedFiles.about.content;
+    html = writeMarker(html, "about-title", getVal("ed-about-title"));
+    html = writeMarker(html, "about-subtitle", getVal("ed-about-subtitle"));
+    html = writeMarker(html, "about-content", getVal("ed-about-content"));
+    html = writeMarker(html, "fact-name", getVal("ed-fact-name"));
+    html = writeMarker(html, "fact-age", getVal("ed-fact-age"));
+    html = writeMarker(html, "fact-height", getVal("ed-fact-height"));
+    html = writeMarker(html, "fact-origin", getVal("ed-fact-origin"));
+    await saveFile("about.html", html, cachedFiles.about.sha, "about-status");
+    cachedFiles.about.content = html;
+  });
+
+  // ── GALLERY ──
+  document.getElementById("add-gallery-btn")?.addEventListener("click", () => addGalleryRow());
+
+  document.getElementById("save-gallery-btn")?.addEventListener("click", async () => {
+    const galleryHTML = buildGalleryHTML();
+    let html = writeMarker(cachedFiles.gallery.content, "gallery-items", galleryHTML);
+    await saveFile("gallery.html", html, cachedFiles.gallery.sha, "gallery-status");
+    cachedFiles.gallery.content = html;
+  });
+
+  // ── BLOG: BLOCKS ──
+  document.getElementById("add-text-btn")?.addEventListener("click", () => addBlock("text"));
+  document.getElementById("add-heading-btn")?.addEventListener("click", () => addBlock("heading"));
+  document.getElementById("add-image-btn")?.addEventListener("click", () => addBlock("image"));
+
+  // ── BLOG: POST ERSTELLEN ──
+  document.getElementById("create-post-btn")?.addEventListener("click", async () => {
+    const title = getVal("new-post-title");
+    const date = getVal("new-post-date");
+    const excerpt = getVal("new-post-excerpt");
+    const image = getVal("new-post-image");
+
     if (!title || !date || !excerpt) {
-      showStatus("blog-status", "❌ Bitte Titel, Datum und Excerpt ausfüllen!", "error");
+      showStatus("blog-status", "❌ Titel, Datum und Excerpt sind Pflicht!", "error");
       return;
     }
-    
-    const blocks = [];
-    document.querySelectorAll(".blog-block").forEach(block => {
-      const type = block.dataset.type;
-      
-      if (type === "text") {
-        const content = block.querySelector("textarea").value;
-        if (content) blocks.push({ type: "text", content });
-      } else if (type === "heading") {
-        const content = block.querySelector("input").value;
-        if (content) blocks.push({ type: "heading", content });
-      } else if (type === "image") {
-        const url = block.querySelector(".image-url").value;
-        if (url) {
-          blocks.push({
-            type: "image",
-            url,
-            position: block.querySelector(".image-position").value || "left",
-            width: block.querySelector(".image-width").value || "50"
-          });
-        }
-      }
-    });
-    
-    const post = {
-      id: Date.now(),
-      title,
-      date,
-      excerpt,
-      image: image || "",
-      content: JSON.stringify(blocks)
-    };
-    
-    if (!siteData.blogPosts) siteData.blogPosts = [];
-    siteData.blogPosts.push(post);
-    
-    if (saveToLocalStorage()) {
-      document.getElementById("new-blog-title").value = "";
-      document.getElementById("new-blog-date").value = "";
-      document.getElementById("new-blog-excerpt").value = "";
-      document.getElementById("new-blog-image").value = "";
+
+    const blocks = collectBlocks();
+    const id = Date.now().toString();
+
+    blogPosts.unshift({ id, title, date, excerpt, image, blocks });
+    renderBlogList();
+
+    const blogHTML = buildBlogHTML();
+    let html = writeMarker(cachedFiles.blog.content, "blog-posts", blogHTML);
+    const ok = await saveFile("blog.html", html, cachedFiles.blog.sha, "blog-status");
+    if (ok) {
+      cachedFiles.blog.content = html;
+      setVal("new-post-title", "");
+      setVal("new-post-date", "");
+      setVal("new-post-excerpt", "");
+      setVal("new-post-image", "");
       document.getElementById("blog-blocks-container").innerHTML = "";
-      
-      populateBlogList();
-      showStatus("blog-status", "✅ Post erstellt! Seite wird neu geladen...", "success");
-      setTimeout(() => location.reload(), 1500);
     }
   });
-  
-  console.log("✅ Alle Event Listener initialisiert!");
+
+  // ── BLOG: POSTS SPEICHERN (nach Löschen) ──
+  document.getElementById("save-blog-btn")?.addEventListener("click", async () => {
+    const blogHTML = buildBlogHTML();
+    let html = writeMarker(cachedFiles.blog.content, "blog-posts", blogHTML);
+    const ok = await saveFile("blog.html", html, cachedFiles.blog.sha, "blog-status");
+    if (ok) cachedFiles.blog.content = html;
+  });
 }
 
-// ===== HELPER =====
-function showStatus(id, msg, type) {
-  const el = document.getElementById(id);
-  if (!el) {
-    console.warn(`⚠️ Status-Element #${id} nicht gefunden!`);
-    return;
-  }
-  el.textContent = msg;
-  el.className = `status show ${type}`;
-  console.log(`📢 Status: ${msg}`);
-  setTimeout(() => el.classList.remove("show"), 6000);
-}
+// ── BLOG: POST ÖFFNEN (auf der Seite) ──
+window.openBlogModal = function(id) {
+  const post = blogPosts.find(p => p.id === id);
+  if (!post) return;
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.setAttribute("aria-modal","true");
+  modal.style.cssText = "display:flex!important;";
+  modal.innerHTML = `
+    <div class="modal__backdrop" onclick="this.parentElement.remove()"></div>
+    <div class="modal__panel">
+      <button class="modal__close" onclick="this.closest('.modal').remove()">×</button>
+      <h2 class="modal__title">${post.title}</h2>
+      <p style="color:var(--text-muted);margin-bottom:1.5rem;">📅 ${post.date}</p>
+      ${renderBlocksHTML(post.blocks || [])}
+    </div>`;
+  document.body.appendChild(modal);
+};
 
+// ===== TABS =====
 function initTabs() {
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-      
       btn.classList.add("active");
-      const tabName = btn.dataset.tab;
-      const tabContent = document.getElementById(`${tabName}-tab`);
-      if (tabContent) {
-        tabContent.classList.add("active");
-        console.log(`📑 Tab gewechselt: ${tabName}`);
-      }
+      document.getElementById(`${btn.dataset.tab}-tab`)?.classList.add("active");
     });
   });
 }
 
+// ===== HELPER =====
+function getVal(id) { return document.getElementById(id)?.value || ""; }
+function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
+
+function showStatus(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = `status show ${type}`;
+  if (type !== "loading") setTimeout(() => el.classList.remove("show"), 6000);
+}
+
 // ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🚀 admin.js initializing...");
-  initAuth();
+  const stored = localStorage.getItem("admin_token");
+  if (stored) {
+    authToken = stored;
+    showAdmin();
+  } else {
+    document.getElementById("loginScreen").classList.remove("hidden");
+  }
 });
