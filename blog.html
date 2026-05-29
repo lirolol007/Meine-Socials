@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Liro — Blog</title>
+  <meta name="description" content="Blog — Gedanken, Updates & Stories von Liro.">
   <link rel="icon" href="profile.jpg" type="image/jpeg">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +16,8 @@
   <div class="bg-glow bg-glow--1"></div>
   <div class="bg-glow bg-glow--2"></div>
   <canvas class="particles" id="particles" aria-hidden="true"></canvas>
+
+  <!-- Navigation -->
   <nav class="nav">
     <div class="nav__inner">
       <a href="/" class="nav__logo">🦊 Liro</a>
@@ -24,32 +27,21 @@
         <li><a href="/gallery.html" class="nav__link">Galerie</a></li>
         <li><a href="/blog.html" class="nav__link active">Blog</a></li>
       </ul>
-      <button id="theme-toggle" class="nav__theme">🌙</button>
-      <button id="nav-toggle" class="nav__toggle">☰</button>
+      <button class="nav__theme" id="theme-toggle">🌙</button>
+      <button class="nav__toggle" id="nav-toggle">☰</button>
     </div>
   </nav>
-  <div class="page page--blog page--wide">
-    <div class="page__inner">
-      <div class="blog-hero">
-        <h1 class="blog-hero__title">📝 Blog</h1>
-        <p class="blog-hero__subtitle">Meine neuesten Gedanken & Geschichten</p>
-      </div>
-      <div class="blog-grid" id="blog-grid">
-        <div class="blog-empty">
-          <p>Lädt Blog-Posts...</p>
-        </div>
-      </div>
+
+  <!-- Main Content -->
+  <div style="max-width: 900px; margin: 3rem auto; padding: 0 1.5rem;">
+    <h1 style="text-align: center; margin-bottom: 0.5rem; color: var(--text);">📝 Blog</h1>
+    <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;">Gedanken, Updates & Stories</p>
+    
+    <div id="blog-grid">
+      <div style="text-align: center; color: var(--text-muted);">Lädt...</div>
     </div>
   </div>
-  <!-- Blog-Post Modal -->
-  <div class="blog-modal" id="blog-modal">
-    <div class="blog-modal__content">
-      <button class="blog-modal__close" id="blog-modal-close" onclick="closeBlogPost()">✕</button>
-      <h1 class="blog-post__title" id="blog-post-title"></h1>
-      <div class="blog-post__meta" id="blog-post-meta"></div>
-      <div class="blog-post__body" id="blog-post-body"></div>
-    </div>
-  </div>
+
   <footer class="footer">
     <nav class="footer-nav">
       <button class="footer-nav__link" data-modal-open="about">Über mich</button>
@@ -60,6 +52,7 @@
     </nav>
     <p class="footer__credit">Avatar Art by Liro</p>
   </footer>
+
   <script src="particles.js"></script>
   <script src="cursor.js"></script>
   <script src="site.js"></script>
