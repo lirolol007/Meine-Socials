@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Liro — Galerie</title>
-  <meta name="description" content="VRChat & Content Galerie von Liro — hochwertige Screenshots und Highlights.">
-  <meta name="robots" content="index, follow">
+  <meta name="description" content="VRChat & Content Highlights — Liros Galerie.">
   <link rel="icon" href="profile.jpg" type="image/jpeg">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +16,8 @@
   <div class="bg-glow bg-glow--1"></div>
   <div class="bg-glow bg-glow--2"></div>
   <canvas class="particles" id="particles" aria-hidden="true"></canvas>
+
+  <!-- Navigation -->
   <nav class="nav">
     <div class="nav__inner">
       <a href="/" class="nav__logo">🦊 Liro</a>
@@ -26,34 +27,21 @@
         <li><a href="/gallery.html" class="nav__link active">Galerie</a></li>
         <li><a href="/blog.html" class="nav__link">Blog</a></li>
       </ul>
-      <button class="nav__theme" id="theme-toggle" aria-label="Theme Toggle">🌙</button>
+      <button class="nav__theme" id="theme-toggle">🌙</button>
       <button class="nav__toggle" id="nav-toggle">☰</button>
     </div>
   </nav>
-  <main class="page page--wide">
-    <div class="page__inner">
-      <div class="about-hero">
-        <h1 class="about-hero__title">🖼️ Galerie</h1>
-        <p class="about-hero__subtitle">VRChat & Content Highlights</p>
-      </div>
-      <div class="gallery-grid" id="gallery-grid">
-        <p>Lädt...</p>
-      </div>
-    </div>
-  </main>
-  <div id="lightbox" class="modal" hidden>
-    <div class="modal__backdrop"></div>
-    <div class="modal__panel">
-      <button class="modal__close" id="lightbox-close">×</button>
-      <div style="text-align: center; padding: 1rem;">
-        <img id="lightbox-img" src="" alt="" style="max-width: 100%; max-height: 70dvh; border-radius: 12px; margin-bottom: 1rem;">
-        <div id="lightbox-caption" style="text-align: center;">
-          <h3 id="lightbox-title"></h3>
-          <p id="lightbox-text"></p>
-        </div>
-      </div>
+
+  <!-- Main Content -->
+  <div style="max-width: 1000px; margin: 3rem auto; padding: 0 1.5rem;">
+    <h1 style="text-align: center; margin-bottom: 0.5rem; color: var(--text);">🖼️ Galerie</h1>
+    <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;">VRChat & Content Highlights</p>
+    
+    <div id="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 2rem;">
+      <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Lädt...</div>
     </div>
   </div>
+
   <footer class="footer">
     <nav class="footer-nav">
       <button class="footer-nav__link" data-modal-open="about">Über mich</button>
@@ -64,6 +52,7 @@
     </nav>
     <p class="footer__credit">Avatar Art by Liro</p>
   </footer>
+
   <script src="particles.js"></script>
   <script src="cursor.js"></script>
   <script src="site.js"></script>
