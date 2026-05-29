@@ -21,7 +21,6 @@
   <div class="bg-glow bg-glow--2"></div>
   <canvas class="particles" id="particles" aria-hidden="true"></canvas>
 
-  <!-- Navigation -->
   <nav class="nav">
     <div class="nav__inner">
       <a href="/" class="nav__logo">🦊 Liro</a>
@@ -36,9 +35,7 @@
     </div>
   </nav>
 
-  <!-- Main Content: 2-Column Layout -->
   <div class="main-content">
-    <!-- Left: Profile -->
     <div class="profile-section">
       <div class="avatar-wrap">
         <img class="avatar" src="profile.jpg" alt="Liro Avatar" loading="lazy">
@@ -54,13 +51,76 @@
       <p class="bio" id="profile-bio">VRChat · Streams · Content</p>
     </div>
 
-    <!-- Right: Links -->
-    <div class="links-section" id="links-section">
-      <!-- Wird dynamisch gefüllt -->
+    <div class="links-section">
+      <a href="https://www.tiktok.com/@liro7160" target="_blank" rel="noopener noreferrer" class="link-card featured">
+        <div class="link-card__icon"><img src="icons/tiktok.svg" alt="TikTok"></div>
+        <div class="link-card__content">
+          <span class="link-card__label" id="link-label-tiktok">TikTok</span>
+          <span class="link-card__hint" id="link-hint-tiktok">Hauptplattform — @liro7160</span>
+        </div>
+        <span class="link-card__arrow">→</span>
+      </a>
+
+      <a href="https://discord.gg/zrtu6d7Em" target="_blank" rel="noopener noreferrer" class="link-card">
+        <div class="link-card__icon"><img src="icons/discord.svg" alt="Discord"></div>
+        <div class="link-card__content">
+          <span class="link-card__label" id="link-label-discord">Discord</span>
+          <span class="link-card__hint" id="link-hint-discord">Liro/Ryio Community Server</span>
+        </div>
+        <span class="link-card__arrow">→</span>
+      </a>
+
+      <a href="https://www.twitch.tv/lirooo0" target="_blank" rel="noopener noreferrer" class="link-card">
+        <div class="link-card__icon"><img src="icons/twitch.svg" alt="Twitch"></div>
+        <div class="link-card__content">
+          <span class="link-card__label" id="link-label-twitch">Twitch</span>
+          <span class="link-card__hint" id="link-hint-twitch">Streams & Just Chatting</span>
+        </div>
+        <span class="link-card__arrow">→</span>
+      </a>
+
+      <a href="https://www.youtube.com/@Liro_LOL" target="_blank" rel="noopener noreferrer" class="link-card">
+        <div class="link-card__icon"><img src="icons/youtube.svg" alt="YouTube"></div>
+        <div class="link-card__content">
+          <span class="link-card__label" id="link-label-youtube">YouTube</span>
+          <span class="link-card__hint" id="link-hint-youtube"></span>
+        </div>
+        <span class="link-card__arrow">→</span>
+      </a>
+
+      <a href="https://t.me/Liro025" target="_blank" rel="noopener noreferrer" class="link-card">
+        <div class="link-card__icon"><img src="icons/telegram.svg" alt="Telegram"></div>
+        <div class="link-card__content">
+          <span class="link-card__label" id="link-label-telegram">Telegram</span>
+          <span class="link-card__hint" id="link-hint-telegram">@Liro025</span>
+        </div>
+        <span class="link-card__arrow">→</span>
+      </a>
+
+      <a href="https://vrchat.com/home/user/usr_2e3bf4e4-1234-5678-9abc-def012345678" target="_blank" rel="noopener noreferrer" class="link-card">
+        <div class="link-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:30px;height:30px;">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+          </svg>
+        </div>
+        <div class="link-card__content">
+          <span class="link-card__label" id="link-label-vrchat">VRChat</span>
+          <span class="link-card__hint" id="link-hint-vrchat">Add mich — Liro0</span>
+        </div>
+        <span class="link-card__arrow">→</span>
+      </a>
+
+      <a href="https://ko-fi.com/liro0" target="_blank" rel="noopener noreferrer" class="link-card">
+        <div class="link-card__icon"><img src="icons/kofi.svg" alt="Ko-fi"></div>
+        <div class="link-card__content">
+          <span class="link-card__label" id="link-label-kofi">Ko-fi</span>
+          <span class="link-card__hint" id="link-hint-kofi">Ko-fi Seite</span>
+        </div>
+        <span class="link-card__arrow">→</span>
+      </a>
     </div>
   </div>
 
-  <!-- Modals -->
   <div class="modal" id="modal-about" hidden aria-modal="true" role="dialog">
     <div class="modal__backdrop"></div>
     <div class="modal__panel">
@@ -76,7 +136,7 @@
       <button class="modal__close" data-modal-close>×</button>
       <h2 class="modal__title">Kollegen & Freunde</h2>
       <ul class="collab-list" id="collab-list">
-        <li style="text-align: center; color: var(--text-muted);">Lädt...</li>
+        <li style="text-align:center;color:var(--text-muted);">Lädt...</li>
       </ul>
     </div>
   </div>
@@ -86,10 +146,10 @@
     <div class="modal__panel">
       <button class="modal__close" data-modal-close>×</button>
       <h2 class="modal__title">Kontakt</h2>
-      <div id="modal-contact-content" style="color: var(--text-muted); line-height: 1.8;">
-        <p><strong>E-Mail:</strong> <a id="contact-email" href="mailto:liro.lol007@gmail.com" style="color: var(--accent); text-decoration: none;">Liro.lol007@gmail.com</a></p>
-        <p style="margin-top: 1rem;"><strong>Discord:</strong> Schreib mich an oder tritt unserem Server bei!</p>
-        <p style="margin-top: 1rem;"><strong>Telegram:</strong> @Liro025</p>
+      <div style="color:var(--text-muted);line-height:1.8;">
+        <p><strong>E-Mail:</strong> <a href="mailto:liro.lol007@gmail.com" style="color:var(--accent);text-decoration:none;">Liro.lol007@gmail.com</a></p>
+        <p style="margin-top:1rem;"><strong>Discord:</strong> Schreib mich an oder tritt unserem Server bei!</p>
+        <p style="margin-top:1rem;"><strong>Telegram:</strong> @Liro025</p>
       </div>
     </div>
   </div>
