@@ -1,73 +1,105 @@
 // ===== CONFIG =====
-const GITHUB_REPO = "Lirolol007/Meine-Socials";
-const GITHUB_BRANCH = "main";
-const GITHUB_RAW = `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}`;
 const PASSWORD = "admin123"; // ⚠️ ÄNDERE DAS!
 
-let authToken = "";
 let siteData = null;
 
 console.log("✅ admin.js loaded");
 
 // ===== AUTH =====
 function initAuth() {
-  const stored = localStorage.getItem("admin_token");
-  if (stored) {
-    authToken = stored;
+  const stored = localStorage.getItem("admin_authenticated");
+  if (stored === "true") {
     loginSuccess();
   } else {
     document.getElementById("loginScreen").classList.remove("hidden");
   }
 }
 
-document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
+document.getElementById("loginForm")?.addEventListener("submit", (e) => {
   e.preventDefault();
   const pass = document.getElementById("password").value;
-  const token = document.getElementById("token").value;
-  const remember = document.getElementById("rememberMe").checked;
   
-  if (pass === PASSWORD && token.startsWith("ghp_")) {
-    authToken = token;
-    if (remember) localStorage.setItem("admin_token", token);
-    await loginSuccess();
+  if (pass === PASSWORD) {
+    localStorage.setItem("admin_authenticated", "true");
+    loginSuccess();
   } else {
-    alert("❌ Falsches Passwort oder ungültiger Token!");
+    alert("❌ Falsches Passwort!");
   }
 });
 
-async function loginSuccess() {
+function loginSuccess() {
   console.log("✅ Login erfolgreich!");
   document.getElementById("loginScreen").classList.add("hidden");
   document.getElementById("adminPanel").classList.remove("hidden");
-  await loadSiteData();
+  loadSiteData();
   initTabs();
   initAllEventListeners();
 }
 
 document.getElementById("logoutBtn")?.addEventListener("click", () => {
-  localStorage.removeItem("admin_token");
+  localStorage.removeItem("admin_authenticated");
   location.reload();
 });
 
-// ===== LOAD DATA FROM GITHUB =====
-async function loadSiteData() {
+// ===== LOAD DATA FROM LOCALSTORAGE =====
+function loadSiteData() {
   try {
-    showStatus("main-status", "⏳ Lade Daten...", "loading");
-    
-    const res = await fetch(`${GITHUB_RAW}/site-data.json?t=${Date.now()}`, {
-      cache: "no-store"
-    });
-    if (!res.ok) throw new Error(`GitHub HTTP ${res.status}`);
-    
-    siteData = await res.json();
-    console.log("✅ site-data.json geladen:", siteData);
+    const stored = localStorage.getItem("siteData");
+    siteData = stored ? JSON.parse(stored) : getDefaultData();
+    console.log("✅ siteData geladen:", siteData);
     
     populateAllFields();
     showStatus("main-status", "✅ Daten geladen!", "success");
   } catch (e) {
     alert(`❌ Fehler beim Laden: ${e.message}`);
     console.error(e);
+    siteData = getDefaultData();
+    populateAllFields();
   }
+}
+
+function getDefaultData() {
+  return {
+    name: "Liro",
+    badge: "VRChat Creator",
+    tags: ["🦊 Fox", "VR", "DE", "Meow :3"],
+    catchphrase: "So ein Furry oder so... :3",
+    bio: "VRChat · Streams · Content",
+    bio1: "Moin — ich bin Liro...",
+    bio2: "Ich bin eine direkte Person...",
+    factName: "Liro / Leon",
+    factAge: "19",
+    factHeight: "1,78 m",
+    factOrigin: "🇩🇪 Deutschland",
+    links: {
+      tiktok: { label: "TikTok", hint: "Hauptplattform — @liro7160" },
+      discord: { label: "Discord", hint: "Liro/Ryio Community Server" },
+      twitch: { label: "Twitch", hint: "Streams & Just Chatting" },
+      youtube: { label: "YouTube", hint: "" },
+      telegram: { label: "Telegram", hint: "@Liro025" },
+      vrchat: { label: "VRChat", hint: "Add mich — Liro0" },
+      kofi: { label: "Ko-fi", hint: "Ko-fi Seite" }
+    },
+    collabs: [],
+    pages: {
+      about: {
+        title: "Über mich",
+        subtitle: "VRChat Creator, Streamer & Chaos-Agent",
+        content: "<p>Moin! Ich bin Liro...</p>"
+      },
+      gallery: {
+        title: "Galerie",
+        subtitle: "VRChat & Content Highlights",
+        items: []
+      },
+      blog: {
+        title: "Blog",
+        subtitle: "Gedanken, Updates & Stories"
+      }
+    },
+    blogPosts: [],
+    contactText: "Schreib mir über Discord oder Telegram!"
+  };
 }
 
 // ===== POPULATE ALL FIELDS =====
@@ -79,8 +111,8 @@ function populateAllFields() {
     return;
   }
   
-  // HAUPTSEITE
   try {
+    // HAUPTSEITE
     document.getElementById("ed-name").value = siteData.name || "";
     document.getElementById("ed-badge").value = siteData.badge || "";
     document.getElementById("ed-tags").value = (siteData.tags || []).join(", ");
@@ -190,6 +222,7 @@ function populateCollabs() {
 function removeCollab(idx) {
   if (confirm("Kolleg*in löschen?")) {
     siteData.collabs.splice(idx, 1);
+    saveToLocalStorage();
     populateCollabs();
   }
 }
@@ -220,8 +253,8 @@ function populateGalleryTab() {
       </div>
       <div class="form-grid">
         <div class="form-group form-full">
-          <label>Bild (URL oder Dateiname)</label>
-          <input type="text" class="gallery-image" data-idx="${idx}" value="${item.image || ""}" placeholder="z.B. gallery1.png oder https://...">
+          <label>Bild (URL)</label>
+          <input type="text" class="gallery-image" data-idx="${idx}" value="${item.image || ""}" placeholder="z.B. https://...">
         </div>
         <div class="form-group">
           <label>Titel</label>
@@ -242,6 +275,7 @@ function populateGalleryTab() {
 function removeGalleryItem(idx) {
   if (confirm("Gallery-Item löschen?")) {
     siteData.pages.gallery.items.splice(idx, 1);
+    saveToLocalStorage();
     populateGalleryTab();
   }
 }
@@ -324,57 +358,22 @@ function addBlogBlock(type) {
 function deleteBlogPost(id) {
   if (confirm("Post wirklich löschen?")) {
     siteData.blogPosts = (siteData.blogPosts || []).filter(p => p.id !== id);
-    saveToGitHub("blog-status").then(() => {
-      populateBlogList();
-      showStatus("blog-status", "✅ Post gelöscht!", "success");
-    });
+    saveToLocalStorage();
+    populateBlogList();
+    showStatus("blog-status", "✅ Post gelöscht!", "success");
   }
 }
 
-// ===== SAVE TO GITHUB =====
-async function saveToGitHub(statusId) {
+// ===== SAVE TO LOCALSTORAGE =====
+function saveToLocalStorage() {
   try {
-    console.log("💾 Speichere zu GitHub...", siteData);
-    showStatus(statusId, "⏳ Speichert zu GitHub...", "loading");
-    
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(siteData, null, 2))));
-    
-    const shaRes = await fetch(
-      `https://api.github.com/repos/${GITHUB_REPO}/contents/site-data.json`,
-      { headers: { Authorization: `token ${authToken}` } }
-    );
-    
-    if (!shaRes.ok) throw new Error("SHA abrufen fehlgeschlagen");
-    const shaData = await shaRes.json();
-    
-    const updateRes = await fetch(
-      `https://api.github.com/repos/${GITHUB_REPO}/contents/site-data.json`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `token ${authToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: "Update via Admin Panel",
-          content,
-          sha: shaData.sha
-        })
-      }
-    );
-    
-    if (!updateRes.ok) throw new Error("GitHub Update fehlgeschlagen");
-    
-    showStatus(statusId, "✅ Gespeichert! Seite wird neugeladen...", "success");
-    console.log("✅ Zu GitHub gepusht!");
-    
-    setTimeout(() => {
-      window.location.reload();
-    }, 2000);
-    
+    console.log("💾 Speichere zu localStorage...", siteData);
+    localStorage.setItem("siteData", JSON.stringify(siteData));
+    console.log("✅ localStorage aktualisiert!");
+    return true;
   } catch (e) {
-    showStatus(statusId, `❌ Fehler: ${e.message}`, "error");
-    console.error(e);
+    console.error("❌ Fehler beim Speichern zu localStorage:", e);
+    return false;
   }
 }
 
@@ -402,11 +401,13 @@ function initAllEventListeners() {
       siteData.factHeight = document.getElementById("ed-factHeight").value;
       siteData.factOrigin = document.getElementById("ed-factOrigin").value;
       
-      console.log("✅ Werte aktualisiert:", siteData);
-      saveToGitHub("main-status");
+      if (saveToLocalStorage()) {
+        showStatus("main-status", "✅ Gespeichert! Seite wird neu geladen...", "success");
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        showStatus("main-status", "❌ Fehler beim Speichern!", "error");
+      }
     });
-  } else {
-    console.warn("⚠️ save-main-btn nicht gefunden!");
   }
   
   // LINKS SAVE
@@ -434,8 +435,10 @@ function initAllEventListeners() {
         if (name || url) siteData.collabs.push({ name, url });
       });
       
-      console.log("✅ Links aktualisiert:", siteData);
-      saveToGitHub("links-status");
+      if (saveToLocalStorage()) {
+        showStatus("links-status", "✅ Gespeichert! Seite wird neu geladen...", "success");
+        setTimeout(() => location.reload(), 1500);
+      }
     });
   }
   
@@ -453,8 +456,10 @@ function initAllEventListeners() {
       siteData.pages.about.subtitle = document.getElementById("ed-about-subtitle").value;
       siteData.pages.about.content = document.getElementById("ed-about-content").value;
       
-      console.log("✅ About aktualisiert:", siteData);
-      saveToGitHub("about-status");
+      if (saveToLocalStorage()) {
+        showStatus("about-status", "✅ Gespeichert! Seite wird neu geladen...", "success");
+        setTimeout(() => location.reload(), 1500);
+      }
     });
   }
   
@@ -480,8 +485,10 @@ function initAllEventListeners() {
         }
       });
       
-      console.log("✅ Gallery aktualisiert:", siteData);
-      saveToGitHub("gallery-status");
+      if (saveToLocalStorage()) {
+        showStatus("gallery-status", "✅ Gespeichert! Seite wird neu geladen...", "success");
+        setTimeout(() => location.reload(), 1500);
+      }
     });
   }
   
@@ -494,8 +501,10 @@ function initAllEventListeners() {
       
       siteData.contactText = document.getElementById("ed-contact-text").value;
       
-      console.log("✅ Modals aktualisiert:", siteData);
-      saveToGitHub("modals-status");
+      if (saveToLocalStorage()) {
+        showStatus("modals-status", "✅ Gespeichert! Seite wird neu geladen...", "success");
+        setTimeout(() => location.reload(), 1500);
+      }
     });
   }
   
@@ -553,9 +562,7 @@ function initAllEventListeners() {
     if (!siteData.blogPosts) siteData.blogPosts = [];
     siteData.blogPosts.push(post);
     
-    console.log("✅ Blog Post erstellt:", post);
-    
-    saveToGitHub("blog-status").then(() => {
+    if (saveToLocalStorage()) {
       document.getElementById("new-blog-title").value = "";
       document.getElementById("new-blog-date").value = "";
       document.getElementById("new-blog-excerpt").value = "";
@@ -563,7 +570,9 @@ function initAllEventListeners() {
       document.getElementById("blog-blocks-container").innerHTML = "";
       
       populateBlogList();
-    });
+      showStatus("blog-status", "✅ Post erstellt! Seite wird neu geladen...", "success");
+      setTimeout(() => location.reload(), 1500);
+    }
   });
   
   console.log("✅ Alle Event Listener initialisiert!");
