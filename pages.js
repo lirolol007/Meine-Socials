@@ -187,33 +187,92 @@ function closeLightbox(el) {
   setTimeout(() => overlay.remove(), 250);
 }
 
-/* ===== BLOG POST MODAL ===== */
-async function openBlogPost(id) {
-  const data = await loadSiteData();
-  const post = (data?.blogPosts || []).find(p => p.id === id);
-  if (!post) return;
+/* ===== BLOG POST ÖFFNEN (liest direkt aus dem DOM-Element) ===== */
+function openBlogPost(el) {
+  // Blocks aus data-blocks Attribut lesen
+  let blocks = [];
+  try {
+    const raw = el.dataset.blocks;
+    if (raw) blocks = JSON.parse(raw.replace(/&quot;/g, '"'));
+  } catch(e) {}
 
-  const blocks = JSON.parse(post.content || "[]");
-  const blocksHtml = blocks.map(b => {
-    if (b.type === "text")    return `<p style="line-height:1.8;color:var(--text-muted);margin-bottom:1rem;">${b.content}</p>`;
-    if (b.type === "heading") return `<h3 style="font-size:1.5rem;margin:2rem 0 1rem;color:var(--accent);">${b.content}</h3>`;
-    if (b.type === "image")   return `<img src="${b.url}" style="width:100%;border-radius:8px;margin:1.5rem 0;">`;
-    return "";
-  }).join("");
+  // Titel, Datum, Bild aus dem Element lesen
+  const title  = el.querySelector("h2")?.textContent  || "";
+  const date   = el.querySelector("p[style*=accent]")?.textContent || "";
+  const imgEl  = el.querySelector("img");
+  const imgSrc = imgEl?.getAttribute("src") || "";
 
-  const modal = document.createElement("div");
-  modal.className = "modal";
-  modal.setAttribute("aria-modal", "true");
-  modal.style.cssText = "display:flex!important;";
-  modal.innerHTML = `
-    <div class="modal__backdrop" onclick="this.parentElement.remove()"></div>
-    <div class="modal__panel">
-      <button class="modal__close" onclick="this.closest('.modal').remove()">×</button>
-      <h2 class="modal__title">${post.title}</h2>
-      <p style="color:var(--text-muted);margin-bottom:2rem;">📅 ${new Date(post.date).toLocaleDateString("de-DE")}</p>
-      ${blocksHtml}
+  // Blocks rendern
+  function renderBlocks(blocks) {
+    return blocks.map(b => {
+      if (b.type === "text") {
+        const a = b.align === "center" ? "center" : b.align === "right" ? "right" : "left";
+        return `<p style="color:var(--text-muted);line-height:1.9;margin-bottom:1.25rem;text-align:${a};">${b.content}</p>`;
+      }
+      if (b.type === "heading") {
+        const tag = b.size || "h2";
+        const sz  = {h1:"2rem",h2:"1.6rem",h3:"1.3rem"}[tag] || "1.5rem";
+        return `<${tag} style="font-size:${sz};color:var(--text);font-weight:700;margin:2rem 0 0.75rem;">${b.content}</${tag}>`;
+      }
+      if (b.type === "image") {
+        const pos = b.position || "full";
+        const w   = b.width || "100";
+        const s   = pos === "left"  ? `float:left;width:${w}%;margin:0 1.5rem 1rem 0;`
+                  : pos === "right" ? `float:right;width:${w}%;margin:0 0 1rem 1.5rem;`
+                  :                   `width:${w}%;display:block;margin:0 auto;`;
+        return `<figure style="margin:1.5rem 0;${pos==="full"?"clear:both;":""}">
+          <img src="${b.url}" style="${s}border-radius:10px;max-width:100%;">
+          ${b.caption ? `<figcaption style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;clear:both;">${b.caption}</figcaption>` : ""}
+        </figure>`;
+      }
+      if (b.type === "divider") return `<hr style="border:none;border-top:1px solid var(--border);margin:2rem 0;clear:both;">`;
+      return "";
+    }).join("");
+  }
+
+  // Overlay erstellen
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;backdrop-filter:blur(6px);opacity:0;transition:opacity 0.25s;";
+  overlay.onclick = (e) => { if (e.target === overlay) closeOverlay(); };
+
+  const panel = document.createElement("div");
+  panel.style.cssText = "background:var(--bg);border:1px solid var(--border);border-radius:16px;max-width:720px;width:100%;transform:translateY(20px);transition:transform 0.25s;overflow:hidden;margin-bottom:2rem;";
+
+  panel.innerHTML = `
+    ${imgSrc ? `<img src="${imgSrc}" style="width:100%;max-height:360px;object-fit:cover;display:block;">` : ""}
+    <div style="padding:2rem;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;">
+        <div>
+          <h2 style="margin:0 0 0.4rem;color:var(--text);font-size:1.75rem;line-height:1.2;">${title}</h2>
+          <p style="color:var(--accent);font-size:0.85rem;margin:0;">${date}</p>
+        </div>
+        <button id="close-blog-modal"
+          style="background:rgba(255,255,255,0.08);border:1px solid var(--border);color:var(--text);
+                 width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;
+                 flex-shrink:0;margin-left:1rem;display:flex;align-items:center;justify-content:center;">×</button>
+      </div>
+      <div style="line-height:1.9;">${renderBlocks(blocks)}</div>
     </div>`;
-  document.body.appendChild(modal);
+
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+
+  function closeOverlay() {
+    overlay.style.opacity = "0";
+    panel.style.transform = "translateY(20px)";
+    setTimeout(() => overlay.remove(), 250);
+  }
+
+  panel.querySelector("#close-blog-modal").onclick = closeOverlay;
+
+  requestAnimationFrame(() => {
+    overlay.style.opacity = "1";
+    panel.style.transform = "translateY(0)";
+  });
+
+  document.addEventListener("keydown", function esc(e) {
+    if (e.key === "Escape") { closeOverlay(); document.removeEventListener("keydown", esc); }
+  });
 }
 
 /* ===== INIT ===== */
@@ -223,4 +282,15 @@ window.addEventListener("load", () => {
   if (document.getElementById("page-content"))  initAboutPage();
   if (document.getElementById("gallery-grid"))  initGalleryPage();
   if (document.getElementById("blog-grid"))     initBlogPage();
+});
+
+/* ===== BLOG: Alle Posts anklickbar machen (Fallback) ===== */
+document.addEventListener("DOMContentLoaded", () => {
+  if (!document.getElementById("blog-grid")) return;
+  document.querySelectorAll("article[data-postid]").forEach(el => {
+    if (!el.getAttribute("onclick")) {
+      el.style.cursor = "pointer";
+      el.addEventListener("click", () => openBlogPost(el));
+    }
+  });
 });
