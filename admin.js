@@ -7,6 +7,8 @@ const PASSWORD = "admin123"; // ⚠️ ÄNDERE DAS!
 let authToken = "";
 let siteData = null;
 
+console.log("✅ admin.js loaded");
+
 // ===== AUTH =====
 function initAuth() {
   const stored = localStorage.getItem("admin_token");
@@ -34,11 +36,12 @@ document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
 });
 
 async function loginSuccess() {
+  console.log("✅ Login erfolgreich!");
   document.getElementById("loginScreen").classList.add("hidden");
   document.getElementById("adminPanel").classList.remove("hidden");
   await loadSiteData();
   initTabs();
-  initEventListeners();
+  initAllEventListeners();
 }
 
 document.getElementById("logoutBtn")?.addEventListener("click", () => {
@@ -51,12 +54,13 @@ async function loadSiteData() {
   try {
     showStatus("main-status", "⏳ Lade Daten...", "loading");
     
-    const res = await fetch(`${GITHUB_RAW}/site-data.json?t=${Date.now()}`);
+    const res = await fetch(`${GITHUB_RAW}/site-data.json?t=${Date.now()}`, {
+      cache: "no-store"
+    });
     if (!res.ok) throw new Error(`GitHub HTTP ${res.status}`);
     
     siteData = await res.json();
     console.log("✅ site-data.json geladen:", siteData);
-    console.log("📝 Catchphrase:", siteData.catchphrase);
     
     populateAllFields();
     showStatus("main-status", "✅ Daten geladen!", "success");
@@ -68,49 +72,46 @@ async function loadSiteData() {
 
 // ===== POPULATE ALL FIELDS =====
 function populateAllFields() {
+  console.log("🔄 Fülle alle Felder...");
+  
   if (!siteData) {
-    console.warn("⚠️ siteData ist null!");
+    console.error("❌ siteData ist null!");
     return;
   }
   
-  console.log("🔄 Fülle Felder...");
-  
   // HAUPTSEITE
-  const name = siteData.name || "";
-  const badge = siteData.badge || "";
-  const tags = (siteData.tags || []).join(", ");
-  const catchphrase = siteData.catchphrase || "";
-  const bio = siteData.bio || "";
-  const bio1 = siteData.bio1 || "";
-  const bio2 = siteData.bio2 || "";
-  
-  console.log("📋 Name:", name);
-  console.log("🏷️ Badge:", badge);
-  console.log("🎨 Tags:", tags);
-  console.log("💬 Catchphrase:", catchphrase);
-  console.log("📝 Bio:", bio);
-  
-  document.getElementById("ed-name").value = name;
-  document.getElementById("ed-badge").value = badge;
-  document.getElementById("ed-tags").value = tags;
-  document.getElementById("ed-catchphrase").value = catchphrase;
-  document.getElementById("ed-bio").value = bio;
-  document.getElementById("ed-bio1").value = bio1;
-  document.getElementById("ed-bio2").value = bio2;
-  
-  document.getElementById("ed-factName").value = siteData.factName || "";
-  document.getElementById("ed-factAge").value = siteData.factAge || "";
-  document.getElementById("ed-factHeight").value = siteData.factHeight || "";
-  document.getElementById("ed-factOrigin").value = siteData.factOrigin || "";
+  try {
+    document.getElementById("ed-name").value = siteData.name || "";
+    document.getElementById("ed-badge").value = siteData.badge || "";
+    document.getElementById("ed-tags").value = (siteData.tags || []).join(", ");
+    document.getElementById("ed-catchphrase").value = siteData.catchphrase || "";
+    document.getElementById("ed-bio").value = siteData.bio || "";
+    document.getElementById("ed-bio1").value = siteData.bio1 || "";
+    document.getElementById("ed-bio2").value = siteData.bio2 || "";
+    
+    document.getElementById("ed-factName").value = siteData.factName || "";
+    document.getElementById("ed-factAge").value = siteData.factAge || "";
+    document.getElementById("ed-factHeight").value = siteData.factHeight || "";
+    document.getElementById("ed-factOrigin").value = siteData.factOrigin || "";
+    
+    console.log("✅ Hauptseite-Felder gefüllt");
+  } catch (e) {
+    console.error("❌ Fehler beim Füllen Hauptseite:", e);
+  }
   
   // LINKS & KOLLEGEN
   populateLinksTab();
   
   // ABOUT
-  const about = siteData.pages?.about || {};
-  document.getElementById("ed-about-title").value = about.title || "";
-  document.getElementById("ed-about-subtitle").value = about.subtitle || "";
-  document.getElementById("ed-about-content").value = about.content || "";
+  try {
+    const about = siteData.pages?.about || {};
+    document.getElementById("ed-about-title").value = about.title || "";
+    document.getElementById("ed-about-subtitle").value = about.subtitle || "";
+    document.getElementById("ed-about-content").value = about.content || "";
+    console.log("✅ About-Felder gefüllt");
+  } catch (e) {
+    console.error("❌ Fehler beim Füllen About:", e);
+  }
   
   // GALLERY
   populateGalleryTab();
@@ -119,9 +120,12 @@ function populateAllFields() {
   populateBlogList();
   
   // MODALS
-  document.getElementById("ed-contact-text").value = siteData.contactText || "";
-  
-  console.log("✅ Alle Felder gefüllt!");
+  try {
+    document.getElementById("ed-contact-text").value = siteData.contactText || "";
+    console.log("✅ Modals-Felder gefüllt");
+  } catch (e) {
+    console.error("❌ Fehler beim Füllen Modals:", e);
+  }
 }
 
 // ===== LINKS TAB =====
@@ -151,6 +155,7 @@ function populateLinksTab() {
   }
   
   populateCollabs();
+  console.log("✅ Links-Tab gefüllt");
 }
 
 function populateCollabs() {
@@ -195,59 +200,6 @@ document.getElementById("add-collab-btn")?.addEventListener("click", () => {
   populateCollabs();
 });
 
-// ===== SAVE HAUPTSEITE =====
-document.getElementById("save-main-btn")?.addEventListener("click", async () => {
-  siteData.name = document.getElementById("ed-name").value;
-  siteData.badge = document.getElementById("ed-badge").value;
-  siteData.tags = document.getElementById("ed-tags").value.split(",").map(t => t.trim()).filter(t => t);
-  siteData.catchphrase = document.getElementById("ed-catchphrase").value;
-  siteData.bio = document.getElementById("ed-bio").value;
-  siteData.bio1 = document.getElementById("ed-bio1").value;
-  siteData.bio2 = document.getElementById("ed-bio2").value;
-  
-  siteData.factName = document.getElementById("ed-factName").value;
-  siteData.factAge = document.getElementById("ed-factAge").value;
-  siteData.factHeight = document.getElementById("ed-factHeight").value;
-  siteData.factOrigin = document.getElementById("ed-factOrigin").value;
-  
-  await saveToGitHub("main-status");
-});
-
-// ===== SAVE LINKS =====
-document.getElementById("save-links-btn")?.addEventListener("click", async () => {
-  document.querySelectorAll(".link-label").forEach(input => {
-    const key = input.dataset.key;
-    if (siteData.links[key]) siteData.links[key].label = input.value;
-  });
-  
-  document.querySelectorAll(".link-hint").forEach(input => {
-    const key = input.dataset.key;
-    if (siteData.links[key]) siteData.links[key].hint = input.value;
-  });
-  
-  siteData.collabs = [];
-  document.querySelectorAll(".collab-name").forEach(input => {
-    const idx = input.dataset.idx;
-    const name = input.value;
-    const url = document.querySelector(`.collab-url[data-idx="${idx}"]`)?.value || "";
-    if (name || url) siteData.collabs.push({ name, url });
-  });
-  
-  await saveToGitHub("links-status");
-});
-
-// ===== SAVE ABOUT =====
-document.getElementById("save-about-btn")?.addEventListener("click", async () => {
-  if (!siteData.pages) siteData.pages = {};
-  if (!siteData.pages.about) siteData.pages.about = {};
-  
-  siteData.pages.about.title = document.getElementById("ed-about-title").value;
-  siteData.pages.about.subtitle = document.getElementById("ed-about-subtitle").value;
-  siteData.pages.about.content = document.getElementById("ed-about-content").value;
-  
-  await saveToGitHub("about-status");
-});
-
 // ===== GALLERY =====
 function populateGalleryTab() {
   const container = document.getElementById("gallery-container");
@@ -283,6 +235,8 @@ function populateGalleryTab() {
     `;
     container.appendChild(div);
   });
+  
+  console.log("✅ Gallery-Tab gefüllt");
 }
 
 function removeGalleryItem(idx) {
@@ -297,25 +251,6 @@ document.getElementById("add-gallery-btn")?.addEventListener("click", () => {
   if (!siteData.pages.gallery) siteData.pages.gallery = { items: [] };
   siteData.pages.gallery.items.push({ image: "", title: "", description: "" });
   populateGalleryTab();
-});
-
-document.getElementById("save-gallery-btn")?.addEventListener("click", async () => {
-  if (!siteData.pages) siteData.pages = {};
-  if (!siteData.pages.gallery) siteData.pages.gallery = { items: [] };
-  
-  siteData.pages.gallery.items = [];
-  document.querySelectorAll(".gallery-image").forEach(input => {
-    const idx = input.dataset.idx;
-    const image = input.value;
-    const title = document.querySelector(`.gallery-title[data-idx="${idx}"]`)?.value || "";
-    const description = document.querySelector(`.gallery-desc[data-idx="${idx}"]`)?.value || "";
-    
-    if (image) {
-      siteData.pages.gallery.items.push({ image, title, description });
-    }
-  });
-  
-  await saveToGitHub("gallery-status");
 });
 
 // ===== BLOG =====
@@ -341,65 +276,9 @@ function populateBlogList() {
   } else {
     list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Noch keine Posts</p>';
   }
+  
+  console.log("✅ Blog-List gefüllt");
 }
-
-document.getElementById("create-blog-btn")?.addEventListener("click", async () => {
-  const title = document.getElementById("new-blog-title").value;
-  const date = document.getElementById("new-blog-date").value;
-  const excerpt = document.getElementById("new-blog-excerpt").value;
-  const image = document.getElementById("new-blog-image").value;
-  
-  if (!title || !date || !excerpt) {
-    showStatus("blog-status", "❌ Bitte Titel, Datum und Excerpt ausfüllen!", "error");
-    return;
-  }
-  
-  const blocks = [];
-  document.querySelectorAll(".blog-block").forEach(block => {
-    const type = block.dataset.type;
-    
-    if (type === "text") {
-      const content = block.querySelector("textarea").value;
-      if (content) blocks.push({ type: "text", content });
-    } else if (type === "heading") {
-      const content = block.querySelector("input").value;
-      if (content) blocks.push({ type: "heading", content });
-    } else if (type === "image") {
-      const url = block.querySelector(".image-url").value;
-      if (url) {
-        blocks.push({
-          type: "image",
-          url,
-          position: block.querySelector(".image-position").value || "left",
-          width: block.querySelector(".image-width").value || "50"
-        });
-      }
-    }
-  });
-  
-  const post = {
-    id: Date.now(),
-    title,
-    date,
-    excerpt,
-    image: image || "",
-    content: JSON.stringify(blocks)
-  };
-  
-  if (!siteData.blogPosts) siteData.blogPosts = [];
-  siteData.blogPosts.push(post);
-  
-  await saveToGitHub("blog-status");
-  
-  document.getElementById("new-blog-title").value = "";
-  document.getElementById("new-blog-date").value = "";
-  document.getElementById("new-blog-excerpt").value = "";
-  document.getElementById("new-blog-image").value = "";
-  document.getElementById("blog-blocks-container").innerHTML = "";
-  
-  populateBlogList();
-  showStatus("blog-status", "✅ Post erstellt!", "success");
-});
 
 function addBlogBlock(type) {
   const container = document.getElementById("blog-blocks-container");
@@ -452,15 +331,10 @@ function deleteBlogPost(id) {
   }
 }
 
-// ===== SAVE MODALS =====
-document.getElementById("save-modals-btn")?.addEventListener("click", async () => {
-  siteData.contactText = document.getElementById("ed-contact-text").value;
-  await saveToGitHub("modals-status");
-});
-
 // ===== SAVE TO GITHUB =====
 async function saveToGitHub(statusId) {
   try {
+    console.log("💾 Speichere zu GitHub...", siteData);
     showStatus(statusId, "⏳ Speichert zu GitHub...", "loading");
     
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(siteData, null, 2))));
@@ -491,20 +365,220 @@ async function saveToGitHub(statusId) {
     
     if (!updateRes.ok) throw new Error("GitHub Update fehlgeschlagen");
     
-    showStatus(statusId, "✅ Gespeichert! Seite neuladen für Updates...", "success");
+    showStatus(statusId, "✅ Gespeichert! Seite wird neugeladen...", "success");
     console.log("✅ Zu GitHub gepusht!");
+    
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+    
   } catch (e) {
     showStatus(statusId, `❌ Fehler: ${e.message}`, "error");
     console.error(e);
   }
 }
 
+// ===== ALL EVENT LISTENERS =====
+function initAllEventListeners() {
+  console.log("🔌 Initialisiere alle Event Listener...");
+  
+  // HAUPTSEITE SAVE
+  const saveMainBtn = document.getElementById("save-main-btn");
+  if (saveMainBtn) {
+    saveMainBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      console.log("💾 Speichere Hauptseite...");
+      
+      siteData.name = document.getElementById("ed-name").value;
+      siteData.badge = document.getElementById("ed-badge").value;
+      siteData.tags = document.getElementById("ed-tags").value.split(",").map(t => t.trim()).filter(t => t);
+      siteData.catchphrase = document.getElementById("ed-catchphrase").value;
+      siteData.bio = document.getElementById("ed-bio").value;
+      siteData.bio1 = document.getElementById("ed-bio1").value;
+      siteData.bio2 = document.getElementById("ed-bio2").value;
+      
+      siteData.factName = document.getElementById("ed-factName").value;
+      siteData.factAge = document.getElementById("ed-factAge").value;
+      siteData.factHeight = document.getElementById("ed-factHeight").value;
+      siteData.factOrigin = document.getElementById("ed-factOrigin").value;
+      
+      console.log("✅ Werte aktualisiert:", siteData);
+      saveToGitHub("main-status");
+    });
+  } else {
+    console.warn("⚠️ save-main-btn nicht gefunden!");
+  }
+  
+  // LINKS SAVE
+  const saveLinksBtn = document.getElementById("save-links-btn");
+  if (saveLinksBtn) {
+    saveLinksBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      console.log("💾 Speichere Links...");
+      
+      document.querySelectorAll(".link-label").forEach(input => {
+        const key = input.dataset.key;
+        if (siteData.links[key]) siteData.links[key].label = input.value;
+      });
+      
+      document.querySelectorAll(".link-hint").forEach(input => {
+        const key = input.dataset.key;
+        if (siteData.links[key]) siteData.links[key].hint = input.value;
+      });
+      
+      siteData.collabs = [];
+      document.querySelectorAll(".collab-name").forEach(input => {
+        const idx = input.dataset.idx;
+        const name = input.value;
+        const url = document.querySelector(`.collab-url[data-idx="${idx}"]`)?.value || "";
+        if (name || url) siteData.collabs.push({ name, url });
+      });
+      
+      console.log("✅ Links aktualisiert:", siteData);
+      saveToGitHub("links-status");
+    });
+  }
+  
+  // ABOUT SAVE
+  const saveAboutBtn = document.getElementById("save-about-btn");
+  if (saveAboutBtn) {
+    saveAboutBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      console.log("💾 Speichere About...");
+      
+      if (!siteData.pages) siteData.pages = {};
+      if (!siteData.pages.about) siteData.pages.about = {};
+      
+      siteData.pages.about.title = document.getElementById("ed-about-title").value;
+      siteData.pages.about.subtitle = document.getElementById("ed-about-subtitle").value;
+      siteData.pages.about.content = document.getElementById("ed-about-content").value;
+      
+      console.log("✅ About aktualisiert:", siteData);
+      saveToGitHub("about-status");
+    });
+  }
+  
+  // GALLERY SAVE
+  const saveGalleryBtn = document.getElementById("save-gallery-btn");
+  if (saveGalleryBtn) {
+    saveGalleryBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      console.log("💾 Speichere Gallery...");
+      
+      if (!siteData.pages) siteData.pages = {};
+      if (!siteData.pages.gallery) siteData.pages.gallery = { items: [] };
+      
+      siteData.pages.gallery.items = [];
+      document.querySelectorAll(".gallery-image").forEach(input => {
+        const idx = input.dataset.idx;
+        const image = input.value;
+        const title = document.querySelector(`.gallery-title[data-idx="${idx}"]`)?.value || "";
+        const description = document.querySelector(`.gallery-desc[data-idx="${idx}"]`)?.value || "";
+        
+        if (image) {
+          siteData.pages.gallery.items.push({ image, title, description });
+        }
+      });
+      
+      console.log("✅ Gallery aktualisiert:", siteData);
+      saveToGitHub("gallery-status");
+    });
+  }
+  
+  // MODALS SAVE
+  const saveModalsBtn = document.getElementById("save-modals-btn");
+  if (saveModalsBtn) {
+    saveModalsBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      console.log("💾 Speichere Modals...");
+      
+      siteData.contactText = document.getElementById("ed-contact-text").value;
+      
+      console.log("✅ Modals aktualisiert:", siteData);
+      saveToGitHub("modals-status");
+    });
+  }
+  
+  // BLOG BUTTONS
+  document.getElementById("add-text-block-btn")?.addEventListener("click", () => addBlogBlock("text"));
+  document.getElementById("add-heading-block-btn")?.addEventListener("click", () => addBlogBlock("heading"));
+  document.getElementById("add-image-block-btn")?.addEventListener("click", () => addBlogBlock("image"));
+  
+  document.getElementById("create-blog-btn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    console.log("✍️ Erstelle Blog Post...");
+    
+    const title = document.getElementById("new-blog-title").value;
+    const date = document.getElementById("new-blog-date").value;
+    const excerpt = document.getElementById("new-blog-excerpt").value;
+    const image = document.getElementById("new-blog-image").value;
+    
+    if (!title || !date || !excerpt) {
+      showStatus("blog-status", "❌ Bitte Titel, Datum und Excerpt ausfüllen!", "error");
+      return;
+    }
+    
+    const blocks = [];
+    document.querySelectorAll(".blog-block").forEach(block => {
+      const type = block.dataset.type;
+      
+      if (type === "text") {
+        const content = block.querySelector("textarea").value;
+        if (content) blocks.push({ type: "text", content });
+      } else if (type === "heading") {
+        const content = block.querySelector("input").value;
+        if (content) blocks.push({ type: "heading", content });
+      } else if (type === "image") {
+        const url = block.querySelector(".image-url").value;
+        if (url) {
+          blocks.push({
+            type: "image",
+            url,
+            position: block.querySelector(".image-position").value || "left",
+            width: block.querySelector(".image-width").value || "50"
+          });
+        }
+      }
+    });
+    
+    const post = {
+      id: Date.now(),
+      title,
+      date,
+      excerpt,
+      image: image || "",
+      content: JSON.stringify(blocks)
+    };
+    
+    if (!siteData.blogPosts) siteData.blogPosts = [];
+    siteData.blogPosts.push(post);
+    
+    console.log("✅ Blog Post erstellt:", post);
+    
+    saveToGitHub("blog-status").then(() => {
+      document.getElementById("new-blog-title").value = "";
+      document.getElementById("new-blog-date").value = "";
+      document.getElementById("new-blog-excerpt").value = "";
+      document.getElementById("new-blog-image").value = "";
+      document.getElementById("blog-blocks-container").innerHTML = "";
+      
+      populateBlogList();
+    });
+  });
+  
+  console.log("✅ Alle Event Listener initialisiert!");
+}
+
 // ===== HELPER =====
 function showStatus(id, msg, type) {
   const el = document.getElementById(id);
-  if (!el) return;
+  if (!el) {
+    console.warn(`⚠️ Status-Element #${id} nicht gefunden!`);
+    return;
+  }
   el.textContent = msg;
   el.className = `status show ${type}`;
+  console.log(`📢 Status: ${msg}`);
   setTimeout(() => el.classList.remove("show"), 6000);
 }
 
@@ -515,16 +589,18 @@ function initTabs() {
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
       
       btn.classList.add("active");
-      document.getElementById(`${btn.dataset.tab}-tab`)?.classList.add("active");
+      const tabName = btn.dataset.tab;
+      const tabContent = document.getElementById(`${tabName}-tab`);
+      if (tabContent) {
+        tabContent.classList.add("active");
+        console.log(`📑 Tab gewechselt: ${tabName}`);
+      }
     });
   });
 }
 
-function initEventListeners() {
-  document.getElementById("add-text-block-btn")?.addEventListener("click", () => addBlogBlock("text"));
-  document.getElementById("add-heading-block-btn")?.addEventListener("click", () => addBlogBlock("heading"));
-  document.getElementById("add-image-block-btn")?.addEventListener("click", () => addBlogBlock("image"));
-}
-
 // ===== INIT =====
-document.addEventListener("DOMContentLoaded", initAuth);
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🚀 admin.js initializing...");
+  initAuth();
+});
