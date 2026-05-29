@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Liro — Über mich</title>
-  <meta name="description" content="Erfahre mehr über Liro — VRChat Creator, Streamer und Content Creator.">
+  <meta name="description" content="Mehr über Liro — VRChat Creator, Streamer & Chaos-Agent.">
   <link rel="icon" href="profile.jpg" type="image/jpeg">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +17,7 @@
   <div class="bg-glow bg-glow--2"></div>
   <canvas class="particles" id="particles" aria-hidden="true"></canvas>
 
+  <!-- Navigation -->
   <nav class="nav">
     <div class="nav__inner">
       <a href="/" class="nav__logo">🦊 Liro</a>
@@ -31,57 +32,10 @@
     </div>
   </nav>
 
-  <main class="page page--wide">
-    <div class="about-hero">
-      <h1 class="about-hero__title" id="page-title">Über mich</h1>
-      <p class="about-hero__subtitle" id="page-subtitle">VRChat Creator, Streamer & Chaos-Agent</p>
-    </div>
-
-    <div class="about-content">
-      <div class="about-content__text" id="page-content"><p>Lade Inhalt...</p></div>
-      <div class="about-content__img"><img src="profile.jpg" alt="Liro Avatar" loading="lazy"></div>
-    </div>
-
-    <section class="ao-section">
-      <h2 class="ao-section__title">Steckbrief</h2>
-      <div class="ao-facts">
-        <div class="ao-fact"><span class="ao-fact__label">Name</span><span class="ao-fact__val" id="fact-name">—</span></div>
-        <div class="ao-fact"><span class="ao-fact__label">Alter</span><span class="ao-fact__val" id="fact-age">—</span></div>
-        <div class="ao-fact"><span class="ao-fact__label">Größe</span><span class="ao-fact__val" id="fact-height">—</span></div>
-        <div class="ao-fact"><span class="ao-fact__label">Herkunft</span><span class="ao-fact__val" id="fact-origin">—</span></div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modals -->
-  <div class="modal" id="modal-about" hidden aria-modal="true" role="dialog">
-    <div class="modal__backdrop"></div>
-    <div class="modal__panel">
-      <button class="modal__close" data-modal-close>×</button>
-      <h2 class="modal__title">Über mich</h2>
-      <div id="modal-about-content">Lädt...</div>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-collabs" hidden aria-modal="true" role="dialog">
-    <div class="modal__backdrop"></div>
-    <div class="modal__panel">
-      <button class="modal__close" data-modal-close>×</button>
-      <h2 class="modal__title">Kollegen & Freunde</h2>
-      <ul class="collab-list" id="collab-list"><li>Lädt...</li></ul>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-contact" hidden aria-modal="true" role="dialog">
-    <div class="modal__backdrop"></div>
-    <div class="modal__panel">
-      <button class="modal__close" data-modal-close>×</button>
-      <h2 class="modal__title">Kontakt</h2>
-      <div>
-        <p><strong>E-Mail:</strong> <a id="contact-email" href="mailto:liro.lol007@gmail.com">Liro.lol007@gmail.com</a></p>
-        <p><strong>Discord:</strong> Schreib mich an oder tritt unserem Server bei!</p>
-        <p><strong>Telegram:</strong> @Liro025</p>
-      </div>
+  <!-- Main Content -->
+  <div style="max-width: 900px; margin: 3rem auto; padding: 0 1.5rem;">
+    <div id="page-content">
+      <h2 style="color: var(--text-muted); margin-bottom: 1rem;">Lädt...</h2>
     </div>
   </div>
 
