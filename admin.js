@@ -207,18 +207,20 @@ function galleryItemHTML(image, title, desc) {
 function parseGallery(html) {
   const container = document.getElementById("gallery-container");
   container.innerHTML = "";
-  const matches = [...html.matchAll(/src='([^']+)'[^>]*onclick[^>]*openLightbox\('[^']*','([^']*)'\)[\s\S]*?color:var\(--text\);">([^<]*)<\/p><p[^>]*>([^<]*)<\/p><\/div>/g)];
+  
+  // Parsen: src="..." und titel + caption aus gal-item divs
+  const matches = [...html.matchAll(/openLightbox\('([^']+)','([^']*)','([^']*)'\)/g)];
+  
   if (matches.length === 0) {
-    // Fallback: einfach leere Items anzeigen
     addGalleryRow("", "", "");
   } else {
-    matches.forEach(m => addGalleryRow(m[1], m[2], m[4]));
+    matches.forEach(m => addGalleryRow(m[1], m[2], m[3]));
   }
 }
 
 function addGalleryRow(image = "", title = "", desc = "") {
   const container = document.getElementById("gallery-container");
-  const idx = Date.now() + Math.random();
+  const idx = (Date.now() + Math.random()).toString().replace(".", "");
   const div = document.createElement("div");
   div.className = "form-section";
   div.dataset.gallery = idx;
@@ -227,12 +229,26 @@ function addGalleryRow(image = "", title = "", desc = "") {
       <h4 style="margin:0;color:var(--accent);">Bild</h4>
       <button type="button" class="btn btn-small btn-secondary" onclick="this.closest('[data-gallery]').remove()">🗑️</button>
     </div>
+    <div id="drop-gal-${idx}" style="border:2px dashed var(--border);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;margin-bottom:1rem;transition:all 0.3s;color:var(--text-muted);font-size:0.9rem;">
+      📁 Bild hierher ziehen oder klicken zum Hochladen
+      ${image ? `<br><img src="${image}" style="max-height:80px;margin-top:0.5rem;border-radius:4px;">` : ""}
+    </div>
+    <div id="gal-status-${idx}" class="status"></div>
     <div class="form-grid">
       <div class="form-group form-full"><label>Bild-URL oder Dateiname</label><input type="text" class="gal-image" value="${image}" placeholder="z.B. gallery1.png oder https://..."></div>
       <div class="form-group"><label>Titel</label><input type="text" class="gal-title" value="${title}" placeholder="Titel..."></div>
-      <div class="form-group"><label>Beschreibung</label><input type="text" class="gal-desc" value="${desc}" placeholder="Beschreibung..."></div>
+      <div class="form-group"><label>Beschriftung</label><input type="text" class="gal-desc" value="${desc}" placeholder="Kurze Beschriftung..."></div>
     </div>`;
   container.appendChild(div);
+
+  // Drop Zone initialisieren
+  setTimeout(() => {
+    initDropZone(`drop-gal-${idx}`, null, `gal-status-${idx}`, (filename) => {
+      div.querySelector(".gal-image").value = filename;
+      const zone = document.getElementById(`drop-gal-${idx}`);
+      zone.innerHTML = `✅ ${filename} hochgeladen! <br><img src="${filename}" style="max-height:80px;margin-top:0.5rem;border-radius:4px;">`;
+    });
+  }, 100);
 }
 
 function buildGalleryHTML() {
@@ -309,7 +325,28 @@ function addBlock(type) {
   } else if (type === "heading") {
     div.innerHTML = `<div class="blog-block__header"><span class="blog-block__type">📌 Überschrift</span><button type="button" class="blog-block__remove" onclick="this.closest('.blog-block').remove()">×</button></div><input type="text" placeholder="Überschrift...">`;
   } else if (type === "image") {
-    div.innerHTML = `<div class="blog-block__header"><span class="blog-block__type">🖼️ Bild</span><button type="button" class="blog-block__remove" onclick="this.closest('.blog-block').remove()">×</button></div><input type="text" class="block-img-url" placeholder="Bild-URL oder Dateiname..."><input type="text" class="block-img-caption" placeholder="Bildunterschrift (optional)..." style="margin-top:0.5rem;">`;
+    const dropId = "drop-blog-" + Date.now();
+    const statusId = "status-blog-" + Date.now();
+    div.innerHTML = `
+      <div class="blog-block__header">
+        <span class="blog-block__type">🖼️ Bild</span>
+        <button type="button" class="blog-block__remove" onclick="this.closest('.blog-block').remove()">×</button>
+      </div>
+      <div id="${dropId}" style="border:2px dashed var(--border);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;margin-bottom:0.75rem;transition:all 0.3s;color:var(--text-muted);font-size:0.9rem;">
+        📁 Bild hierher ziehen oder klicken
+      </div>
+      <div id="${statusId}" class="status"></div>
+      <input type="text" class="block-img-url" placeholder="Oder URL / Dateiname eingeben..." style="margin-bottom:0.5rem;">
+      <input type="text" class="block-img-caption" placeholder="Bildunterschrift (optional)...">
+    `;
+    container.appendChild(div);
+    setTimeout(() => {
+      initDropZone(dropId, null, statusId, (filename) => {
+        div.querySelector(".block-img-url").value = filename;
+        document.getElementById(dropId).innerHTML = `✅ ${filename} hochgeladen!`;
+      });
+    }, 100);
+    return;
   }
   container.appendChild(div);
 }
@@ -354,6 +391,99 @@ async function saveFile(filename, newContent, sha, statusId) {
     console.error(e);
     return false;
   }
+}
+
+
+// ===== BILD UPLOAD ZU GITHUB =====
+async function uploadImageToGitHub(file, statusId) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const base64 = e.target.result.split(",")[1];
+        const filename = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+        showStatus(statusId, `⏳ Lade ${filename} hoch...`, "loading");
+
+        // Prüfen ob Datei schon existiert (SHA holen)
+        let sha = undefined;
+        try {
+          const check = await fetch(
+            `https://api.github.com/repos/${GITHUB_REPO}/contents/${filename}`,
+            { headers: { Authorization: `token ${authToken}` } }
+          );
+          if (check.ok) {
+            const checkData = await check.json();
+            sha = checkData.sha;
+          }
+        } catch {}
+
+        const body = { message: `📷 Upload ${filename} via Admin Panel`, content: base64, branch: GITHUB_BRANCH };
+        if (sha) body.sha = sha;
+
+        const res = await fetch(
+          `https://api.github.com/repos/${GITHUB_REPO}/contents/${filename}`,
+          {
+            method: "PUT",
+            headers: { Authorization: `token ${authToken}`, "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          }
+        );
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.message);
+        }
+
+        showStatus(statusId, `✅ ${filename} hochgeladen!`, "success");
+        resolve(filename);
+      } catch (e) {
+        showStatus(statusId, `❌ Upload fehlgeschlagen: ${e.message}`, "error");
+        reject(e);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ===== DRAG & DROP INITIALISIEREN =====
+function initDropZone(zoneId, previewId, statusId, onUploaded) {
+  const zone = document.getElementById(zoneId);
+  if (!zone) return;
+
+  zone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    zone.style.borderColor = "var(--accent)";
+    zone.style.background = "rgba(239,68,68,0.08)";
+  });
+  zone.addEventListener("dragleave", () => {
+    zone.style.borderColor = "";
+    zone.style.background = "";
+  });
+  zone.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    zone.style.borderColor = "";
+    zone.style.background = "";
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith("image/")) {
+      showStatus(statusId, "❌ Nur Bilder erlaubt!", "error");
+      return;
+    }
+    const filename = await uploadImageToGitHub(file, statusId);
+    if (filename && onUploaded) onUploaded(filename);
+  });
+  zone.addEventListener("click", () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const filename = await uploadImageToGitHub(file, statusId);
+      if (filename && onUploaded) onUploaded(filename);
+    };
+    input.click();
+  });
 }
 
 // ===== ALLE BUTTONS INITIALISIEREN =====
