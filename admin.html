@@ -3,9 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>Liro — Admin Panel</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="profile.jpg" type="image/jpeg">
@@ -14,74 +11,47 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    .admin-login { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-    .admin-login.hidden { display: none; }
-    .login-box { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; max-width: 450px; width: 100%; animation: slideUp 0.3s ease; }
-    .login-box h2 { font-size: 1.75rem; margin-bottom: 0.5rem; color: var(--text); font-weight: 700; }
-    .login-box p { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.95rem; }
-    
-    .admin-container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; min-height: 100vh; position: relative; z-index: 1; }
-    .admin-container.hidden { display: none; }
-    
-    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-    .admin-header h1 { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, var(--text), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .admin-header__actions { display: flex; gap: 1rem; }
-    
-    .form-group { margin-bottom: 1.25rem; }
-    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--text); }
-    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.85rem; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: inherit; font-size: 0.9rem; transition: all 0.3s; }
-    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; background: rgba(255,255,255,0.08); border-color: var(--accent); box-shadow: 0 0 10px rgba(239, 68, 68, 0.1); }
-    .form-group textarea { resize: vertical; min-height: 120px; }
-    
-    .btn { padding: 0.85rem 1.5rem; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.5rem; }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-secondary { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
-    .btn-secondary:hover { background: rgba(239, 68, 68, 0.1); }
-    .btn-small { padding: 0.5rem 1rem; font-size: 0.8rem; }
-    
-    .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border); overflow-x: auto; flex-wrap: wrap; }
-    .tab-btn { padding: 0.85rem 1.2rem; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); cursor: pointer; font-weight: 600; transition: all 0.3s; font-size: 0.9rem; white-space: nowrap; }
-    .tab-btn:hover { color: var(--text); }
-    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-    
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    
-    .status { padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; display: none; animation: slideUp 0.3s ease; border-left: 4px solid; }
-    .status.show { display: block; }
-    .status.success { background: rgba(34, 197, 94, 0.1); border-color: #22c55e; color: #22c55e; }
-    .status.error { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; color: #ef4444; }
-    .status.loading { background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; color: #3b82f6; }
-    
-    .form-section { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 12px; padding: 1.75rem; margin-bottom: 1.75rem; }
-    .form-section h3 { margin-bottom: 1.25rem; color: var(--accent); font-size: 1.15rem; font-weight: 700; }
-    .form-section h4 { margin-bottom: 0.75rem; color: var(--text); font-size: 1rem; font-weight: 600; }
-    
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-    .form-full { grid-column: 1 / -1; }
-    
-    .blog-block { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; position: relative; }
-    .blog-block__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .blog-block__type { font-weight: 600; color: var(--accent); font-size: 0.9rem; }
-    .blog-block__remove { background: transparent; border: none; color: #ff6b6b; cursor: pointer; font-size: 1.2rem; padding: 0; transition: all 0.2s; }
-    .blog-block__remove:hover { transform: scale(1.2); }
-    
-    .blog-card { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
-    .blog-card h4 { margin-bottom: 0.5rem; color: var(--text); }
-    .blog-card p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
-    
-    .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .link-section { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
-    .link-section h4 { margin-bottom: 1rem; color: var(--accent); }
-    
-    @media (max-width: 768px) {
-      .admin-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
-      .admin-header__actions { width: 100%; flex-direction: column; }
-      .form-grid { grid-template-columns: 1fr; }
-      .tabs { gap: 0.25rem; }
-      .tab-btn { padding: 0.6rem 0.9rem; font-size: 0.8rem; }
-    }
+    .admin-login{position:fixed;inset:0;background:rgba(0,0,0,0.97);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;}
+    .admin-login.hidden{display:none;}
+    .login-box{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:16px;padding:2.5rem;max-width:420px;width:100%;}
+    .login-box h2{font-size:1.75rem;margin-bottom:0.5rem;color:var(--text);font-weight:700;}
+    .login-box p{color:var(--text-muted);margin-bottom:2rem;}
+    .admin-wrap{max-width:1100px;margin:0 auto;padding:2rem 1.5rem;position:relative;z-index:1;}
+    .admin-wrap.hidden{display:none;}
+    .admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);}
+    .admin-header h1{font-size:2rem;font-weight:700;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .form-group{margin-bottom:1.25rem;}
+    .form-group label{display:block;margin-bottom:0.5rem;font-weight:600;font-size:0.9rem;color:var(--text);}
+    .form-group input,.form-group textarea,.form-group select{width:100%;padding:0.85rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:0.9rem;transition:all 0.3s;}
+    .form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 10px rgba(239,68,68,0.1);}
+    .form-group textarea{resize:vertical;min-height:110px;}
+    .btn{padding:0.85rem 1.5rem;background:var(--accent);color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.3s;font-size:0.9rem;display:inline-flex;align-items:center;gap:0.5rem;}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(239,68,68,0.3);}
+    .btn-secondary{background:transparent;border:1px solid var(--accent);color:var(--accent);}
+    .btn-secondary:hover{background:rgba(239,68,68,0.1);}
+    .btn-small{padding:0.5rem 1rem;font-size:0.8rem;}
+    .tabs{display:flex;gap:0.5rem;margin-bottom:2rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+    .tab-btn{padding:0.85rem 1.1rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-muted);cursor:pointer;font-weight:600;transition:all 0.3s;font-size:0.85rem;white-space:nowrap;}
+    .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .tab-content{display:none;}
+    .tab-content.active{display:block;}
+    .status{padding:1rem 1.25rem;border-radius:8px;margin-bottom:1.5rem;display:none;border-left:4px solid;}
+    .status.show{display:block;}
+    .status.success{background:rgba(34,197,94,0.1);border-color:#22c55e;color:#22c55e;}
+    .status.error{background:rgba(239,68,68,0.1);border-color:#ef4444;color:#ef4444;}
+    .status.loading{background:rgba(59,130,246,0.1);border-color:#3b82f6;color:#3b82f6;}
+    .form-section{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:1.75rem;}
+    .form-section h3{margin-bottom:1.25rem;color:var(--accent);font-size:1.1rem;font-weight:700;}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+    .form-full{grid-column:1/-1;}
+    .blog-block{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1rem;}
+    .blog-block__header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+    .blog-block__type{font-weight:600;color:var(--accent);font-size:0.9rem;}
+    .blog-block__remove{background:transparent;border:none;color:#ff6b6b;cursor:pointer;font-size:1.3rem;padding:0;}
+    .blog-card{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:1rem;}
+    .blog-card h4{margin-bottom:0.5rem;color:var(--text);}
+    .btn-group{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1rem;}
+    @media(max-width:768px){.admin-header{flex-direction:column;gap:1rem;}.form-grid{grid-template-columns:1fr;}.tabs{gap:0.25rem;}.tab-btn{padding:0.6rem 0.8rem;font-size:0.75rem;}}
   </style>
 </head>
 <body>
@@ -90,11 +60,11 @@
   <div class="bg-glow bg-glow--2"></div>
   <canvas class="particles" id="particles" aria-hidden="true"></canvas>
 
-  <!-- LOGIN SCREEN -->
-  <div class="admin-login" id="loginScreen">
+  <!-- LOGIN -->
+  <div class="admin-login hidden" id="loginScreen">
     <div class="login-box">
       <h2>🦊 Admin Panel</h2>
-      <p>Verwalte deine Website komplett</p>
+      <p>Nur für Liro — Login erforderlich</p>
       <form id="loginForm">
         <div class="form-group">
           <label>Passwort</label>
@@ -105,217 +75,189 @@
           <input type="password" id="token" required placeholder="GitHub Personal Access Token">
         </div>
         <div class="form-group">
-          <button type="submit" class="btn" style="width: 100%; justify-content: center;">🔓 Anmelden</button>
+          <button type="submit" class="btn" style="width:100%;justify-content:center;">🔓 Einloggen</button>
         </div>
-        <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted);">
-          <input type="checkbox" id="rememberMe">
-          Eingeloggt bleiben
+        <label style="font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;color:var(--text-muted);cursor:pointer;">
+          <input type="checkbox" id="rememberMe"> Token merken
         </label>
       </form>
     </div>
   </div>
 
   <!-- ADMIN PANEL -->
-  <div class="admin-container hidden" id="adminPanel">
+  <div class="admin-wrap hidden" id="adminPanel">
     <div class="admin-header">
       <h1>🦊 Admin Panel</h1>
-      <div class="admin-header__actions">
+      <div style="display:flex;gap:1rem;">
         <a href="/" class="btn btn-secondary">← Website</a>
         <button class="btn btn-secondary" id="logoutBtn">Abmelden</button>
       </div>
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" data-tab="main">🏠 Hauptseite</button>
+      <button class="tab-btn active" data-tab="main">🏠 Profil</button>
       <button class="tab-btn" data-tab="links">🔗 Links</button>
+      <button class="tab-btn" data-tab="collabs">👥 Kollegen</button>
       <button class="tab-btn" data-tab="about">ℹ️ About</button>
       <button class="tab-btn" data-tab="gallery">🖼️ Galerie</button>
       <button class="tab-btn" data-tab="blog">📝 Blog</button>
-      <button class="tab-btn" data-tab="modals">💬 Modals</button>
     </div>
 
-    <!-- TAB: HAUPTSEITE (index.html) -->
+    <!-- PROFIL TAB -->
     <div class="tab-content active" id="main-tab">
       <div id="main-status" class="status"></div>
-      
       <div class="form-section">
         <h3>👤 Profil</h3>
         <div class="form-grid">
-          <div class="form-group">
-            <label>Name</label>
-            <input type="text" id="ed-name" placeholder="z.B. Liro">
-          </div>
-          <div class="form-group">
-            <label>Badge</label>
-            <input type="text" id="ed-badge" placeholder="z.B. VRChat Creator">
-          </div>
-          <div class="form-group">
-            <label>Catchphrase</label>
-            <input type="text" id="ed-catchphrase" placeholder="z.B. So ein Furry oder so... :3">
-          </div>
-          <div class="form-group">
-            <label>Bio (Kurztext)</label>
-            <input type="text" id="ed-bio" placeholder="z.B. VRChat · Streams · Content">
-          </div>
-          <div class="form-group form-full">
-            <label>Tags (kommagetrennt)</label>
-            <input type="text" id="ed-tags" placeholder="z.B. 🦊 Fox, VR, DE, Meow :3">
-          </div>
+          <div class="form-group"><label>Name</label><input type="text" id="ed-name" placeholder="Liro"></div>
+          <div class="form-group"><label>Badge</label><input type="text" id="ed-badge" placeholder="VRChat Creator"></div>
+          <div class="form-group"><label>Catchphrase</label><input type="text" id="ed-catchphrase" placeholder="So ein Furry oder so... :3"></div>
+          <div class="form-group"><label>Bio</label><input type="text" id="ed-bio" placeholder="VRChat · Streams · Content"></div>
+          <div class="form-group form-full"><label>Tags (kommagetrennt)</label><input type="text" id="ed-tags" placeholder="🦊 Fox, VR, DE, Meow :3"></div>
         </div>
       </div>
-
       <div class="form-section">
-        <h3>📝 Bio Text (Über mich Modal)</h3>
-        <div class="form-group">
-          <label>Absatz 1</label>
-          <textarea id="ed-bio1" placeholder="Erster Bio-Text..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Absatz 2</label>
-          <textarea id="ed-bio2" placeholder="Zweiter Bio-Text..."></textarea>
+        <h3>📝 Über mich Text (Modal)</h3>
+        <div class="form-group form-full">
+          <label>Bio Text (HTML erlaubt)</label>
+          <textarea id="ed-bio1" style="min-height:180px;" placeholder="&lt;p&gt;Moin — ich bin Liro...&lt;/p&gt;"></textarea>
         </div>
       </div>
+      <button class="btn" id="save-main-btn">💾 Profil speichern</button>
+    </div>
 
+    <!-- LINKS TAB -->
+    <div class="tab-content" id="links-tab">
+      <div id="links-status" class="status"></div>
+      <div class="form-section">
+        <h3>🔗 Link Labels & Hints</h3>
+        <div id="links-form">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+            <p style="color:var(--accent);font-weight:700;margin-bottom:0.75rem;">TIKTOK</p>
+            <div class="form-grid">
+              <div class="form-group"><label>Label</label><input type="text" id="ed-link-tiktok-label"></div>
+              <div class="form-group"><label>Hint</label><input type="text" id="ed-link-tiktok-hint"></div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+            <p style="color:var(--accent);font-weight:700;margin-bottom:0.75rem;">DISCORD</p>
+            <div class="form-grid">
+              <div class="form-group"><label>Label</label><input type="text" id="ed-link-discord-label"></div>
+              <div class="form-group"><label>Hint</label><input type="text" id="ed-link-discord-hint"></div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+            <p style="color:var(--accent);font-weight:700;margin-bottom:0.75rem;">TWITCH</p>
+            <div class="form-grid">
+              <div class="form-group"><label>Label</label><input type="text" id="ed-link-twitch-label"></div>
+              <div class="form-group"><label>Hint</label><input type="text" id="ed-link-twitch-hint"></div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+            <p style="color:var(--accent);font-weight:700;margin-bottom:0.75rem;">YOUTUBE</p>
+            <div class="form-grid">
+              <div class="form-group"><label>Label</label><input type="text" id="ed-link-youtube-label"></div>
+              <div class="form-group"><label>Hint</label><input type="text" id="ed-link-youtube-hint"></div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+            <p style="color:var(--accent);font-weight:700;margin-bottom:0.75rem;">TELEGRAM</p>
+            <div class="form-grid">
+              <div class="form-group"><label>Label</label><input type="text" id="ed-link-telegram-label"></div>
+              <div class="form-group"><label>Hint</label><input type="text" id="ed-link-telegram-hint"></div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+            <p style="color:var(--accent);font-weight:700;margin-bottom:0.75rem;">VRCHAT</p>
+            <div class="form-grid">
+              <div class="form-group"><label>Label</label><input type="text" id="ed-link-vrchat-label"></div>
+              <div class="form-group"><label>Hint</label><input type="text" id="ed-link-vrchat-hint"></div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;">
+            <p style="color:var(--accent);font-weight:700;margin-bottom:0.75rem;">KO-FI</p>
+            <div class="form-grid">
+              <div class="form-group"><label>Label</label><input type="text" id="ed-link-kofi-label"></div>
+              <div class="form-group"><label>Hint</label><input type="text" id="ed-link-kofi-hint"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn" id="save-links-btn">💾 Links speichern</button>
+    </div>
+
+    <!-- KOLLEGEN TAB -->
+    <div class="tab-content" id="collabs-tab">
+      <div id="collabs-status" class="status"></div>
+      <div class="form-section">
+        <h3>👥 Kollegen & Freunde</h3>
+        <div id="collabs-container"></div>
+        <button class="btn btn-secondary" id="add-collab-btn" style="margin-top:1rem;">➕ Kolleg*in hinzufügen</button>
+      </div>
+      <button class="btn" id="save-collabs-btn">💾 Kollegen speichern</button>
+    </div>
+
+    <!-- ABOUT TAB -->
+    <div class="tab-content" id="about-tab">
+      <div id="about-status" class="status"></div>
+      <div class="form-section">
+        <h3>ℹ️ About-Seite</h3>
+        <div class="form-group"><label>Titel</label><input type="text" id="ed-about-title"></div>
+        <div class="form-group"><label>Untertitel</label><input type="text" id="ed-about-subtitle"></div>
+        <div class="form-group form-full"><label>Content (HTML erlaubt)</label><textarea id="ed-about-content" style="min-height:200px;"></textarea></div>
+      </div>
       <div class="form-section">
         <h3>📋 Steckbrief</h3>
         <div class="form-grid">
-          <div class="form-group">
-            <label>Name</label>
-            <input type="text" id="ed-factName">
-          </div>
-          <div class="form-group">
-            <label>Alter</label>
-            <input type="text" id="ed-factAge">
-          </div>
-          <div class="form-group">
-            <label>Größe</label>
-            <input type="text" id="ed-factHeight">
-          </div>
-          <div class="form-group">
-            <label>Herkunft</label>
-            <input type="text" id="ed-factOrigin">
-          </div>
+          <div class="form-group"><label>Name</label><input type="text" id="ed-fact-name"></div>
+          <div class="form-group"><label>Alter</label><input type="text" id="ed-fact-age"></div>
+          <div class="form-group"><label>Größe</label><input type="text" id="ed-fact-height"></div>
+          <div class="form-group"><label>Herkunft</label><input type="text" id="ed-fact-origin"></div>
         </div>
       </div>
-
-      <button class="btn" id="save-main-btn">💾 Speichern</button>
+      <button class="btn" id="save-about-btn">💾 About speichern</button>
     </div>
 
-    <!-- TAB: LINKS -->
-    <div class="tab-content" id="links-tab">
-      <div id="links-status" class="status"></div>
-
-      <div class="form-section">
-        <h3>🔗 Social Links</h3>
-        <div id="links-container"></div>
-      </div>
-
-      <div class="form-section">
-        <h3>👥 Kollegen</h3>
-        <div id="collabs-container"></div>
-        <button class="btn btn-secondary" id="add-collab-btn" style="margin-top: 1rem;">➕ Kolleg*in hinzufügen</button>
-      </div>
-
-      <button class="btn" id="save-links-btn">💾 Speichern</button>
-    </div>
-
-    <!-- TAB: ABOUT PAGE -->
-    <div class="tab-content" id="about-tab">
-      <div id="about-status" class="status"></div>
-
-      <div class="form-section">
-        <h3>ℹ️ About-Seite</h3>
-        <div class="form-group">
-          <label>Titel</label>
-          <input type="text" id="ed-about-title" placeholder="z.B. Über mich">
-        </div>
-        <div class="form-group">
-          <label>Untertitel</label>
-          <input type="text" id="ed-about-subtitle" placeholder="z.B. VRChat Creator, Streamer & Chaos-Agent">
-        </div>
-        <div class="form-group form-full">
-          <label>Content (HTML erlaubt)</label>
-          <textarea id="ed-about-content" style="min-height: 250px;" placeholder="Content mit HTML..."></textarea>
-        </div>
-      </div>
-
-      <button class="btn" id="save-about-btn">💾 Speichern</button>
-    </div>
-
-    <!-- TAB: GALLERY -->
+    <!-- GALLERY TAB -->
     <div class="tab-content" id="gallery-tab">
       <div id="gallery-status" class="status"></div>
-
       <div class="form-section">
-        <h3>🖼️ Galerie Items</h3>
+        <h3>🖼️ Galerie-Bilder</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">Tipp: Bilder die du in dein GitHub Repo hochgeladen hast einfach als Dateiname eingeben (z.B. <code style="background:rgba(255,255,255,0.1);padding:0.2rem 0.4rem;border-radius:4px;">gallery1.png</code>)</p>
         <div id="gallery-container"></div>
-        <button class="btn btn-secondary" id="add-gallery-btn">➕ Item hinzufügen</button>
+        <button class="btn btn-secondary" id="add-gallery-btn" style="margin-top:1rem;">➕ Bild hinzufügen</button>
       </div>
-
-      <button class="btn" id="save-gallery-btn">💾 Speichern</button>
+      <button class="btn" id="save-gallery-btn">💾 Galerie speichern</button>
     </div>
 
-    <!-- TAB: BLOG -->
+    <!-- BLOG TAB -->
     <div class="tab-content" id="blog-tab">
       <div id="blog-status" class="status"></div>
-
       <div class="form-section">
-        <h3>📝 Neuer Blog-Post</h3>
-        
-        <div class="form-group">
-          <label>Titel</label>
-          <input type="text" id="new-blog-title">
-        </div>
-
+        <h3>✍️ Neuer Blog-Post</h3>
         <div class="form-grid">
-          <div class="form-group">
-            <label>Datum</label>
-            <input type="date" id="new-blog-date">
-          </div>
-          <div class="form-group">
-            <label>Vorschau-Bild</label>
-            <input type="text" id="new-blog-image" placeholder="z.B. gallery1.png">
-          </div>
+          <div class="form-group form-full"><label>Titel</label><input type="text" id="new-post-title" placeholder="Post-Titel..."></div>
+          <div class="form-group"><label>Datum</label><input type="date" id="new-post-date"></div>
+          <div class="form-group"><label>Vorschau-Bild (optional)</label><input type="text" id="new-post-image" placeholder="z.B. gallery1.png oder https://..."></div>
+          <div class="form-group form-full"><label>Kurzbeschreibung</label><textarea id="new-post-excerpt" style="min-height:80px;" placeholder="Kurze Zusammenfassung..."></textarea></div>
         </div>
-
-        <div class="form-group form-full">
-          <label>Excerpt</label>
-          <textarea id="new-blog-excerpt" style="min-height: 80px;" placeholder="Kurze Zusammenfassung..."></textarea>
+        <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0;">
+        <h4 style="margin-bottom:1rem;color:var(--text);">📄 Inhalts-Blöcke</h4>
+        <div id="blog-blocks-container"></div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" id="add-text-btn">➕ Text</button>
+          <button type="button" class="btn btn-secondary" id="add-heading-btn">➕ Überschrift</button>
+          <button type="button" class="btn btn-secondary" id="add-image-btn">➕ Bild</button>
         </div>
-
-        <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;">
-
-        <h4>📄 Blog-Blöcke</h4>
-        <div id="blog-blocks-container" style="margin-bottom: 1.5rem;"></div>
-
-        <div class="btn-group" style="margin-bottom: 1.5rem;">
-          <button type="button" id="add-text-block-btn" class="btn btn-secondary">➕ Text</button>
-          <button type="button" id="add-heading-block-btn" class="btn btn-secondary">➕ Überschrift</button>
-          <button type="button" id="add-image-block-btn" class="btn btn-secondary">➕ Bild</button>
+        <div style="margin-top:1.5rem;">
+          <button class="btn" id="create-post-btn">✍️ Post veröffentlichen</button>
         </div>
-
-        <button class="btn" id="create-blog-btn">✍️ Post erstellen</button>
       </div>
-
       <div class="form-section">
-        <h3>📋 Blog-Posts</h3>
+        <h3>📋 Bestehende Posts</h3>
         <div id="blog-list"></div>
+        <button class="btn btn-secondary" id="save-blog-btn" style="margin-top:1rem;">💾 Änderungen speichern</button>
       </div>
-    </div>
-
-    <!-- TAB: MODALS -->
-    <div class="tab-content" id="modals-tab">
-      <div id="modals-status" class="status"></div>
-
-      <div class="form-section">
-        <h3>📞 Kontakt Modal</h3>
-        <div class="form-group form-full">
-          <label>Kontakt-Text (HTML erlaubt)</label>
-          <textarea id="ed-contact-text" style="min-height: 150px;" placeholder="Kontakt-Informationen..."></textarea>
-        </div>
-      </div>
-
-      <button class="btn" id="save-modals-btn">💾 Speichern</button>
     </div>
   </div>
 
