@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liro — Galerie</title>
-  <meta name="description" content="VRChat & Content Highlights — Liros Galerie.">
+  <title>Liro — Über mich</title>
   <link rel="icon" href="profile.jpg" type="image/jpeg">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,14 +16,13 @@
   <div class="bg-glow bg-glow--2"></div>
   <canvas class="particles" id="particles" aria-hidden="true"></canvas>
 
-  <!-- Navigation -->
   <nav class="nav">
     <div class="nav__inner">
       <a href="/" class="nav__logo">🦊 Liro</a>
       <ul class="nav__links" id="top-nav-links">
         <li><a href="/" class="nav__link">Home</a></li>
-        <li><a href="/about.html" class="nav__link">Über mich</a></li>
-        <li><a href="/gallery.html" class="nav__link active">Galerie</a></li>
+        <li><a href="/about.html" class="nav__link active">Über mich</a></li>
+        <li><a href="/gallery.html" class="nav__link">Galerie</a></li>
         <li><a href="/blog.html" class="nav__link">Blog</a></li>
       </ul>
       <button class="nav__theme" id="theme-toggle">🌙</button>
@@ -32,13 +30,10 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <div style="max-width: 1000px; margin: 3rem auto; padding: 0 1.5rem;">
-    <h1 style="text-align: center; margin-bottom: 0.5rem; color: var(--text);">🖼️ Galerie</h1>
-    <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;">VRChat & Content Highlights</p>
-    
-    <div id="gallery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 2rem;">
-      <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Lädt...</div>
+  <div style="max-width:900px;margin:3rem auto;padding:0 1.5rem;">
+    <div id="page-content">
+      <h2 style="color:var(--text);margin-bottom:1rem;">Über mich</h2>
+      <p style="color:var(--text-muted);">VRChat Creator, Streamer & Chaos-Agent</p>
     </div>
   </div>
 
