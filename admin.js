@@ -71,7 +71,14 @@ async function ghPush(filename, content, sha) {
     const err = await res.json();
     throw new Error(`Push fehlgeschlagen: ${err.message}`);
   }
-  return await res.json();
+  const data = await res.json();
+  // Neue SHA direkt speichern damit nächster Push klappt!
+  const key = filename.replace(".html", "");
+  if (cachedFiles[key]) {
+    cachedFiles[key].sha = data.content.sha;
+    cachedFiles[key].content = content;
+  }
+  return data;
 }
 
 // ===== MARKER: Wert lesen =====
@@ -340,7 +347,6 @@ async function saveFile(filename, newContent, sha, statusId) {
   showStatus(statusId, "⏳ Wird gespeichert...", "loading");
   try {
     await ghPush(filename, newContent, sha);
-    cachedFiles[filename.replace(".html", "")].sha = (await ghLoad(filename)).sha;
     showStatus(statusId, "✅ Gespeichert! GitHub aktualisiert.", "success");
     return true;
   } catch (e) {
@@ -355,32 +361,36 @@ function initAllButtons() {
 
   // ── HAUPTSEITE ──
   document.getElementById("save-main-btn")?.addEventListener("click", async () => {
-    let html = cachedFiles.index.content;
+    showStatus("main-status", "⏳ Speichere...", "loading");
+    try {
+      // index.html updaten
+      let html = cachedFiles.index.content;
+      html = writeMarker(html, "name", getVal("ed-name"));
+      html = writeMarker(html, "badge", getVal("ed-badge"));
+      html = writeMarker(html, "catchphrase", getVal("ed-catchphrase"));
+      html = writeMarker(html, "bio", getVal("ed-bio"));
+      const tags = getVal("ed-tags").split(",").map(t => t.trim()).filter(Boolean)
+        .map(t => `<span class="tag">${t}</span>`).join("");
+      html = writeMarker(html, "tags", tags);
+      html = writeMarker(html, "bio-modal", getVal("ed-bio1"));
+      await ghPush("index.html", html, cachedFiles.index.sha);
 
-    html = writeMarker(html, "name", getVal("ed-name"));
-    html = writeMarker(html, "badge", getVal("ed-badge"));
-    html = writeMarker(html, "catchphrase", getVal("ed-catchphrase"));
-    html = writeMarker(html, "bio", getVal("ed-bio"));
+      // about.html Bio Modal updaten
+      let aHtml = writeMarker(cachedFiles.about.content, "bio-modal", getVal("ed-bio1"));
+      await ghPush("about.html", aHtml, cachedFiles.about.sha);
 
-    const tags = getVal("ed-tags").split(",").map(t => t.trim()).filter(Boolean)
-      .map(t => `<span class="tag">${t}</span>`).join("");
-    html = writeMarker(html, "tags", tags);
-    html = writeMarker(html, "bio-modal", getVal("ed-bio1"));
+      // gallery.html Bio Modal updaten
+      let gHtml = writeMarker(cachedFiles.gallery.content, "bio-modal", getVal("ed-bio1"));
+      await ghPush("gallery.html", gHtml, cachedFiles.gallery.sha);
 
-    // Gleiche Bio-Modal Änderung in about + gallery + blog
-    let aHtml = writeMarker(cachedFiles.about.content, "bio-modal", getVal("ed-bio1"));
-    let gHtml = writeMarker(cachedFiles.gallery.content, "bio-modal", getVal("ed-bio1"));
-    let bHtml = writeMarker(cachedFiles.blog.content, "bio-modal", getVal("ed-bio1"));
+      // blog.html Bio Modal updaten
+      let bHtml = writeMarker(cachedFiles.blog.content, "bio-modal", getVal("ed-bio1"));
+      await ghPush("blog.html", bHtml, cachedFiles.blog.sha);
 
-    await saveFile("index.html", html, cachedFiles.index.sha, "main-status");
-    await ghPush("about.html", aHtml, cachedFiles.about.sha);
-    await ghPush("gallery.html", gHtml, cachedFiles.gallery.sha);
-    await ghPush("blog.html", bHtml, cachedFiles.blog.sha);
-
-    cachedFiles.index.content = html;
-    cachedFiles.about.content = aHtml;
-    cachedFiles.gallery.content = gHtml;
-    cachedFiles.blog.content = bHtml;
+      showStatus("main-status", "✅ Alles gespeichert!", "success");
+    } catch(e) {
+      showStatus("main-status", `❌ Fehler: ${e.message}`, "error");
+    }
   });
 
   // ── LINKS ──
@@ -398,21 +408,17 @@ function initAllButtons() {
   document.getElementById("add-collab-btn")?.addEventListener("click", () => addCollabRow());
 
   document.getElementById("save-collabs-btn")?.addEventListener("click", async () => {
-    const collabsHTML = buildCollabsHTML();
-    let iHtml = writeMarker(cachedFiles.index.content, "collabs", collabsHTML);
-    let aHtml = writeMarker(cachedFiles.about.content, "collabs", collabsHTML);
-    let gHtml = writeMarker(cachedFiles.gallery.content, "collabs", collabsHTML);
-    let bHtml = writeMarker(cachedFiles.blog.content, "collabs", collabsHTML);
-
-    await saveFile("index.html", iHtml, cachedFiles.index.sha, "collabs-status");
-    await ghPush("about.html", aHtml, cachedFiles.about.sha);
-    await ghPush("gallery.html", gHtml, cachedFiles.gallery.sha);
-    await ghPush("blog.html", bHtml, cachedFiles.blog.sha);
-
-    cachedFiles.index.content = iHtml;
-    cachedFiles.about.content = aHtml;
-    cachedFiles.gallery.content = gHtml;
-    cachedFiles.blog.content = bHtml;
+    showStatus("collabs-status", "⏳ Speichere Kollegen auf allen Seiten...", "loading");
+    try {
+      const collabsHTML = buildCollabsHTML();
+      await ghPush("index.html", writeMarker(cachedFiles.index.content, "collabs", collabsHTML), cachedFiles.index.sha);
+      await ghPush("about.html", writeMarker(cachedFiles.about.content, "collabs", collabsHTML), cachedFiles.about.sha);
+      await ghPush("gallery.html", writeMarker(cachedFiles.gallery.content, "collabs", collabsHTML), cachedFiles.gallery.sha);
+      await ghPush("blog.html", writeMarker(cachedFiles.blog.content, "collabs", collabsHTML), cachedFiles.blog.sha);
+      showStatus("collabs-status", "✅ Kollegen auf allen Seiten gespeichert!", "success");
+    } catch(e) {
+      showStatus("collabs-status", `❌ Fehler: ${e.message}`, "error");
+    }
   });
 
   // ── ABOUT ──
