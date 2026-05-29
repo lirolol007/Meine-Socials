@@ -207,14 +207,21 @@ function galleryItemHTML(image, title, desc) {
 function parseGallery(html) {
   const container = document.getElementById("gallery-container");
   container.innerHTML = "";
-  
-  // Parsen: src="..." und titel + caption aus gal-item divs
-  const matches = [...html.matchAll(/openLightbox\('([^']+)','([^']*)','([^']*)'\)/g)];
-  
-  if (matches.length === 0) {
-    addGalleryRow("", "", "");
+
+  const found = [];
+
+  // Alle openLightbox Aufrufe finden (egal ob 2 oder 3 Parameter)
+  const re = /openLightbox\s*\(\s*'([^']*)'\s*,\s*'([^']*)'\s*(?:,\s*'([^']*)'\s*)?\)/g;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    found.push({ img: m[1], title: m[2], caption: m[3] || "" });
+  }
+
+  if (found.length === 0) {
+    // Fallback: gallery1-12
+    for (let i = 1; i <= 12; i++) addGalleryRow(`gallery${i}.png`, `Bild ${i}`, "");
   } else {
-    matches.forEach(m => addGalleryRow(m[1], m[2], m[3]));
+    found.forEach(f => addGalleryRow(f.img, f.title, f.caption));
   }
 }
 
