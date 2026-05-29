@@ -2,7 +2,7 @@
 const GITHUB_REPO = "Lirolol007/Meine-Socials";
 const GITHUB_BRANCH = "main";
 const GITHUB_RAW = `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}`;
-const PASSWORD = "admin123"; // ⚠️ CHANGE THIS!
+const PASSWORD = "admin123"; // ⚠️ ÄNDERE DAS!
 
 let authToken = "";
 let siteData = null;
@@ -26,12 +26,10 @@ document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
   
   if (pass === PASSWORD && token.startsWith("ghp_")) {
     authToken = token;
-    if (remember) {
-      localStorage.setItem("admin_token", token);
-    }
+    if (remember) localStorage.setItem("admin_token", token);
     await loginSuccess();
   } else {
-    showStatus("loginScreen", "❌ Falsches Passwort oder ungültiger Token!", "error");
+    alert("❌ Falsches Passwort oder ungültiger Token!");
   }
 });
 
@@ -48,72 +46,61 @@ document.getElementById("logoutBtn")?.addEventListener("click", () => {
   location.reload();
 });
 
-// ===== LOAD DATA =====
+// ===== LOAD DATA FROM GITHUB =====
 async function loadSiteData() {
   try {
+    showStatus("main-status", "⏳ Lade Daten...", "loading");
+    
     const res = await fetch(`${GITHUB_RAW}/site-data.json?t=${Date.now()}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`GitHub HTTP ${res.status}`);
     
     siteData = await res.json();
-    console.log("✅ site-data.json geladen:", siteData);
+    console.log("✅ site-data.json geladen");
+    
     populateAllFields();
+    showStatus("main-status", "✅ Daten geladen!", "success");
   } catch (e) {
-    alert(`❌ Fehler: ${e.message}`);
+    alert(`❌ Fehler beim Laden: ${e.message}`);
+    console.error(e);
   }
 }
 
+// ===== POPULATE ALL FIELDS =====
 function populateAllFields() {
   if (!siteData) return;
   
-  // PROFIL
+  // HAUPTSEITE
   document.getElementById("ed-name").value = siteData.name || "";
   document.getElementById("ed-badge").value = siteData.badge || "";
   document.getElementById("ed-tags").value = (siteData.tags || []).join(", ");
   document.getElementById("ed-catchphrase").value = siteData.catchphrase || "";
   document.getElementById("ed-bio").value = siteData.bio || "";
-  document.getElementById("ed-fact-name").value = siteData.factName || "";
-  document.getElementById("ed-fact-age").value = siteData.factAge || "";
-  document.getElementById("ed-fact-height").value = siteData.factHeight || "";
-  document.getElementById("ed-fact-origin").value = siteData.factOrigin || "";
   document.getElementById("ed-bio1").value = siteData.bio1 || "";
   document.getElementById("ed-bio2").value = siteData.bio2 || "";
   
-  // LINKS & MODALS
+  document.getElementById("ed-factName").value = siteData.factName || "";
+  document.getElementById("ed-factAge").value = siteData.factAge || "";
+  document.getElementById("ed-factHeight").value = siteData.factHeight || "";
+  document.getElementById("ed-factOrigin").value = siteData.factOrigin || "";
+  
+  // LINKS & KOLLEGEN
   populateLinksTab();
   
-  // MODALS
+  // ABOUT
   const about = siteData.pages?.about || {};
   document.getElementById("ed-about-title").value = about.title || "";
   document.getElementById("ed-about-subtitle").value = about.subtitle || "";
   document.getElementById("ed-about-content").value = about.content || "";
-  document.getElementById("ed-contact-text").value = siteData.contactText || "";
   
-  // ABOUT PAGE
-  document.getElementById("ed-about-page-title").value = about.title || "";
-  document.getElementById("ed-about-page-subtitle").value = about.subtitle || "";
-  document.getElementById("ed-about-page-content").value = about.content || "";
-  
-  // GALLERY & BLOG
+  // GALLERY
   populateGalleryTab();
-  populateBlogList();
-}
-
-// ===== PROFIL SAVE =====
-document.getElementById("save-profil-btn")?.addEventListener("click", async () => {
-  siteData.name = document.getElementById("ed-name").value;
-  siteData.badge = document.getElementById("ed-badge").value;
-  siteData.tags = document.getElementById("ed-tags").value.split(",").map(t => t.trim()).filter(t => t);
-  siteData.catchphrase = document.getElementById("ed-catchphrase").value;
-  siteData.bio = document.getElementById("ed-bio").value;
-  siteData.factName = document.getElementById("ed-fact-name").value;
-  siteData.factAge = document.getElementById("ed-fact-age").value;
-  siteData.factHeight = document.getElementById("ed-fact-height").value;
-  siteData.factOrigin = document.getElementById("ed-fact-origin").value;
-  siteData.bio1 = document.getElementById("ed-bio1").value;
-  siteData.bio2 = document.getElementById("ed-bio2").value;
   
-  await saveToGitHub("profil-status");
-});
+  // BLOG
+  populateBlogList();
+  
+  // MODALS
+  document.getElementById("ed-contact-text").value = siteData.contactText || "";
+}
 
 // ===== LINKS TAB =====
 function populateLinksTab() {
@@ -123,7 +110,7 @@ function populateLinksTab() {
   if (siteData.links) {
     Object.entries(siteData.links).forEach(([key, link]) => {
       const div = document.createElement("div");
-      div.className = "link-card";
+      div.className = "link-section";
       div.innerHTML = `
         <h4>${key.toUpperCase()}</h4>
         <div class="form-grid">
@@ -163,7 +150,7 @@ function populateCollabs() {
             <input type="text" class="collab-name" data-idx="${idx}" value="${collab.name || ""}">
           </div>
           <div class="form-group">
-            <label>URL</label>
+            <label>URL (TikTok)</label>
             <input type="text" class="collab-url" data-idx="${idx}" value="${collab.url || ""}">
           </div>
         </div>
@@ -173,33 +160,8 @@ function populateCollabs() {
   }
 }
 
-document.getElementById("save-links-btn")?.addEventListener("click", async () => {
-  // Links
-  document.querySelectorAll(".link-label").forEach(input => {
-    const key = input.dataset.key;
-    if (siteData.links[key]) siteData.links[key].label = input.value;
-  });
-  document.querySelectorAll(".link-hint").forEach(input => {
-    const key = input.dataset.key;
-    if (siteData.links[key]) siteData.links[key].hint = input.value;
-  });
-  
-  // Collabs
-  siteData.collabs = [];
-  document.querySelectorAll(".collab-name").forEach(input => {
-    const idx = input.dataset.idx;
-    const name = input.value;
-    const url = document.querySelector(`.collab-url[data-idx="${idx}"]`)?.value || "";
-    if (name || url) {
-      siteData.collabs.push({ name, url });
-    }
-  });
-  
-  await saveToGitHub("links-status");
-});
-
 function removeCollab(idx) {
-  if (confirm("Kolleg*in wirklich löschen?")) {
+  if (confirm("Kolleg*in löschen?")) {
     siteData.collabs.splice(idx, 1);
     populateCollabs();
   }
@@ -211,27 +173,55 @@ document.getElementById("add-collab-btn")?.addEventListener("click", () => {
   populateCollabs();
 });
 
-// ===== MODALS SAVE =====
-document.getElementById("save-modals-btn")?.addEventListener("click", async () => {
+// ===== SAVE HAUPTSEITE =====
+document.getElementById("save-main-btn")?.addEventListener("click", async () => {
+  siteData.name = document.getElementById("ed-name").value;
+  siteData.badge = document.getElementById("ed-badge").value;
+  siteData.tags = document.getElementById("ed-tags").value.split(",").map(t => t.trim()).filter(t => t);
+  siteData.catchphrase = document.getElementById("ed-catchphrase").value;
+  siteData.bio = document.getElementById("ed-bio").value;
+  siteData.bio1 = document.getElementById("ed-bio1").value;
+  siteData.bio2 = document.getElementById("ed-bio2").value;
+  
+  siteData.factName = document.getElementById("ed-factName").value;
+  siteData.factAge = document.getElementById("ed-factAge").value;
+  siteData.factHeight = document.getElementById("ed-factHeight").value;
+  siteData.factOrigin = document.getElementById("ed-factOrigin").value;
+  
+  await saveToGitHub("main-status");
+});
+
+// ===== SAVE LINKS =====
+document.getElementById("save-links-btn")?.addEventListener("click", async () => {
+  document.querySelectorAll(".link-label").forEach(input => {
+    const key = input.dataset.key;
+    if (siteData.links[key]) siteData.links[key].label = input.value;
+  });
+  
+  document.querySelectorAll(".link-hint").forEach(input => {
+    const key = input.dataset.key;
+    if (siteData.links[key]) siteData.links[key].hint = input.value;
+  });
+  
+  siteData.collabs = [];
+  document.querySelectorAll(".collab-name").forEach(input => {
+    const idx = input.dataset.idx;
+    const name = input.value;
+    const url = document.querySelector(`.collab-url[data-idx="${idx}"]`)?.value || "";
+    if (name || url) siteData.collabs.push({ name, url });
+  });
+  
+  await saveToGitHub("links-status");
+});
+
+// ===== SAVE ABOUT =====
+document.getElementById("save-about-btn")?.addEventListener("click", async () => {
   if (!siteData.pages) siteData.pages = {};
   if (!siteData.pages.about) siteData.pages.about = {};
   
   siteData.pages.about.title = document.getElementById("ed-about-title").value;
   siteData.pages.about.subtitle = document.getElementById("ed-about-subtitle").value;
   siteData.pages.about.content = document.getElementById("ed-about-content").value;
-  siteData.contactText = document.getElementById("ed-contact-text").value;
-  
-  await saveToGitHub("modals-status");
-});
-
-// ===== ABOUT PAGE SAVE =====
-document.getElementById("save-about-btn")?.addEventListener("click", async () => {
-  if (!siteData.pages) siteData.pages = {};
-  if (!siteData.pages.about) siteData.pages.about = {};
-  
-  siteData.pages.about.title = document.getElementById("ed-about-page-title").value;
-  siteData.pages.about.subtitle = document.getElementById("ed-about-page-subtitle").value;
-  siteData.pages.about.content = document.getElementById("ed-about-page-content").value;
   
   await saveToGitHub("about-status");
 });
@@ -246,32 +236,37 @@ function populateGalleryTab() {
   
   const items = siteData.pages.gallery.items || [];
   
-  if (items.length > 0) {
-    items.forEach((item, idx) => {
-      const div = document.createElement("div");
-      div.className = "form-section";
-      div.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h4>Item ${idx + 1}</h4>
-          <button class="btn btn-small btn-secondary" type="button" onclick="removeGalleryItem(${idx})">🗑️</button>
+  items.forEach((item, idx) => {
+    const div = document.createElement("div");
+    div.className = "form-section";
+    div.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h4>Item ${idx + 1}</h4>
+        <button class="btn btn-small btn-secondary" type="button" onclick="removeGalleryItem(${idx})">🗑️</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group form-full">
+          <label>Bild (URL oder Dateiname)</label>
+          <input type="text" class="gallery-image" data-idx="${idx}" value="${item.image || ""}" placeholder="z.B. gallery1.png oder https://...">
         </div>
-        <div class="form-grid">
-          <div class="form-group form-full">
-            <label>Bild (URL/Dateiname)</label>
-            <input type="text" class="gallery-image" data-idx="${idx}" value="${item.image || ""}">
-          </div>
-          <div class="form-group">
-            <label>Titel</label>
-            <input type="text" class="gallery-title" data-idx="${idx}" value="${item.title || ""}">
-          </div>
-          <div class="form-group">
-            <label>Beschreibung</label>
-            <input type="text" class="gallery-desc" data-idx="${idx}" value="${item.description || ""}">
-          </div>
+        <div class="form-group">
+          <label>Titel</label>
+          <input type="text" class="gallery-title" data-idx="${idx}" value="${item.title || ""}">
         </div>
-      `;
-      container.appendChild(div);
-    });
+        <div class="form-group">
+          <label>Beschreibung</label>
+          <input type="text" class="gallery-desc" data-idx="${idx}" value="${item.description || ""}">
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function removeGalleryItem(idx) {
+  if (confirm("Gallery-Item löschen?")) {
+    siteData.pages.gallery.items.splice(idx, 1);
+    populateGalleryTab();
   }
 }
 
@@ -281,13 +276,6 @@ document.getElementById("add-gallery-btn")?.addEventListener("click", () => {
   siteData.pages.gallery.items.push({ image: "", title: "", description: "" });
   populateGalleryTab();
 });
-
-function removeGalleryItem(idx) {
-  if (confirm("Galerie-Item wirklich löschen?")) {
-    siteData.pages.gallery.items.splice(idx, 1);
-    populateGalleryTab();
-  }
-}
 
 document.getElementById("save-gallery-btn")?.addEventListener("click", async () => {
   if (!siteData.pages) siteData.pages = {};
@@ -321,9 +309,7 @@ function populateBlogList() {
       div.innerHTML = `
         <h4>${post.title}</h4>
         <p>📅 ${date}</p>
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem; max-height: 3em; overflow: hidden;">
-          ${post.excerpt}
-        </p>
+        <p style="color: var(--text-muted); font-size: 0.85rem; max-height: 3em; overflow: hidden;">${post.excerpt}</p>
         <div class="btn-group">
           <button class="btn btn-small btn-secondary" type="button" onclick="deleteBlogPost(${post.id})">🗑️ Löschen</button>
         </div>
@@ -331,7 +317,7 @@ function populateBlogList() {
       list.appendChild(div);
     });
   } else {
-    list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Noch keine Blog-Posts</p>';
+    list.innerHTML = '<p style="color: var(--text-muted); text-align: center;">Noch keine Posts</p>';
   }
 }
 
@@ -390,7 +376,7 @@ document.getElementById("create-blog-btn")?.addEventListener("click", async () =
   document.getElementById("blog-blocks-container").innerHTML = "";
   
   populateBlogList();
-  showStatus("blog-status", "✅ Blog-Post erstellt!", "success");
+  showStatus("blog-status", "✅ Post erstellt!", "success");
 });
 
 function addBlogBlock(type) {
@@ -405,7 +391,7 @@ function addBlogBlock(type) {
         <span class="blog-block__type">📝 Text</span>
         <button class="blog-block__remove" type="button" onclick="this.closest('.blog-block').remove()">×</button>
       </div>
-      <textarea placeholder="Dein Text..."></textarea>
+      <textarea placeholder="Text eingeben..."></textarea>
     `;
   } else if (type === "heading") {
     div.innerHTML = `
@@ -435,19 +421,25 @@ function addBlogBlock(type) {
 }
 
 function deleteBlogPost(id) {
-  if (confirm("🗑️ Wirklich löschen?")) {
+  if (confirm("Post wirklich löschen?")) {
     siteData.blogPosts = (siteData.blogPosts || []).filter(p => p.id !== id);
     saveToGitHub("blog-status").then(() => {
       populateBlogList();
-      showStatus("blog-status", "✅ Gelöscht!", "success");
+      showStatus("blog-status", "✅ Post gelöscht!", "success");
     });
   }
 }
 
+// ===== SAVE MODALS =====
+document.getElementById("save-modals-btn")?.addEventListener("click", async () => {
+  siteData.contactText = document.getElementById("ed-contact-text").value;
+  await saveToGitHub("modals-status");
+});
+
 // ===== SAVE TO GITHUB =====
 async function saveToGitHub(statusId) {
   try {
-    showStatus(statusId, "⏳ Speichert...", "error");
+    showStatus(statusId, "⏳ Speichert zu GitHub...", "loading");
     
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(siteData, null, 2))));
     
@@ -485,6 +477,7 @@ async function saveToGitHub(statusId) {
   }
 }
 
+// ===== HELPER =====
 function showStatus(id, msg, type) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -493,7 +486,6 @@ function showStatus(id, msg, type) {
   setTimeout(() => el.classList.remove("show"), 6000);
 }
 
-// ===== TABS =====
 function initTabs() {
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
