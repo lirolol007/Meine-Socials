@@ -15,7 +15,6 @@
   <div class="bg-glow bg-glow--1"></div>
   <div class="bg-glow bg-glow--2"></div>
   <canvas class="particles" id="particles" aria-hidden="true"></canvas>
-
   <nav class="nav">
     <div class="nav__inner">
       <a href="/" class="nav__logo">🦊 Liro</a>
@@ -30,97 +29,53 @@
     </div>
   </nav>
 
-  <div style="max-width:900px;margin:3rem auto;padding:0 1.5rem;" id="page-content">
-    <h2 style="font-size:2rem;margin-bottom:0.5rem;color:var(--text);">Über mich</h2>
-    <p style="color:var(--text-muted);margin-bottom:2rem;">VRChat Creator, Streamer & Chaos-Agent</p>
-    <div style="color:var(--text-muted);line-height:1.8;">
-      <p>Moin — ich bin Liro, 19 Jahre alt aus Deutschland. In VRChat unterwegs, streame ab und zu auf Twitch und mach Content auf TikTok. 🦊</p>
-      <p style="margin-top:1rem;">Ich bin eine direkte Person die gerne Quatsch macht. Wenn du mich kennenlernen willst, tritt dem Discord bei oder schreib mich an!</p>
-    </div>
+  <div style="max-width:900px;margin:3rem auto;padding:0 1.5rem;">
+    <h2 style="font-size:2rem;margin-bottom:0.5rem;color:var(--text);"><!--LIRO:about-title-->Über mich<!--/LIRO:about-title--></h2>
+    <p style="color:var(--text-muted);margin-bottom:2rem;"><!--LIRO:about-subtitle-->VRChat Creator, Streamer & Chaos-Agent<!--/LIRO:about-subtitle--></p>
+    <div style="color:var(--text-muted);line-height:1.8;"><!--LIRO:about-content--><p>Moin — ich bin Liro, 19 Jahre alt aus Deutschland. In VRChat unterwegs, streame auf Twitch und mach Content auf TikTok. 🦊</p><p style="margin-top:1rem;">Ich bin eine direkte Person die gerne Quatsch macht. Tritt dem Discord bei oder schreib mich an!</p><!--/LIRO:about-content--></div>
 
-    <div style="margin-top:3rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;" id="facts-grid">
+    <div style="margin-top:3rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;">
       <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;">
         <span style="font-size:2rem;display:block;margin-bottom:0.5rem;">👤</span>
         <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:0.5rem;">Name</p>
-        <p style="font-weight:600;color:var(--text);" id="fact-name">Liro / Leon</p>
+        <p style="font-weight:600;color:var(--text);"><!--LIRO:fact-name-->Liro / Leon<!--/LIRO:fact-name--></p>
       </div>
       <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;">
         <span style="font-size:2rem;display:block;margin-bottom:0.5rem;">🎂</span>
         <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:0.5rem;">Alter</p>
-        <p style="font-weight:600;color:var(--text);" id="fact-age">19</p>
+        <p style="font-weight:600;color:var(--text);"><!--LIRO:fact-age-->19<!--/LIRO:fact-age--></p>
       </div>
       <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;">
         <span style="font-size:2rem;display:block;margin-bottom:0.5rem;">📏</span>
         <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:0.5rem;">Größe</p>
-        <p style="font-weight:600;color:var(--text);" id="fact-height">1,78 m</p>
+        <p style="font-weight:600;color:var(--text);"><!--LIRO:fact-height-->1,78 m<!--/LIRO:fact-height--></p>
       </div>
       <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;">
         <span style="font-size:2rem;display:block;margin-bottom:0.5rem;">🌍</span>
         <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:0.5rem;">Herkunft</p>
-        <p style="font-weight:600;color:var(--text);" id="fact-origin">🇩🇪 Deutschland</p>
+        <p style="font-weight:600;color:var(--text);"><!--LIRO:fact-origin-->🇩🇪 Deutschland<!--/LIRO:fact-origin--></p>
       </div>
     </div>
   </div>
 
-<!-- Modals (auf allen Seiten) -->
   <div class="modal" id="modal-about" hidden aria-modal="true" role="dialog">
     <div class="modal__backdrop"></div>
     <div class="modal__panel">
       <button class="modal__close" data-modal-close>×</button>
       <h2 class="modal__title">Über mich</h2>
-      <div id="modal-about-content" style="color:var(--text-muted);line-height:1.8;">
-        <p>Moin — ich bin Liro, 19 Jahre alt aus Deutschland. In VRChat unterwegs, streame ab und zu auf Twitch und mach Content auf TikTok. 🦊</p>
-        <p style="margin-top:1rem;">Ich bin eine direkte Person die gerne Quatsch macht. Wenn du mich kennenlernen willst, tritt dem Discord bei oder schreib mich an!</p>
-      </div>
+      <div style="color:var(--text-muted);line-height:1.8;"><!--LIRO:bio-modal--><p>Moin — ich bin Liro, 19 Jahre alt aus Deutschland. In VRChat unterwegs, streame auf Twitch und mach Content auf TikTok. 🦊</p><p style="margin-top:1rem;">Ich bin eine direkte Person die gerne Quatsch macht. Tritt dem Discord bei oder schreib mich an!</p><!--/LIRO:bio-modal--></div>
     </div>
   </div>
-
   <div class="modal" id="modal-collabs" hidden aria-modal="true" role="dialog">
     <div class="modal__backdrop"></div>
     <div class="modal__panel">
       <button class="modal__close" data-modal-close>×</button>
       <h2 class="modal__title">Kollegen & Freunde</h2>
-      <ul class="collab-list" id="collab-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem;list-style:none;padding:0;">
-        <li>
-          <a href="https://www.tiktok.com/@fluffy_ryio" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;transition:transform 0.3s;">
-            <img src="https://unavatar.io/tiktok/fluffy_ryio" alt="Ryio" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);" onerror="this.src='profile.jpg'">
-            <span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Ryio ↗</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.tiktok.com/@dragonpro08" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;transition:transform 0.3s;">
-            <img src="https://unavatar.io/tiktok/dragonpro08" alt="DragonPro" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);" onerror="this.src='profile.jpg'">
-            <span style="color:var(--accent);font-weight:600;font-size:0.9rem;">DragonPro ↗</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.tiktok.com/@lynxi.vrc" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;transition:transform 0.3s;">
-            <img src="https://unavatar.io/tiktok/lynxi.vrc" alt="Lynxi" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);" onerror="this.src='profile.jpg'">
-            <span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Lynxi ↗</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.tiktok.com/@kieran.catto" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;transition:transform 0.3s;">
-            <img src="https://unavatar.io/tiktok/kieran.catto" alt="Kieran" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);" onerror="this.src='profile.jpg'">
-            <span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Kieran ↗</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.tiktok.com/@rakurimde" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;transition:transform 0.3s;">
-            <img src="https://unavatar.io/tiktok/rakurimde" alt="Rakurim" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);" onerror="this.src='profile.jpg'">
-            <span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Rakurim ↗</span>
-          </a>
-        </li>
-        <li>
-          <a href="https://www.tiktok.com/@xarrax.official" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;transition:transform 0.3s;">
-            <img src="https://unavatar.io/tiktok/xarrax.official" alt="Xarrax" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);" onerror="this.src='profile.jpg'">
-            <span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Xarrax ↗</span>
-          </a>
-        </li>
+      <ul class="collab-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;list-style:none;padding:0;">
+        <!--LIRO:collabs--><li><a href="https://www.tiktok.com/@fluffy_ryio" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/fluffy_ryio" alt="Ryio" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Ryio ↗</span></a></li><!--/LIRO:collabs-->
       </ul>
     </div>
   </div>
-
   <div class="modal" id="modal-contact" hidden aria-modal="true" role="dialog">
     <div class="modal__backdrop"></div>
     <div class="modal__panel">
@@ -128,7 +83,7 @@
       <h2 class="modal__title">Kontakt</h2>
       <div style="color:var(--text-muted);line-height:1.8;">
         <p><strong>E-Mail:</strong> <a href="mailto:liro.lol007@gmail.com" style="color:var(--accent);text-decoration:none;">Liro.lol007@gmail.com</a></p>
-        <p style="margin-top:1rem;"><strong>Discord:</strong> Schreib mich an oder tritt unserem Server bei!</p>
+        <p style="margin-top:1rem;"><strong>Discord:</strong> Schreib mich an!</p>
         <p style="margin-top:1rem;"><strong>Telegram:</strong> @Liro025</p>
       </div>
     </div>
@@ -144,7 +99,6 @@
     </nav>
     <p class="footer__credit">Avatar Art by Liro</p>
   </footer>
-
   <script src="particles.js"></script>
   <script src="cursor.js"></script>
   <script src="site.js"></script>
