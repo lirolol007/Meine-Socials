@@ -1,59 +1,226 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liro — Galerie</title>
-  <link rel="icon" href="profile.jpg" type="image/jpeg">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-  <div class="cursor-glow" id="cursor-glow"></div>
-  <div class="bg-glow bg-glow--1"></div>
-  <div class="bg-glow bg-glow--2"></div>
-  <canvas class="particles" id="particles" aria-hidden="true"></canvas>
-  <nav class="nav">
-    <div class="nav__inner">
-      <a href="/" class="nav__logo">🦊 Liro</a>
-      <ul class="nav__links" id="top-nav-links">
-        <li><a href="/" class="nav__link">Home</a></li>
-        <li><a href="/about.html" class="nav__link">Über mich</a></li>
-        <li><a href="/gallery.html" class="nav__link active">Galerie</a></li>
-        <li><a href="/blog.html" class="nav__link">Blog</a></li>
-      </ul>
-      <button class="nav__theme" id="theme-toggle">🌙</button>
-      <button class="nav__toggle" id="nav-toggle">☰</button>
+/* ===== LOAD SITE DATA FROM GITHUB (optional) ===== */
+async function loadSiteData() {
+  try {
+    const res = await fetch(
+      `https://raw.githubusercontent.com/Lirolol007/Meine-Socials/main/site-data.json?t=${Date.now()}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (e) {
+    console.warn("⚠️ GitHub nicht erreichbar:", e.message);
+    return null;
+  }
+}
+
+/* ===== HOME PAGE — optional update from GitHub ===== */
+async function initHomePage() {
+  const data = await loadSiteData();
+  if (!data) return; // kein Laden = hardcoded Werte bleiben
+
+  const el = (id) => document.getElementById(id);
+
+  if (el("profile-name"))        el("profile-name").textContent        = data.name || "Liro";
+  if (el("profile-badge"))       el("profile-badge").textContent       = data.badge || "";
+  if (el("profile-catchphrase")) el("profile-catchphrase").textContent = data.catchphrase || "";
+  if (el("profile-bio"))         el("profile-bio").textContent         = data.bio || "";
+
+  if (el("profile-tags") && data.tags?.length) {
+    el("profile-tags").innerHTML = data.tags.map(t => `<span class="tag">${t}</span>`).join("");
+  }
+
+  if (data.links) {
+    Object.entries(data.links).forEach(([key, link]) => {
+      const labelEl = el(`link-label-${key}`);
+      const hintEl  = el(`link-hint-${key}`);
+      if (labelEl) labelEl.textContent = link.label || "";
+      if (hintEl)  hintEl.textContent  = link.hint  || "";
+    });
+  }
+
+  if (el("modal-about-content")) {
+    el("modal-about-content").innerHTML = data.bio1 && data.bio2
+      ? `<p>${data.bio1}</p><p style="margin-top:1rem;">${data.bio2}</p>`
+      : el("modal-about-content").innerHTML;
+  }
+
+  if (el("collab-list") && data.collabs?.length > 0) {
+    el("collab-list").innerHTML = data.collabs.map(c => `
+      <li style="text-align:center;list-style:none;padding:1rem;">
+        <a href="${c.url}" target="_blank" rel="noopener noreferrer"
+           style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
+          <img src="profile.jpg" alt="${c.name}"
+               style="width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);object-fit:cover;">
+          <span style="color:var(--accent);font-weight:600;">${c.name} ↗</span>
+        </a>
+      </li>`).join("");
+  }
+}
+
+/* ===== ABOUT PAGE — optional update from GitHub ===== */
+async function initAboutPage() {
+  const data = await loadSiteData();
+  if (!data) return; // kein Laden = hardcoded Inhalt bleibt
+
+  const el = (id) => document.getElementById(id);
+
+  const about = data.pages?.about || {};
+  const pageContent = el("page-content");
+  if (pageContent && about.content) {
+    pageContent.querySelector("h2").textContent = about.title || "Über mich";
+    const subtitle = pageContent.querySelector("p");
+    if (subtitle) subtitle.textContent = about.subtitle || "";
+  }
+
+  if (el("fact-name"))   el("fact-name").textContent   = data.factName   || "Liro / Leon";
+  if (el("fact-age"))    el("fact-age").textContent    = data.factAge    || "19";
+  if (el("fact-height")) el("fact-height").textContent = data.factHeight || "1,78 m";
+  if (el("fact-origin")) el("fact-origin").textContent = data.factOrigin || "🇩🇪 Deutschland";
+}
+
+/* ===== GALLERY PAGE — optional extra items from GitHub ===== */
+async function initGalleryPage() {
+  const data = await loadSiteData();
+  if (!data?.pages?.gallery?.items?.length) return;
+
+  const grid = document.getElementById("gallery-grid");
+  if (!grid) return;
+
+  // extra Items aus GitHub hinzufügen (die hardcoded gallery1-12 bleiben)
+  data.pages.gallery.items.forEach(item => {
+    const div = document.createElement("div");
+    div.style.cursor = "pointer";
+    div.onclick = () => openLightbox(item.image, item.title);
+    div.innerHTML = `
+      <img src="${item.image}" alt="${item.title}"
+           style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;transition:transform 0.3s;"
+           onerror="this.closest('div').style.display='none'">
+      <p style="margin-top:0.75rem;font-weight:600;color:var(--text);">${item.title}</p>
+      <p style="color:var(--text-muted);font-size:0.9rem;">${item.description}</p>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+/* ===== BLOG PAGE — loads from GitHub ===== */
+async function initBlogPage() {
+  const data = await loadSiteData();
+  const grid = document.getElementById("blog-grid");
+  if (!grid) return;
+
+  const posts = [...(data?.blogPosts || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (posts.length === 0) return; // hardcoded "Noch keine Posts" bleibt
+
+  grid.innerHTML = posts.map(post => `
+    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;cursor:pointer;"
+         onclick="openBlogPost(${post.id})">
+      <div style="display:flex;gap:1rem;">
+        ${post.image ? `<img src="${post.image}" alt="${post.title}" style="width:120px;height:120px;object-fit:cover;border-radius:8px;flex-shrink:0;">` : ""}
+        <div>
+          <h3 style="margin:0 0 0.5rem;color:var(--text);">${post.title}</h3>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:0.5rem;">
+            📅 ${new Date(post.date).toLocaleDateString("de-DE")}
+          </p>
+          <p style="color:var(--text-muted);line-height:1.6;">${post.excerpt}</p>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+/* ===== LIGHTBOX ===== */
+function openLightbox(src, title, caption) {
+  // Overlay
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;
+    display:flex;align-items:center;justify-content:center;padding:1.5rem;
+    backdrop-filter:blur(8px);opacity:0;transition:opacity 0.25s ease;
+  `;
+  overlay.onclick = (e) => { if (e.target === overlay) closeLightbox(overlay); };
+
+  // Box
+  const box = document.createElement("div");
+  box.style.cssText = `
+    max-width:600px;width:100%;background:rgba(20,20,20,0.95);
+    border:1px solid rgba(255,255,255,0.1);border-radius:16px;
+    overflow:hidden;transform:scale(0.85);transition:transform 0.25s ease;
+    box-shadow:0 32px 64px rgba(0,0,0,0.6);
+  `;
+
+  box.innerHTML = `
+    <div style="position:relative;">
+      <img src="${src}" alt="${title||''}" style="width:100%;max-height:65vh;object-fit:contain;display:block;background:#111;">
+      <button onclick="closeLightbox(this.closest('[style*=z-index]'))"
+        style="position:absolute;top:0.75rem;right:0.75rem;width:36px;height:36px;
+               background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);
+               color:white;font-size:1.2rem;cursor:pointer;border-radius:50%;
+               display:flex;align-items:center;justify-content:center;
+               transition:background 0.2s;">×</button>
     </div>
-  </nav>
+    ${(title||caption) ? `
+    <div style="padding:1rem 1.25rem;">
+      ${title ? `<p style="font-weight:700;color:#f4f4f5;margin:0 0 0.25rem;">${title}</p>` : ""}
+      ${caption ? `<p style="color:#9ca3af;font-size:0.875rem;margin:0;">${caption}</p>` : ""}
+    </div>` : ""}
+  `;
 
-  <div style="max-width:1000px;margin:3rem auto;padding:0 1.5rem;">
-    <h1 style="text-align:center;margin-bottom:0.5rem;color:var(--text);">🖼️ Galerie</h1>
-    <p style="text-align:center;color:var(--text-muted);margin-bottom:3rem;">VRChat & Content Highlights</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.25rem;">
-      <!--LIRO:gallery-items--><div class="gal-item" onclick="openLightbox('gallery1.png','Bild 1','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery1.png" alt="Bild 1" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 1</p></div></div><div class="gal-item" onclick="openLightbox('gallery2.png','Bild 2','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery2.png" alt="Bild 2" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 2</p></div></div><div class="gal-item" onclick="openLightbox('gallery3.png','Bild 3','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery3.png" alt="Bild 3" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 3</p></div></div><div class="gal-item" onclick="openLightbox('gallery4.png','Bild 4','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery4.png" alt="Bild 4" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 4</p></div></div><div class="gal-item" onclick="openLightbox('gallery5.png','Bild 5','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery5.png" alt="Bild 5" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 5</p></div></div><div class="gal-item" onclick="openLightbox('gallery6.png','Bild 6','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery6.png" alt="Bild 6" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 6</p></div></div><div class="gal-item" onclick="openLightbox('gallery7.png','Bild 7','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery7.png" alt="Bild 7" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 7</p></div></div><div class="gal-item" onclick="openLightbox('gallery8.png','Bild 8','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery8.png" alt="Bild 8" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 8</p></div></div><div class="gal-item" onclick="openLightbox('gallery9.png','Bild 9','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery9.png" alt="Bild 9" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 9</p></div></div><div class="gal-item" onclick="openLightbox('gallery10.png','Bild 10','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery10.png" alt="Bild 10" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 10</p></div></div><div class="gal-item" onclick="openLightbox('gallery11.png','Bild 11','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery11.png" alt="Bild 11" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 11</p></div></div><div class="gal-item" onclick="openLightbox('gallery12.png','Bild 12','')" style="cursor:pointer;border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);transition:transform 0.25s,box-shadow 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''"><img src="gallery12.png" alt="Bild 12" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;" onerror="this.closest('.gal-item').style.display='none'"><div style="padding:0.75rem 1rem;"><p style="margin:0;font-weight:600;color:var(--text);font-size:0.95rem;">Bild 12</p></div></div><!--/LIRO:gallery-items-->
-    </div>
-  </div>
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
 
-  <div class="modal" id="modal-about" hidden aria-modal="true" role="dialog"><div class="modal__backdrop"></div><div class="modal__panel"><button class="modal__close" data-modal-close>×</button><h2 class="modal__title">Über mich</h2><div style="color:var(--text-muted);line-height:1.8;"><!--LIRO:bio-modal--><p>Moin — ich bin Liro, 19 Jahre alt aus Deutschland. In VRChat unterwegs, streame auf TikTok und mach Content auf TikTok. 🦊</p><p style="margin-top:1rem;">Ich bin eine direkte Person die gerne Quatsch macht. Tritt dem Discord bei oder schreib mich an!</p><!--/LIRO:bio-modal--></div></div></div>
-  <div class="modal" id="modal-collabs" hidden aria-modal="true" role="dialog"><div class="modal__backdrop"></div><div class="modal__panel"><button class="modal__close" data-modal-close>×</button><h2 class="modal__title">Kollegen & Freunde</h2><ul style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;list-style:none;padding:0;"><!--LIRO:collabs--><li><a href="https://www.tiktok.com/@fluffy_ryio" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/fluffy_ryio" alt="Ryio" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Ryio ↗</span></a></li><li><a href="https://www.tiktok.com/@dragonpro08" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/dragonpro08" alt="DragonPro" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">DragonPro ↗</span></a></li><li><a href="https://www.tiktok.com/@lynxi.vrc" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/lynxi.vrc" alt="Lynxi" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Lynxi ↗</span></a></li><li><a href="https://www.tiktok.com/@kieran.catto" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/kieran.catto" alt="Kieran" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Kieran ↗</span></a></li><li><a href="https://www.tiktok.com/@rakurimde" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/rakurimde" alt="Rakurim" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Rakurim ↗</span></a></li><li><a href="https://www.tiktok.com/@xarrax.official" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/xarrax.official" alt="Xarrax" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Xarrax ↗</span></a></li><!--/LIRO:collabs--></ul></div></div>
-  <div class="modal" id="modal-contact" hidden aria-modal="true" role="dialog"><div class="modal__backdrop"></div><div class="modal__panel"><button class="modal__close" data-modal-close>×</button><h2 class="modal__title">Kontakt</h2><div style="color:var(--text-muted);line-height:1.8;"><p><strong>E-Mail:</strong> <a href="mailto:liro.lol007@gmail.com" style="color:var(--accent);text-decoration:none;">Liro.lol007@gmail.com</a></p><p style="margin-top:1rem;"><strong>Discord:</strong> Schreib mich an!</p><p style="margin-top:1rem;"><strong>Telegram:</strong> @Liro025</p></div></div></div>
+  // Animate in
+  requestAnimationFrame(() => {
+    overlay.style.opacity = "1";
+    box.style.transform = "scale(1)";
+  });
 
-  <footer class="footer">
-    <nav class="footer-nav">
-      <button class="footer-nav__link" data-modal-open="about">Über mich</button>
-      <span class="footer-nav__sep">·</span>
-      <button class="footer-nav__link" data-modal-open="collabs">Kollegen</button>
-      <span class="footer-nav__sep">·</span>
-      <button class="footer-nav__link" data-modal-open="contact">Kontakt</button>
-    </nav>
-    <p class="footer__credit">Avatar Art by Liro</p>
-  </footer>
-  <script src="particles.js"></script>
-  <script src="cursor.js"></script>
-  <script src="site.js"></script>
-  <script src="pages.js"></script>
-</body>
-</html>
+  // ESC key
+  const onKey = (e) => { if (e.key === "Escape") { closeLightbox(overlay); document.removeEventListener("keydown", onKey); } };
+  document.addEventListener("keydown", onKey);
+}
+
+function closeLightbox(el) {
+  const overlay = el.closest ? el.closest("[style*=z-index]") : el;
+  if (!overlay) return;
+  const box = overlay.querySelector("div");
+  overlay.style.opacity = "0";
+  if (box) box.style.transform = "scale(0.85)";
+  setTimeout(() => overlay.remove(), 250);
+}
+
+/* ===== BLOG POST MODAL ===== */
+async function openBlogPost(id) {
+  const data = await loadSiteData();
+  const post = (data?.blogPosts || []).find(p => p.id === id);
+  if (!post) return;
+
+  const blocks = JSON.parse(post.content || "[]");
+  const blocksHtml = blocks.map(b => {
+    if (b.type === "text")    return `<p style="line-height:1.8;color:var(--text-muted);margin-bottom:1rem;">${b.content}</p>`;
+    if (b.type === "heading") return `<h3 style="font-size:1.5rem;margin:2rem 0 1rem;color:var(--accent);">${b.content}</h3>`;
+    if (b.type === "image")   return `<img src="${b.url}" style="width:100%;border-radius:8px;margin:1.5rem 0;">`;
+    return "";
+  }).join("");
+
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.setAttribute("aria-modal", "true");
+  modal.style.cssText = "display:flex!important;";
+  modal.innerHTML = `
+    <div class="modal__backdrop" onclick="this.parentElement.remove()"></div>
+    <div class="modal__panel">
+      <button class="modal__close" onclick="this.closest('.modal').remove()">×</button>
+      <h2 class="modal__title">${post.title}</h2>
+      <p style="color:var(--text-muted);margin-bottom:2rem;">📅 ${new Date(post.date).toLocaleDateString("de-DE")}</p>
+      ${blocksHtml}
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+/* ===== INIT ===== */
+window.addEventListener("load", () => {
+  initTheme();
+  if (document.getElementById("profile-name"))  initHomePage();
+  if (document.getElementById("page-content"))  initAboutPage();
+  if (document.getElementById("gallery-grid"))  initGalleryPage();
+  if (document.getElementById("blog-grid"))     initBlogPage();
+});
