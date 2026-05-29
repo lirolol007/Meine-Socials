@@ -373,17 +373,19 @@ function collectBlocks() {
     const type = div.dataset.type;
     if (type === "text") {
       const val = div.querySelector(".block-text")?.value;
-      const align = div.querySelector(".block-align:checked")?.value || "left";
+      const align = getOpt(div, [...div.querySelectorAll("[data-group]")].find(b=>b.dataset.group.startsWith("align"))?.dataset.group, "left");
       if (val) blocks.push({ type, content: val, align });
     } else if (type === "heading") {
       const val = div.querySelector(".block-heading")?.value;
-      const size = div.querySelector(".block-hsize:checked")?.value || "h2";
+      const size = getOpt(div, [...div.querySelectorAll("[data-group]")].find(b=>b.dataset.group.startsWith("hsize"))?.dataset.group, "h2");
       if (val) blocks.push({ type, content: val, size });
     } else if (type === "image") {
-      const url = div.querySelector(".block-img-url")?.value;
+      const url     = div.querySelector(".block-img-url")?.value;
       const caption = div.querySelector(".block-img-caption")?.value || "";
-      const position = div.querySelector(".block-pos:checked")?.value || "full";
-      const width = div.querySelector(".block-width:checked")?.value || "100";
+      const posGroup   = [...div.querySelectorAll("[data-group]")].find(b=>b.dataset.group.startsWith("pos"))?.dataset.group;
+      const widthGroup = [...div.querySelectorAll("[data-group]")].find(b=>b.dataset.group.startsWith("width"))?.dataset.group;
+      const position = getOpt(div, posGroup, "full");
+      const width    = getOpt(div, widthGroup, "100");
       if (url) blocks.push({ type, url, caption, position, width });
     } else if (type === "divider") {
       blocks.push({ type });
