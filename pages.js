@@ -1,3 +1,26 @@
+/* ===== THEME TOGGLE ===== */
+function initTheme() {
+  const saved = localStorage.getItem("theme") || "dark";
+  document.documentElement.setAttribute("data-theme", saved);
+  updateThemeBtn(saved);
+
+  const btn = document.getElementById("theme-toggle");
+  if (!btn) return;
+
+  btn.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") || "dark";
+    const next = current === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+    updateThemeBtn(next);
+  });
+}
+
+function updateThemeBtn(theme) {
+  const btn = document.getElementById("theme-toggle");
+  if (btn) btn.textContent = theme === "dark" ? "🌙" : "☀️";
+}
+
 /* ===== LOAD SITE DATA FROM GITHUB (optional) ===== */
 async function loadSiteData() {
   try {
