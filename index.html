@@ -3,162 +3,154 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liro — Links</title>
-  <meta name="description" content="VRChat, Streams & Community — alle Links von Liro.">
-  <meta property="og:title" content="Liro — Links">
-  <meta property="og:description" content="TikTok, Discord, Twitch, YouTube & mehr.">
-  <meta property="og:image" content="profile.jpg">
-  <meta property="og:type" content="website">
-  <link rel="icon" href="profile.jpg" type="image/jpeg">
+  <title>Liro — Socials</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="cursor-glow" id="cursor-glow"></div>
-  <div class="bg-glow bg-glow--1"></div>
-  <div class="bg-glow bg-glow--2"></div>
-  <canvas class="particles" id="particles" aria-hidden="true"></canvas>
+  <div id="canvas-container"></div>
 
-  <nav class="nav">
-    <div class="nav__inner">
-      <a href="/" class="nav__logo">🦊 Liro</a>
-      <ul class="nav__links" id="top-nav-links">
-        <li><a href="/" class="nav__link active">Home</a></li>
-        <li><a href="/about.html" class="nav__link">Über mich</a></li>
-        <li><a href="/gallery.html" class="nav__link">Galerie</a></li>
-        <li><a href="/blog.html" class="nav__link">Blog</a></li>
-      </ul>
-      <button class="nav__theme" id="theme-toggle">🌙</button>
-      <button class="nav__toggle" id="nav-toggle">☰</button>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">LIRO</a>
+      <div class="nav-links" id="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="about.html">Über mich</a>
+        <a href="gallery.html">Galerie</a>
+        <a href="blog.html">Blog</a>
+      </div>
+      <div class="nav-actions">
+        <button id="theme-toggle" class="btn-icon" aria-label="Theme umschalten">🌙</button>
+        <button id="mobile-menu-btn" class="btn-icon hamburger" aria-label="Menü öffnen">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
     </div>
   </nav>
 
-  <div class="main-content">
-    <div class="profile-section">
-      <div class="avatar-wrap">
-        <img class="avatar" src="profile.jpg" alt="Liro Avatar" loading="lazy">
+  <!-- Main Grid Layout -->
+  <main class="main-layout container">
+    <!-- Links: Profil Karte -->
+    <aside class="profile-card">
+      <div class="avatar-wrapper">
+        <img src="profile.jpg" alt="Liro Avatar" class="profile-avatar">
       </div>
-      <h1 class="name"><!--LIRO:name-->Liro<!--/LIRO:name--></h1>
-      <p class="badge"><!--LIRO:badge-->VRChat Creator<!--/LIRO:badge--></p>
-      <div class="tags"><!--LIRO:tags--><span class="tag">🦊 Fox</span><span class="tag">VR</span><span class="tag">DE</span><span class="tag">Meow :3</span><!--/LIRO:tags--></div>
+      <h1 class="profile-name"><!--LIRO:name-->Liro<!--/LIRO:name--></h1>
+      <span class="badge"><!--LIRO:badge-->TikTok Creator<!--/LIRO:badge--></span>
       <p class="catchphrase"><!--LIRO:catchphrase-->So ein Furry oder so... :3<!--/LIRO:catchphrase--></p>
-      <p class="bio"><!--LIRO:bio-->VRChat · Streams · Content<!--/LIRO:bio--></p>
-    </div>
+      
+      <div class="tags-container">
+        <!--LIRO:tags-->
+        <span class="tag">19 Jahre</span>
+        <span class="tag">1,78m</span>
+        <span class="tag">🇩🇪 DE</span>
+        <!--/LIRO:tags-->
+      </div>
 
-    <div class="links-section">
-      <a href="https://www.tiktok.com/@liro7160" target="_blank" rel="noopener noreferrer" class="link-card featured">
-        <div class="link-card__icon"><img src="icons/tiktok.svg" alt="TikTok"></div>
-        <div class="link-card__content">
-          <span class="link-card__label"><!--LIRO:link-tiktok-label-->TikTok<!--/LIRO:link-tiktok-label--></span>
-          <span class="link-card__hint"><!--LIRO:link-tiktok-hint-->Hauptplattform — @liro7160<!--/LIRO:link-tiktok-hint--></span>
-        </div>
-        <span class="link-card__arrow">→</span>
-      </a>
-      <a href="https://discord.com/invite/FnrmxadcVp" target="_blank" rel="noopener noreferrer" class="link-card">
-        <div class="link-card__icon"><img src="icons/discord.svg" alt="Discord"></div>
-        <div class="link-card__content">
-          <span class="link-card__label"><!--LIRO:link-discord-label-->Discord<!--/LIRO:link-discord-label--></span>
-          <span class="link-card__hint"><!--LIRO:link-discord-hint-->Liro/Ryio Community Server<!--/LIRO:link-discord-hint--></span>
-        </div>
-        <span class="link-card__arrow">→</span>
-      </a>
-      <a href="https://www.twitch.tv/lirooo0" target="_blank" rel="noopener noreferrer" class="link-card">
-        <div class="link-card__icon"><img src="icons/twitch.svg" alt="Twitch"></div>
-        <div class="link-card__content">
-          <span class="link-card__label"><!--LIRO:link-twitch-label-->Twitch<!--/LIRO:link-twitch-label--></span>
-          <span class="link-card__hint"><!--LIRO:link-twitch-hint-->Streams & Just Chatting<!--/LIRO:link-twitch-hint--></span>
-        </div>
-        <span class="link-card__arrow">→</span>
-      </a>
-      <a href="https://www.youtube.com/@Liro_LOL" target="_blank" rel="noopener noreferrer" class="link-card">
-        <div class="link-card__icon"><img src="icons/youtube.svg" alt="YouTube"></div>
-        <div class="link-card__content">
-          <span class="link-card__label"><!--LIRO:link-youtube-label-->YouTube<!--/LIRO:link-youtube-label--></span>
-          <span class="link-card__hint"><!--LIRO:link-youtube-hint--><!--/LIRO:link-youtube-hint--></span>
-        </div>
-        <span class="link-card__arrow">→</span>
-      </a>
-      <a href="https://t.me/Liro025" target="_blank" rel="noopener noreferrer" class="link-card">
-        <div class="link-card__icon"><img src="icons/telegram.svg" alt="Telegram"></div>
-        <div class="link-card__content">
-          <span class="link-card__label"><!--LIRO:link-telegram-label-->Telegram<!--/LIRO:link-telegram-label--></span>
-          <span class="link-card__hint"><!--LIRO:link-telegram-hint-->@Liro025<!--/LIRO:link-telegram-hint--></span>
-        </div>
-        <span class="link-card__arrow">→</span>
-      </a>
-      <a href="https://vrchat.com/home/user/usr_2e3bf4e4-1234-5678-9abc-def012345678" target="_blank" rel="noopener noreferrer" class="link-card">
-        <div class="link-card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:30px;height:30px;">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-          </svg>
-        </div>
-        <div class="link-card__content">
-          <span class="link-card__label"><!--LIRO:link-vrchat-label-->VRChat<!--/LIRO:link-vrchat-label--></span>
-          <span class="link-card__hint"><!--LIRO:link-vrchat-hint-->Add mich — Liro0<!--/LIRO:link-vrchat-hint--></span>
-        </div>
-        <span class="link-card__arrow">→</span>
-      </a>
-      <a href="https://ko-fi.com/liro0" target="_blank" rel="noopener noreferrer" class="link-card">
-        <div class="link-card__icon"><img src="icons/kofi.svg" alt="Ko-fi"></div>
-        <div class="link-card__content">
-          <span class="link-card__label"><!--LIRO:link-kofi-label-->Ko-fi<!--/LIRO:link-kofi-label--></span>
-          <span class="link-card__hint"><!--LIRO:link-kofi-hint-->Ko-fi Seite<!--/LIRO:link-kofi-hint--></span>
-        </div>
-        <span class="link-card__arrow">→</span>
-      </a>
+      <p class="profile-bio"><!--LIRO:bio-->Willkommen auf meiner Seite! Hier findest du alle meine Socials und aktuellen Links.<!--/LIRO:bio--></p>
+    </aside>
+
+    <!-- Rechts: Social Links -->
+    <section class="links-section">
+      <div class="links-grid">
+        <a href="https://www.tiktok.com/@liro7160" target="_blank" rel="noopener" class="social-link-btn">
+          <img src="icons/tiktok.svg" alt="TikTok" class="link-icon">
+          <div class="link-text">
+            <span class="link-title"><!--LIRO:link-tiktok-label-->TikTok<!--/LIRO:link-tiktok-label--></span>
+            <span class="link-hint"><!--LIRO:link-tiktok-hint-->@liro7160 (Hauptkanal)<!--/LIRO:link-tiktok-hint--></span>
+          </div>
+        </a>
+
+        <a href="#" target="_blank" rel="noopener" class="social-link-btn">
+          <img src="icons/discord.svg" alt="Discord" class="link-icon">
+          <div class="link-text">
+            <span class="link-title"><!--LIRO:link-discord-label-->Discord<!--/LIRO:link-discord-label--></span>
+            <span class="link-hint"><!--LIRO:link-discord-hint-->Community Server<!--/LIRO:link-discord-hint--></span>
+          </div>
+        </a>
+
+        <a href="#" target="_blank" rel="noopener" class="social-link-btn">
+          <img src="icons/youtube.svg" alt="YouTube" class="link-icon">
+          <div class="link-text">
+            <span class="link-title"><!--LIRO:link-youtube-label-->YouTube<!--/LIRO:link-youtube-label--></span>
+            <span class="link-hint"><!--LIRO:link-youtube-hint-->Videos & Highlights<!--/LIRO:link-youtube-hint--></span>
+          </div>
+        </a>
+
+        <a href="#" target="_blank" rel="noopener" class="social-link-btn">
+          <img src="icons/telegram.svg" alt="Telegram" class="link-icon">
+          <div class="link-text">
+            <span class="link-title"><!--LIRO:link-telegram-label-->Telegram<!--/LIRO:link-telegram-label--></span>
+            <span class="link-hint"><!--LIRO:link-telegram-hint-->Chat & News<!--/LIRO:link-telegram-hint--></span>
+          </div>
+        </a>
+
+        <a href="#" target="_blank" rel="noopener" class="social-link-btn">
+          <img src="icons/kofi.svg" alt="Ko-fi" class="link-icon">
+          <div class="link-text">
+            <span class="link-title"><!--LIRO:link-kofi-label-->Ko-fi<!--/LIRO:link-kofi-label--></span>
+            <span class="link-hint"><!--LIRO:link-kofi-hint-->Unterstütze mich!<!--/LIRO:link-kofi-hint--></span>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer & Modals -->
+  <footer class="footer">
+    <div class="footer-content">
+      <button data-modal-open="modal-about" class="footer-btn">Über mich</button>
+      <button data-modal-open="modal-collabs" class="footer-btn">Kollegen</button>
+      <button data-modal-open="modal-contact" class="footer-btn">Kontakt</button>
+    </div>
+  </footer>
+
+  <!-- Modal: Über mich -->
+  <div id="modal-about" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" data-modal-close>&times;</button>
+      <h2>Über mich</h2>
+      <div class="modal-body">
+        <!--LIRO:bio-modal-->
+        <p>Hey! Ich bin Leon / Liro, 19 Jahre alt. Ich erstelle Content auf TikTok!</p>
+        <!--/LIRO:bio-modal-->
+      </div>
     </div>
   </div>
 
-  <!-- Modals -->
-  <div class="modal" id="modal-about" hidden aria-modal="true" role="dialog">
-    <div class="modal__backdrop"></div>
-    <div class="modal__panel">
-      <button class="modal__close" data-modal-close>×</button>
-      <h2 class="modal__title">Über mich</h2>
-      <div style="color:var(--text-muted);line-height:1.8;"><!--LIRO:bio-modal--><p>Moin — ich bin Liro, 19 Jahre alt aus Deutschland. In VRChat unterwegs, streame auf TikTok und mach Content auf TikTok. :3</p><p style="margin-top:1rem;">Ich bin eine direkte Person die gerne Quatsch macht. Tritt dem Discord bei oder schreib mich an!</p><!--/LIRO:bio-modal--></div>
-    </div>
-  </div>
-
-  <div class="modal" id="modal-collabs" hidden aria-modal="true" role="dialog">
-    <div class="modal__backdrop"></div>
-    <div class="modal__panel">
-      <button class="modal__close" data-modal-close>×</button>
-      <h2 class="modal__title">Kollegen & Freunde</h2>
-      <ul class="collab-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;list-style:none;padding:0;">
-        <!--LIRO:collabs--><li><a href="https://www.tiktok.com/@fluffy_ryio" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/fluffy_ryio" alt="Ryio" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Ryio ↗</span></a></li><li><a href="https://www.tiktok.com/@dragonpro08" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/dragonpro08" alt="DragonPro" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">DragonPro ↗</span></a></li><li><a href="https://www.tiktok.com/@lynxi.vrc" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/lynxi.vrc" alt="Lynxi" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Lynxi ↗</span></a></li><li><a href="https://www.tiktok.com/@kieran.catto" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/kieran.catto" alt="Kieran" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Kieran ↗</span></a></li><li><a href="https://www.tiktok.com/@rakurimde" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/rakurimde" alt="Rakurim" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Rakurim ↗</span></a></li><li><a href="https://www.tiktok.com/@xarrax.official" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;"><img src="https://unavatar.io/tiktok/xarrax.official" alt="Xarrax" style="width:80px;height:80px;border-radius:50%;object-fit:cover;" onerror="this.src='profile.jpg'"><span style="color:var(--accent);font-weight:600;font-size:0.9rem;">Xarrax ↗</span></a></li><!--/LIRO:collabs-->
+  <!-- Modal: Kollegen -->
+  <div id="modal-collabs" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" data-modal-close>&times;</button>
+      <h2>Kollegen</h2>
+      <ul class="collabs-list">
+        <!--LIRO:collabs-->
+        <li>
+          <a href="https://www.tiktok.com/@fluffy_ryio" target="_blank" rel="noopener">
+            <img src="https://unavatar.io/tiktok/fluffy_ryio" alt="Ryio" onerror="this.src='profile.jpg'">
+            <span>Ryio ↗</span>
+          </a>
+        </li>
+        <!--/LIRO:collabs-->
       </ul>
     </div>
   </div>
 
-  <div class="modal" id="modal-contact" hidden aria-modal="true" role="dialog">
-    <div class="modal__backdrop"></div>
-    <div class="modal__panel">
-      <button class="modal__close" data-modal-close>×</button>
-      <h2 class="modal__title">Kontakt</h2>
-      <div style="color:var(--text-muted);line-height:1.8;">
-        <p><strong>E-Mail:</strong> <a href="mailto:liro.lol007@gmail.com" style="color:var(--accent);text-decoration:none;">Liro.lol007@gmail.com</a></p>
-        <p style="margin-top:1rem;"><strong>Discord:</strong> Schreib mich an oder tritt dem Server bei!</p>
-        <p style="margin-top:1rem;"><strong>Telegram:</strong> @Liro025</p>
-      </div>
+  <!-- Modal: Kontakt -->
+  <div id="modal-contact" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" data-modal-close>&times;</button>
+      <h2>Kontakt</h2>
+      <p>E-Mail: <a href="mailto:Liro.lol007@gmail.com">Liro.lol007@gmail.com</a></p>
     </div>
   </div>
 
-  <footer class="footer">
-    <nav class="footer-nav">
-      <button class="footer-nav__link" data-modal-open="about">Über mich</button>
-      <span class="footer-nav__sep">·</span>
-      <button class="footer-nav__link" data-modal-open="collabs">Kollegen</button>
-      <span class="footer-nav__sep">·</span>
-      <button class="footer-nav__link" data-modal-open="contact">Kontakt</button>
-    </nav>
-    <p class="footer__credit">Avatar Art by Liro</p>
-  </footer>
-
-  <script src="particles.js"></script>
   <script src="cursor.js"></script>
-  <script src="site.js"></script>
+  <script src="particles.js"></script>
   <script src="pages.js"></script>
+  <script src="site.js"></script>
 </body>
 </html>
